@@ -9,13 +9,13 @@ from PIL import Image
 from get_faces_of import GetFaces
 from get_groups_of import GetGroups
 
-# run with: waitress-serve --host 127.0.0.1 --port=5000 server:app
+# run with: waitress-serve --host 127.0.0.1 --port=5000 --threads=12 server:app
 
 app = Flask(__name__, template_folder="web")
 CORS(app)
 root_photos_path = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
-media_per_page = 500
-
+media_per_page = 5000
+get_faces = GetFaces()
 
 """
 Return structure for media is:
@@ -56,21 +56,38 @@ def serve_pil_image(pil_img):
 
 @app.route('/get_by_id/<id>')
 def get_photos_id(id):
-    media = {}
+    media = {
+        "files": []
+    }
     
     for img in get_faces.get_face_by_id(id):
-        media[img[0]] = img[1]
-        media[img[0]]["type"] = "pic"
+        media["files"].append(
+            {
+                "path": img[0],
+                "type": "pic",
+                "closeness": img[1],
+            }
+        )
+
+    media["event_name"] = "Photo de " + id
+    media["association"] = "IA"
 
     return jsonify(media)
 
 @app.route('/get_by_name/<name>')
 def get_photos_name(name):
-    media = {}
+    media = {
+        "files": []
+    }
     
     for img in get_faces.get_face_by_name(name):
-        media[img[0]] = img[1]
-        media[img[0]]["type"] = "pic"
+        media["files"].append(
+            {
+                "path": img[0],
+                "type": "pic",
+                "closeness": img[1]["closeness"],
+            }
+        )
 
     media["event_name"] = "Photo de " + name.capitalize()
     media["association"] = "IA"
@@ -84,12 +101,14 @@ def get_media(filename):
     if isfile(filename): #TODO: only for images for now
         #FIXME: image orientation is lost...
         image = Image.open(filename)
-        image = image.resize((round(image.size[0]/2), round(image.size[1]/2)),Image.Resampling.LANCZOS)
+        image = image.resize((500, round(image.size[1]/(image.size[0]/500))),Image.Resampling.NEAREST)
         
         return serve_pil_image(image) #send_file(filename, mimetype='image/png')
     
     # It is a dir
-    media = {}
+    media = {
+        "files": []
+    }
     groups = GetGroups(filename)
     page_nb = 1 if request.args.get('page_nb')==None else request.args.get('page_nb')
     page_nb = int(page_nb)
@@ -103,25 +122,27 @@ def get_media(filename):
             break
         
         path = join(filename, f)
+        media_data = {
+            "path": path,
+        }
         if isfile(path):
             if imghdr.what(path) == "jpeg" and groups.is_not_in_group(path):
-                media[path] = {
-                    "type": "pic"
-                }
+                media_data["type"] = "pic"
             elif f != ".meta" and f != ".people": #TODO: check if it is really a video
-                media[path] = {
-                    "type": "vid"
-                }
+                media_data["type"] = "vid"
         elif isdir(path):
-            media[path] = {"type": "dir"}
+            media_data["type"] = "dir"
             
             with open(join(path, ".meta"), 'r', encoding='utf-8') as file:
                 data = json.load(file)
                 for label in data:
                     if label == "thumbnail":
-                        media[path][label] = join(path, data[label])
+                        media_data[label] = join(path, data[label])
                     else:
-                        media[path][label] = data[label]
+                        media_data[label] = data[label]
+        
+        if "type" in media_data:
+            media["files"].append(media_data)
     
     # Global info on dir
     with open(join(filename, ".meta"), 'r', encoding='utf-8') as file:
@@ -134,5 +155,4 @@ def get_media(filename):
     return response
 
 if __name__ == '__main__':
-    get_faces = GetFaces()
     app.run()

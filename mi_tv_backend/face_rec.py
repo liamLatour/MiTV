@@ -170,7 +170,7 @@ class Photos(Images):
       # Remove it from ref
       if old_face_path in ref_data and "seen_in" in ref_data[old_face_path] and path in ref_data[old_face_path]["seen_in"]:
          del ref_data[old_face_path]["seen_in"][path]
-         
+      
       with open(ref_meta_path, 'wb') as f:
          pickle.dump(ref_data, f)
 

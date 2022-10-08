@@ -1,0 +1,16 @@
+@import "./base.css";
+
+body {
+  color: white;
+}
+
+a {
+  text-decoration: none;
+  color: rgb(157, 234, 248);
+}
+
+@media (hover: hover) {
+  a:hover {
+    color: rgb(155, 235, 235);
+  }
+}

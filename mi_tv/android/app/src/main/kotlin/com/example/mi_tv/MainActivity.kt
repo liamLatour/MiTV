@@ -1,6 +1,0 @@
-package com.example.mi_tv
-
-import io.flutter.embedding.android.FlutterActivity
-
-class MainActivity: FlutterActivity() {
-}
