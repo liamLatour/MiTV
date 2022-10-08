@@ -11,8 +11,7 @@ class GetGroups():
                 self.data = pickle.load(f)
         else:
             self.data = None
-            
-        
+    
     def is_not_in_group(self, img_path):
         if self.data == None:
             return True

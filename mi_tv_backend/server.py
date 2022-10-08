@@ -1,4 +1,4 @@
-from flask import Flask, send_file, jsonify, send_from_directory, render_template
+from flask import Flask, send_file, jsonify, send_from_directory, render_template, request
 from flask_cors import CORS
 from io import BytesIO 
 from os import listdir
@@ -14,6 +14,8 @@ from get_groups_of import GetGroups
 app = Flask(__name__, template_folder="web")
 CORS(app)
 root_photos_path = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
+media_per_page = 500
+
 
 """
 Return structure for media is:
@@ -89,15 +91,23 @@ def get_media(filename):
     # It is a dir
     media = {}
     groups = GetGroups(filename)
+    page_nb = 1 if request.args.get('page_nb')==None else request.args.get('page_nb')
+    page_nb = int(page_nb)
+    i = 0
     
     for f in listdir(filename):
+        i += 1
+        if i < (page_nb-1)*media_per_page:
+            continue
+        if i >= page_nb*media_per_page:
+            break
+        
         path = join(filename, f)
         if isfile(path):
-            if imghdr.what(path) == "jpeg":
-                if groups.is_not_in_group(path):
-                    media[path] = {
-                        "type": "pic"
-                    }
+            if imghdr.what(path) == "jpeg" and groups.is_not_in_group(path):
+                media[path] = {
+                    "type": "pic"
+                }
             elif f != ".meta" and f != ".people": #TODO: check if it is really a video
                 media[path] = {
                     "type": "vid"
@@ -113,6 +123,7 @@ def get_media(filename):
                     else:
                         media[path][label] = data[label]
     
+    # Global info on dir
     with open(join(filename, ".meta"), 'r', encoding='utf-8') as file:
         data = json.load(file)
         for label in data:
@@ -124,5 +135,4 @@ def get_media(filename):
 
 if __name__ == '__main__':
     get_faces = GetFaces()
-    
     app.run()
