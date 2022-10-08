@@ -1,0 +1,8 @@
+.vscode
+.venv
+mi_tv_backend/web/
+mi_tv_backend/photos/
+mi_tv_backend/people_ref/
+*/.people
+__pycache__
+*.mp4
