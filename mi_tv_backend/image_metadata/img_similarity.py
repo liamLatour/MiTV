@@ -69,5 +69,5 @@ class ImageSimilarity():
             else:
                 stoped = True
             last_img = cur_img
-            
+
 #mark_similar("C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos\\photo_desinté")

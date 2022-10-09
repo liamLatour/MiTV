@@ -27,8 +27,6 @@ export default {
           url += this.$route.params.path[i] + "/";
         }
 
-        console.log(url);
-
         const response = await axios.get(url);
 
         this.items = response.data.files;

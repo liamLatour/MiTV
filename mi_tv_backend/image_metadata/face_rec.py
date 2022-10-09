@@ -8,7 +8,7 @@ import pickle
 import face_recognition
 import numpy as np
 from img_similarity import ImageSimilarity
-import multiprocessing
+
 
 #TODO: Only treats jpeg for now
 #TODO: reduce img size to accelerate process (maybe)
@@ -22,7 +22,7 @@ encoding_version = 1
 # Cant do similarity in parallel unless I parallelize folders
 
 class Images():
-   def __init__(self, paths, sim=None) -> None:   
+   def __init__(self, paths, sim=None):   
       self.sim = sim
       #self.pool = multiprocessing.Pool()
       for path in paths:
@@ -30,9 +30,7 @@ class Images():
    
    def parse_imgs(self, path):
       if isfile(path) and imghdr.what(path) == "jpeg":
-         
          self.treat_img(self.sanitize(path))
-         
       elif isdir(path):
          for f in listdir(path):
             self.parse_imgs(join(path, f))

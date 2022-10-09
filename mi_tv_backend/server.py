@@ -6,8 +6,9 @@ from os.path import isfile, join, isdir, abspath
 import imghdr
 import json
 from PIL import Image, ImageOps
-from get_faces_of import GetFaces
-from get_groups_of import GetGroups
+from image_metadata.get_faces_of import GetFaces
+from image_metadata.get_groups_of import GetGroups
+from image_metadata.img_orientation import GetOrientation
 
 # run with: waitress-serve --host 127.0.0.1 --port=5000 --threads=12 server:app
 
@@ -114,6 +115,8 @@ def get_architecture(dirname):
     media = {
         "files": []
     }
+    
+    orientation = GetOrientation(dirname)
     groups = GetGroups(dirname)
     page_nb = 1 if request.args.get('page_nb')==None else request.args.get('page_nb')
     page_nb = int(page_nb)
@@ -133,7 +136,7 @@ def get_architecture(dirname):
         if isfile(path):
             if imghdr.what(path) == "jpeg" and groups.is_not_in_group(path):
                 media_data["type"] = "pic"
-                media_data["is_portrait"] = False#is_portrait(path)
+                media_data["is_portrait"] = orientation.is_portrait(path)
             elif f != ".meta" and f != ".people": #TODO: check if it is really a video
                 media_data["type"] = "vid"
         elif isdir(path):
@@ -148,12 +151,6 @@ def get_architecture(dirname):
 
     response = jsonify(media)
     return response
-
-#TODO: Maybe put that in metadata for faster access
-def is_portrait(path):
-    image = Image.open(path)
-    image = ImageOps.exif_transpose(image)
-    return image.size[1] > image.size[0]
 
 def add_dir_info(path, meta):
     with open(join(path, ".meta"), 'r', encoding='utf-8') as file:
