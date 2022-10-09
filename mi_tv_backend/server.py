@@ -5,7 +5,7 @@ from os import listdir
 from os.path import isfile, join, isdir, abspath
 import imghdr
 import json
-from PIL import Image
+from PIL import Image, ImageOps
 from get_faces_of import GetFaces
 from get_groups_of import GetGroups
 
@@ -46,12 +46,13 @@ def render_page_web():
 def return_flutter_doc(name):
     return send_from_directory("web", name)
 
-# Serves media
+# Serve media
 
 def serve_pil_image(pil_img):
     img_io = BytesIO()
     pil_img.save(img_io, 'JPEG', quality=90)
     img_io.seek(0)
+    
     return send_file(img_io, mimetype='image/jpeg')
 
 @app.route('/get_by_id/<id>')
@@ -99,8 +100,8 @@ def get_media(filename):
     
     # Serves pure media
     if isfile(filename): #TODO: only for images for now
-        #FIXME: image orientation is lost...
         image = Image.open(filename)
+        image = ImageOps.exif_transpose(image)
         image = image.resize((500, round(image.size[1]/(image.size[0]/500))),Image.Resampling.NEAREST)
         
         return serve_pil_image(image) #send_file(filename, mimetype='image/png')
