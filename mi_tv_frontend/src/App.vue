@@ -14,13 +14,15 @@
 
 <script setup lang="ts">
 import { RouterLink, RouterView } from "vue-router";
-import HelloWorld from "./components/HelloWorld.vue";
 </script>
 
 <style lang="scss">
 .navbar {
+  position: absolute;
+  width: 100%;
   height: 65px;
   background-color: rgb(39, 36, 36);
+  z-index: 10;
 
   .navbar-content {
     max-width: 1070px;
