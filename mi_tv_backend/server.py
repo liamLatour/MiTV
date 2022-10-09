@@ -95,40 +95,45 @@ def get_photos_name(name):
 
     return jsonify(media)
 
+#TODO: only for images for now
+@app.route('/media_low_res/<path:filename>')
+def get_media_low_res(filename):
+    image = Image.open(filename)
+    image = ImageOps.exif_transpose(image)
+    image = image.resize((500, round(image.size[1]/(image.size[0]/500))),Image.Resampling.NEAREST)
+    
+    return serve_pil_image(image) #send_file(filename, mimetype='image/png')
+
 @app.route('/media/<path:filename>')
 def get_media(filename):
-    
-    # Serves pure media
-    if isfile(filename): #TODO: only for images for now
-        image = Image.open(filename)
-        image = ImageOps.exif_transpose(image)
-        image = image.resize((500, round(image.size[1]/(image.size[0]/500))),Image.Resampling.NEAREST)
-        
-        return serve_pil_image(image) #send_file(filename, mimetype='image/png')
-    
-    # It is a dir
+
+    return send_file(filename, mimetype='image/png')
+
+@app.route('/architecture/<path:dirname>')
+def get_architecture(dirname):
     media = {
         "files": []
     }
-    groups = GetGroups(filename)
+    groups = GetGroups(dirname)
     page_nb = 1 if request.args.get('page_nb')==None else request.args.get('page_nb')
     page_nb = int(page_nb)
     i = 0
     
-    for f in listdir(filename):
+    for f in listdir(dirname):
         i += 1
         if i < (page_nb-1)*media_per_page:
             continue
         if i >= page_nb*media_per_page:
             break
     
-        path = join(filename, f)
+        path = join(dirname, f)
         media_data = {
             "path": path,
         }
         if isfile(path):
             if imghdr.what(path) == "jpeg" and groups.is_not_in_group(path):
                 media_data["type"] = "pic"
+                media_data["is_portrait"] = False#is_portrait(path)
             elif f != ".meta" and f != ".people": #TODO: check if it is really a video
                 media_data["type"] = "vid"
         elif isdir(path):
@@ -139,10 +144,16 @@ def get_media(filename):
             media["files"].append(media_data)
     
     # Global info on dir
-    media = add_dir_info(filename, media)
+    media = add_dir_info(dirname, media)
 
     response = jsonify(media)
     return response
+
+#TODO: Maybe put that in metadata for faster access
+def is_portrait(path):
+    image = Image.open(path)
+    image = ImageOps.exif_transpose(image)
+    return image.size[1] > image.size[0]
 
 def add_dir_info(path, meta):
     with open(join(path, ".meta"), 'r', encoding='utf-8') as file:
@@ -153,6 +164,6 @@ def add_dir_info(path, meta):
             else:
                 meta[label] = data[label]
     return meta
-    
+
 if __name__ == '__main__':
     app.run()

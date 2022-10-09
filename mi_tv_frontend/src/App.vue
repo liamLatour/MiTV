@@ -2,10 +2,10 @@
   <div class="navbar">
     <div class="navbar-content">
       <a href="#">Dernières photos</a>
-      <a href="#">L'équipe</a>
+      <a href="/#team">L'équipe</a>
       <a href="/" class="title">MiTV</a>
-      <a href="#">Le matériel</a>
-      <a href="#">Mentions légales</a>
+      <a href="/#hardware">Le matériel</a>
+      <a href="/#legal">Mentions légales</a>
     </div>
   </div>
 
@@ -19,6 +19,7 @@ import { RouterLink, RouterView } from "vue-router";
 <style lang="scss">
 .navbar {
   position: absolute;
+  top: 0;
   width: 100%;
   height: 65px;
   background-color: rgb(39, 36, 36);

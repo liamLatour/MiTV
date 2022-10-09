@@ -21,11 +21,13 @@ export default {
   methods: {
     async getMedias() {
       try {
-        let url = "http://127.0.0.1:5000/media/";
+        let url = "http://127.0.0.1:5000/architecture/";
 
         for (let i in this.$route.params.path) {
           url += this.$route.params.path[i] + "/";
         }
+
+        console.log(url);
 
         const response = await axios.get(url);
 
@@ -57,6 +59,7 @@ export default {
 
   .eventname {
     font-size: 70px;
+    margin-top: 80px;
   }
 }
 </style>

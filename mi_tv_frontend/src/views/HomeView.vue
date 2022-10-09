@@ -1,13 +1,13 @@
 <template>
-  <div class="landing fullpage">
+  <div id="landing" class="fullpage">
     <img src="../assets/paysage.jpg" alt="" />
     <div class="tagline">
       <h2>Rendre vos années mémorables</h2>
       <a href="/photos/photos">Voir les photos</a>
     </div>
   </div>
-  <div class="team fullpage">
-    <h2>L'équipe</h2>
+  <div id="team" class="fullpage">
+    <h2 class="title">L'équipe</h2>
     <div class="members">
       <Member role="Trésorier" nom="PHALIPPOU--GELABERT" prenom="Donatien" />
       <Member role="Président" nom="CHAZALON" prenom="Louis" />
@@ -24,8 +24,22 @@
       <Member role="Membre" nom="GUERIN" prenom="Gabriel" />
     </div>
   </div>
-  <div class="hardware fullpage"></div>
-  <div class="legal fullpage">
+  <div id="hardware" class="fullpage">
+    <h2 class="title">Le matériel</h2>
+    <div class="gearlist">
+      <PhotoGear
+        type="Appareil photo"
+        name="Nikon d3500"
+        reference="Reflex Nikon D3500 Noir"
+      />
+      <PhotoGear type="Membre" name="GUERIN" reference="Gabriel" />
+      <PhotoGear type="Membre" name="GUERIN" reference="Gabriel" />
+      <PhotoGear type="Membre" name="GUERIN" reference="Gabriel" />
+    </div>
+  </div>
+  <div id="legal" class="fullpage">
+    <h2 class="title">Mention légales</h2>
+
     <!--https://entreprendre.service-public.fr/vosdroits/F31228/personnalisation/resultat?lang=&quest0=0&quest=-->
     <h1>C'est pas de nôtre faute</h1>
     <p>Je te promet si tu fais de la merde je te casse la gueule</p>
@@ -34,11 +48,13 @@
 
 <script lang="ts">
 import Member from "../components/Member.vue";
+import PhotoGear from "../components/PhotoGear.vue";
 
 export default {
   name: "HomeView",
   components: {
     Member: Member,
+    PhotoGear: PhotoGear,
   },
 };
 </script>
@@ -49,16 +65,17 @@ export default {
   overflow: clip;
 }
 
-.team {
+.title {
+  font-size: 3em;
+  font-weight: 700;
+  margin: auto;
+  text-align: center;
+  padding: 20px;
+  margin-bottom: 50px;
+}
+
+#team {
   background-color: rgb(34, 26, 26);
-  h2 {
-    font-size: 3em;
-    font-weight: 700;
-    margin: auto;
-    text-align: center;
-    padding: 20px;
-    margin-bottom: 50px;
-  }
 
   hr {
     width: 60%;
@@ -79,11 +96,21 @@ export default {
   }
 }
 
-.hardware {
+#hardware {
   background-color: rgb(25, 25, 32);
+
+  .gearlist {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-wrap: wrap;
+
+    width: 70%;
+    margin: auto;
+  }
 }
 
-.landing {
+#landing {
   img {
     min-width: 100%;
     min-height: 100%;
