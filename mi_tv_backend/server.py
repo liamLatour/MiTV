@@ -121,7 +121,7 @@ def get_media(filename):
             continue
         if i >= page_nb*media_per_page:
             break
-        
+    
         path = join(filename, f)
         media_data = {
             "path": path,
@@ -133,27 +133,26 @@ def get_media(filename):
                 media_data["type"] = "vid"
         elif isdir(path):
             media_data["type"] = "dir"
-            
-            with open(join(path, ".meta"), 'r', encoding='utf-8') as file:
-                data = json.load(file)
-                for label in data:
-                    if label == "thumbnail":
-                        media_data[label] = join(path, data[label])
-                    else:
-                        media_data[label] = data[label]
+            media_data = add_dir_info(path, media_data)
         
         if "type" in media_data:
             media["files"].append(media_data)
     
     # Global info on dir
-    with open(join(filename, ".meta"), 'r', encoding='utf-8') as file:
-        data = json.load(file)
-        for label in data:
-            if label == "event_name" or label == "association":
-                media[label] = data[label]
+    media = add_dir_info(filename, media)
 
     response = jsonify(media)
     return response
 
+def add_dir_info(path, meta):
+    with open(join(path, ".meta"), 'r', encoding='utf-8') as file:
+        data = json.load(file)
+        for label in data:
+            if label == "thumbnail":
+                meta[label] = join(path, data[label])
+            else:
+                meta[label] = data[label]
+    return meta
+    
 if __name__ == '__main__':
     app.run()
