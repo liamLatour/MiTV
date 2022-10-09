@@ -7,7 +7,6 @@ from os.path import isdir, isfile, join
 import pickle
 import face_recognition
 import numpy as np
-from img_similarity import ImageSimilarity
 
 
 #TODO: Only treats jpeg for now
@@ -19,7 +18,6 @@ to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
 encoding_version = 1
 
 #FIXME: Write on files at the end of sequence
-# Cant do similarity in parallel unless I parallelize folders
 
 class Images():
    def __init__(self, paths, sim=None):   
@@ -91,34 +89,9 @@ class Photos(Images):
    def __init__(self, paths, references) -> None:
       self.ref = references
       
-      # Used to mark similar pics
-      self.sim = ImageSimilarity()
-      self.last_pic = None
-      self.group_nb = 0
-      self.stopped = True
-      
-      self.check_similarity = False
-      
       super().__init__(paths, sim=self.sim)
-   
-   def same_dir(self, path1, path2):
-      return '\\'.join(path1.split('\\')[0:-1]) == '\\'.join(path2.split('\\')[0:-1])
 
    def after_treatment(self, data, path):
-      ## Image similarity
-      if self.check_similarity:
-         if self.last_pic != None and self.same_dir(path, self.last_pic) and self.sim.is_similar(path, self.last_pic):
-            if self.stopped:
-               self.group_nb += 1
-               data[path]["group_nb"] = self.group_nb
-            data[self.last_pic]["group_nb"] = self.group_nb
-            self.stopped = False
-         else:
-            self.stopped = True
-         
-         self.last_pic = path
-      
-      ## Facial recognition
       face_paths = []
       face_closeness = []
       

@@ -10,7 +10,10 @@ to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
 
 class ImageOrientation():
     def __init__(self, paths):
-        for path in paths:
+        self.paths = paths
+        
+    def run(self):
+        for path in self.paths:
             assert isdir(path)
             self.parse_imgs(path)
 
@@ -30,10 +33,9 @@ class ImageOrientation():
         imgs_paths = []
         
         for f in listdir(path):
-            _path = join(path, f)
+            _path = self.sanitize(join(path, f))
             
             if isfile(_path) and imghdr.what(_path) == "jpeg":
-                #self.treat_img(self.sanitize(_path))
                 imgs_paths.append(_path)              
             elif isdir(_path):
                 self.parse_imgs(_path)
@@ -88,4 +90,5 @@ class GetOrientation():
 if __name__ == '__main__':
     t = time.time()
     orient = ImageOrientation([to_test])
+    orient.run()
     print(time.time() - t)
