@@ -1,71 +1,34 @@
 from PIL import Image, ImageOps
-from os.path import isdir, isfile, join, abspath
-from os import listdir
-import imghdr
+from os.path import isfile, join, abspath
 import pickle
 import time
-import multiprocessing
+from parallel_images import Images
+
 
 to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
 
-class ImageOrientation():
+class ImageOrientation(Images):
     def __init__(self, paths):
-        self.paths = paths
-        
-    def run(self):
-        for path in self.paths:
-            assert isdir(path)
-            self.parse_imgs(path)
-
-    def parse_imgs(self, path):
-        meta_path = join(path, ".people")
-        data = {}
-
-        context = multiprocessing
-        if "forkserver" in multiprocessing.get_all_start_methods():
-            context = multiprocessing.get_context("forkserver")
-        pool = context.Pool(processes=None) # None is max number
-
-        if isfile(meta_path):
-            with open(meta_path, 'rb') as f:
-                data = pickle.load(f)
-        
-        imgs_paths = []
-        
-        for f in listdir(path):
-            _path = self.sanitize(join(path, f))
-            
-            if isfile(_path) and imghdr.what(_path) == "jpeg":
-                imgs_paths.append(_path)              
-            elif isdir(_path):
-                self.parse_imgs(_path)
-                
-        res = pool.map(self.treat_img, imgs_paths)
-
-        # Decompress received data
-        for img in res:            
-            if img[0] not in data:
-                data[img[0]] = {
-                    "is_portrait": img[1]
-                }
-            else:
-                data[img[0]]["is_portrait"] = img[1]
-
-        if data != {}:
-            with open(meta_path, 'wb') as f:
-                pickle.dump(data, f)
-
-    def sanitize(self, path):
-        return path.replace('/', '\\')
+        super().__init__(paths)
     
-    def treat_img(self, path):
+    def treat_img(self, path, data):
         print(path)
         image = Image.open(path)
         image = ImageOps.exif_transpose(image)
         is_portrait = image.size[1] > image.size[0]
         
         return (path, is_portrait)
-
+    
+    def decompress_data(self, data, res):
+        for img in res:
+            if img[0] not in data:
+                data[img[0]] = {
+                    "is_portrait": img[1]
+                }
+            else:
+                data[img[0]]["is_portrait"] = img[1]
+        return data
+    
 class GetOrientation():
     def __init__(self, path):
         meta_path = join(path, ".people")

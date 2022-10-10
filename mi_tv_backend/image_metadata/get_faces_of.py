@@ -8,7 +8,8 @@ class GetFaces():
         
         with open(meta_path, 'rb') as f:
             self.data = pickle.load(f)
-        
+    
+    # Should be the only one used, it allows multiple ref images
     def get_face_by_id(self, id, order_by_closeness=True):
         imgs_path = []
         
