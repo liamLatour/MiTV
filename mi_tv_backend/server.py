@@ -9,6 +9,7 @@ from PIL import Image, ImageOps
 from image_metadata.img_similarity import GetGroups
 from image_metadata.img_orientation import GetOrientation
 from image_metadata.img_facial_recognition import GetFaces
+import time
 
 # run with: waitress-serve --host 127.0.0.1 --port=5000 --threads=12 server:app
 
@@ -112,12 +113,14 @@ def get_media(filename):
 
 @app.route('/architecture/<path:dirname>')
 def get_architecture(dirname):
+    t = time.time()
     media = {
         "files": []
     }
     
     orientation = GetOrientation(dirname)
     groups = GetGroups(dirname)
+    groups.get_groups()
     page_nb = 1 if request.args.get('page_nb')==None else request.args.get('page_nb')
     page_nb = int(page_nb)
     i = 0
@@ -134,8 +137,8 @@ def get_architecture(dirname):
             "path": path,
         }
         if isfile(path):
-            is_not_in_dir, others = groups.is_not_in_group(path)
-            if imghdr.what(path) == "jpeg" and is_not_in_dir:
+            is_not_in_group, others = groups.is_not_in_group(path)
+            if imghdr.what(path) == "jpeg" and is_not_in_group:
                 media_data["type"] = "pic"
                 media_data["is_portrait"] = orientation.is_portrait(path)
                 if others != None:
@@ -153,6 +156,7 @@ def get_architecture(dirname):
     media = add_dir_info(dirname, media)
 
     response = jsonify(media)
+    print("Response time", time.time()-t)
     return response
 
 def add_dir_info(path, meta):
