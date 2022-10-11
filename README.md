@@ -1,14 +1,14 @@
 # MiTV
 
-## Frontend is written in Flutter (dart)
+## Frontend is written in Vue Js
 ### To run it:
-  - flutter run
+  - npm run dev
 ### To build it:
-  - flutter build web --release -v
+  - npm run build
 
 ## Backend is in python (flask)
 ### To run it in debug mode:
-  - install requirements.txt (in a venv preferably)
-  - launch server.py
+  - pip install -r requirements.txt
+  - python api_server.py
 ### To run it in production mode (still local):
-  - waitress-serve --host 127.0.0.1 --port=5000 server:app
+  - waitress-serve --host 127.0.0.1 --port=5000 api_server:app
