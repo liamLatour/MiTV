@@ -1,3 +1,3 @@
 from img_similarity import ImageSimilarity
-from face_rec import References, Photos
-
+from img_orientation import ImageOrientation
+from img_facial_recognition import References, Photos

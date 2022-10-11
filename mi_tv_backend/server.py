@@ -2,13 +2,13 @@ from flask import Flask, send_file, jsonify, send_from_directory, render_templat
 from flask_cors import CORS
 from io import BytesIO 
 from os import listdir
-from os.path import isfile, join, isdir, abspath
+from os.path import isfile, join, isdir
 import imghdr
 import json
 from PIL import Image, ImageOps
-from image_metadata.get_faces_of import GetFaces
-from image_metadata.get_groups_of import GetGroups
+from image_metadata.img_similarity import GetGroups
 from image_metadata.img_orientation import GetOrientation
+from image_metadata.img_facial_recognition import GetFaces
 
 # run with: waitress-serve --host 127.0.0.1 --port=5000 --threads=12 server:app
 

@@ -1,115 +1,16 @@
-import itertools
 import time
 t1 = time.time()
 
-import imghdr
-from os import listdir
-from os.path import isdir, isfile, join
+from os.path import join
 import pickle
 import face_recognition
 import numpy as np
-import multiprocessing
 from .parallel_images import Images
 
 
 refs = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\people_ref"
 to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
 encoding_version = 1
-
-#FIXME: Write on files at the end of sequence
-
-class Images_old():
-   def __init__(self, paths):      
-      self.paths = paths
-
-   def run(self):
-      for path in self.paths:
-         assert isdir(path)
-         self.parse_imgs(path)
-   
-   def parse_imgs(self, path):
-      meta_path = join(path, ".people")
-      data = {}
-
-      context = multiprocessing
-      if "forkserver" in multiprocessing.get_all_start_methods():
-         context = multiprocessing.get_context("forkserver")
-      pool = context.Pool(processes=None) # None is max number
-
-      if isfile(meta_path):
-         with open(meta_path, 'rb') as f:
-               data = pickle.load(f)
-      
-      imgs_paths = []
-      
-      for f in listdir(path):
-         _path = self.sanitize(join(path, f))
-         
-         if isfile(_path) and imghdr.what(_path) == "jpeg":
-            imgs_paths.append(_path)
-            #self.treat_img(_path)
-         elif isdir(_path):
-            self.parse_imgs(_path)
-
-      res = pool.starmap(self.treat_img, zip(imgs_paths, itertools.repeat(data)))
-
-      # Decompress received data
-      data = self.decompress_data(data, res)
-
-      if data != {}:
-         with open(meta_path, 'wb') as f:
-               pickle.dump(data, f)
-
-      #if isfile(path) and imghdr.what(path) == "jpeg":
-      #   self.treat_img(self.sanitize(path))
-      #elif isdir(path):
-      #   for f in listdir(path):
-      #      self.parse_imgs(join(path, f))
-   
-   def sanitize(self, path):
-      return path.replace('/', '\\')
-   
-   def treat_img(self, path, data):
-      #meta_path = join('\\'.join(path.split('\\')[0:-1]), ".people")
-      #data = {}
-      #
-      #if isfile(meta_path):
-      #   with open(meta_path, 'rb') as f:
-      #      data = pickle.load(f)
-      updates = {}
-      face_encoding = None
-
-      if path not in data or "encoding_version" not in data[path] or data[path]["encoding_version"] != encoding_version:
-         # higher num_jitters means higher resolution; model is large or small
-         face_encoding = face_recognition.face_encodings(face_recognition.load_image_file(path), num_jitters=4, model="large")
-         
-         updates["encoding"] = face_encoding
-         updates["encoding_version"] = encoding_version
-         
-         # Allows to already have data and not rewrite it (id or name for ref pics for example)
-         #if path in data:
-         #   data[path]["encoding"] = face_encoding
-         #   data[path]["encoding_version"] = encoding_version
-         #else:
-         #   data[path] = {"encoding": face_encoding, "encoding_version": encoding_version}
-      else:
-         face_encoding = data["encoding"]
-
-      if len(face_encoding) != 0: # otherwise no face has been seen TODO: tell user if it is a ref pic
-         data = self.after_treatment(data, path)
-         #print(len(data[path]["encoding"]), "faces in", path)
-      else:
-         print("No faces in:", path)
-      
-      return (path, updates)
-         
-      #self.update_meta_data(data, path)
-   
-   #def update_meta_data(self, data, path):
-   #   meta_path = join('\\'.join(path.split('\\')[0:-1]), ".people")
-   #   
-   #   with open(meta_path, 'wb') as f:     
-   #         pickle.dump(data, f)
 
 # Only one folder
 class References(Images):
@@ -251,6 +152,39 @@ class Photos(Images):
          ref_updates[face_path] = {"del": old_face_path}
       
       return ref_updates
+
+class GetFaces():
+    def __init__(self):
+        ref_path = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\people_ref"
+        meta_path = join(ref_path, ".people")
+        
+        with open(meta_path, 'rb') as f:
+            self.data = pickle.load(f)
+    
+    # Should be the only one used, it allows multiple ref images
+    def get_face_by_id(self, id, order_by_closeness=True):
+        imgs_path = []
+        
+        for p in self.data:
+            if self.data[p]["id"] == id:
+                imgs_path.extend(list(self.data[p]["seen_in"].items()))
+                
+        if order_by_closeness:
+            imgs_path.sort(key=lambda x:x[1]["closeness"])
+        
+        return imgs_path
+
+    def get_face_by_name(self, name, order_by_closeness=True):
+        imgs_path = []
+    
+        for p in self.data:
+            if name in p and "seen_in" in self.data[p]:
+                imgs_path.extend(list(self.data[p]["seen_in"].items()))
+
+        if order_by_closeness:
+            imgs_path.sort(key=lambda x:x[1]["closeness"])
+
+        return imgs_path
 
 if __name__ == '__main__':
    print(time.time() - t1)
