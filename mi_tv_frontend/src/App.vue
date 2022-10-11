@@ -2,7 +2,7 @@
   <div class="navbar">
     <div class="navbar-content">
       <a href="#">Dernières photos</a>
-      <a href="/#team">L'ékipe</a>
+      <a href="/#team">L'équipe</a>
       <a href="/" class="title">MiTV</a>
       <a href="/#hardware">Le matériel</a>
       <a href="/#legal">Mentions légales</a>

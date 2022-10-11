@@ -1,0 +1,12 @@
+frontend:
+    - Integrate videos
+    - Better UI (main page)
+    - Upload image from website
+    - Integrate AI images
+
+backend:
+    - Integrate videos
+    - Auto scheluded image metadata
+    - Upload image from website
+    - AI images by event
+    - Add time metadata to images
