@@ -50,9 +50,9 @@ def return_flutter_doc(name):
 
 # Serve media
 
-def serve_pil_image(pil_img):
+def serve_pil_image(pil_img, quality=90):
     img_io = BytesIO()
-    pil_img.save(img_io, 'JPEG', quality=90)
+    pil_img.save(img_io, 'JPEG', quality=quality)
     img_io.seek(0)
     
     return send_file(img_io, mimetype='image/jpeg')
@@ -104,12 +104,15 @@ def get_media_low_res(filename):
     image = ImageOps.exif_transpose(image)
     image = image.resize((500, round(image.size[1]/(image.size[0]/500))),Image.Resampling.NEAREST)
     
-    return serve_pil_image(image) #send_file(filename, mimetype='image/png')
+    return serve_pil_image(image)
 
 @app.route('/media/<path:filename>')
 def get_media(filename):
-
-    return send_file(filename, mimetype='image/png')
+    image = Image.open(filename)
+    image = image.resize((2250, round(image.size[1]/(image.size[0]/2250))),Image.Resampling.LANCZOS)
+    image = ImageOps.exif_transpose(image)
+    
+    return serve_pil_image(image, 100) #send_file(filename, mimetype='image/png')
 
 @app.route('/architecture/<path:dirname>')
 def get_architecture(dirname):
@@ -141,8 +144,7 @@ def get_architecture(dirname):
             if imghdr.what(path) == "jpeg" and is_not_in_group:
                 media_data["type"] = "pic"
                 media_data["is_portrait"] = orientation.is_portrait(path)
-                if others != None:
-                    media_data["others"] = others
+                media_data["others"] = others
             elif f != ".meta" and f != ".people": #TODO: check if it is really a video
                 media_data["type"] = "vid"
         elif isdir(path):

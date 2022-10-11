@@ -3,7 +3,7 @@
     <h1 class="eventname">{{ title }}</h1>
     <h2 class="organisation">{{ organisation }}</h2>
   </div>
-  <GalleryViewer :medias="items" :isglobal="true" />
+  <GalleryViewer :medias="items" :is-global="true" />
 </template>
 
 <script lang="ts">

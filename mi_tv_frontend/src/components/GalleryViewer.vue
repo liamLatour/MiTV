@@ -1,3 +1,5 @@
+<!-- https://css-tricks.com/lazy-loading-images-with-vue-js-directives-and-intersection-observer/ -->
+
 <template>
   <div class="viewer">
     <!--
@@ -18,12 +20,15 @@
       :key="media.path"
       v-bind:class="{ portrait: media.is_portrait }"
     >
-      <img
+      <span class="group" v-if="media.others != null">
+        <font-awesome-icon icon="fa-solid fa-folder" />
+      </span>
+      <ImageItem
         v-if="media.type == 'pic'"
-        :src="'http://127.0.0.1:5000/media_low_res/' + media.path"
-        alt="image introuvable"
+        :source="'http://127.0.0.1:5000/media_low_res/' + media.path"
         @click="openImage(index)"
       />
+
       <div v-if="media.type == 'dir'">
         <img
           :src="'http://127.0.0.1:5000/media_low_res/' + media.thumbnail"
@@ -39,13 +44,32 @@
     <div class="media" v-for="n in 10" :key="n"></div>
   </div>
 
-  <div class="modal" v-if="showModal" @click="showModal = false">
-    <span class="close" @click="showModal = false">&times;</span>
+  <div
+    class="modal"
+    v-if="showModal"
+    @click="showModal = false"
+    v-bind:class="{ small: medias[currentImg].others == null }"
+  >
+    <div class="top">
+      <span class="close" @click="showModal = false">&times;</span>
+    </div>
     <div class="modal-content">
       <div class="imgContainer">
         <img
-          :src="'http://127.0.0.1:5000/media/' + medias[currentImg].path"
+          :src="'http://127.0.0.1:5000/media/' + getModalImg()"
           alt="image introuvable"
+          v-on:click.stop
+        />
+      </div>
+    </div>
+    <div class="footer">
+      <div class="others" v-if="medias[currentImg].others != null">
+        <img
+          v-for="path in medias[currentImg].others"
+          :key="path"
+          :src="'http://127.0.0.1:5000/media_low_res/' + path"
+          alt="image introuvable"
+          @click="changeModalImage(path)"
           v-on:click.stop
         />
       </div>
@@ -54,26 +78,42 @@
 </template>
 
 <script lang="ts">
+import ImageItem from "./ImageItem.vue";
+
 export default {
   name: "GalleryViewer",
+  components: {
+    ImageItem,
+  },
   data: function () {
     return {
       showModal: false,
       currentImg: 0,
+      modalImg: "",
     };
   },
   props: {
     medias: {
       type: Object,
+      required: true,
     },
-    isglobal: {
+    isGlobal: {
       type: Boolean,
+      default: false,
     },
   },
   methods: {
     openImage(i: number) {
       this.currentImg = i;
       this.showModal = true;
+      this.modalImg = this.medias[i].path;
+    },
+    changeModalImage(path: string) {
+      console.log(path);
+      this.modalImg = path;
+    },
+    getModalImg() {
+      return this.modalImg;
     },
   },
 };
@@ -84,28 +124,37 @@ export default {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
-  align-items: flex-start;
 
   .media {
-    flex-shrink: 1;
+    height: 200px;
     flex-grow: 1;
-    width: 300px;
-    //height: 200px;
     overflow: hidden;
     margin: 2px;
 
     img {
+      max-height: 100%;
+      min-width: 100%;
+      object-fit: cover;
       transition: transform 0.1s;
-      width: 100%;
-      height: 100%;
+      cursor: pointer;
 
       &:hover {
         -ms-transform: scale(1.05); /* IE 9 */
         -webkit-transform: scale(1.05); /* Safari 3-8 */
         transform: scale(1.05);
-        cursor: pointer;
       }
     }
+
+    .group {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      z-index: 10;
+      margin: 10px;
+      font-size: 25px;
+      color: rgba(255, 255, 255, 0.616);
+    }
+
     .overlay {
       position: absolute;
       left: 0;
@@ -137,14 +186,33 @@ export default {
   left: 0;
   top: 0;
   width: 100%; /* Full width */
-  height: 100%; /* Full height */
+  height: 100vh; /* Full height */
   overflow: auto; /* Enable scroll if needed */
   background-color: rgb(0, 0, 0); /* Fallback color */
   background-color: rgba(0, 0, 0, 0.685); /* Black w/ opacity */
 
+  .top {
+    height: 50px;
+    .close {
+      color: rgb(255, 255, 255);
+      float: right;
+      font-size: 40px;
+      font-weight: bold;
+      margin-right: 30px;
+      line-height: 45px;
+
+      &:hover,
+      &:focus {
+        color: rgb(141, 141, 141);
+        text-decoration: none;
+        cursor: pointer;
+      }
+    }
+  }
+
   .modal-content {
-    margin: 50px auto 20px auto;
-    height: calc(100% - 70px);
+    margin: auto;
+    height: calc(100% - 50px - 150px);
 
     .imgContainer {
       margin: auto;
@@ -159,20 +227,35 @@ export default {
     }
   }
 
-  .close {
-    color: rgb(255, 255, 255);
-    float: right;
-    font-size: 40px;
-    font-weight: bold;
-    margin-right: 30px;
-    line-height: 50px;
+  .footer {
+    height: 150px;
+    .others {
+      display: flex;
+      justify-content: center;
+      height: 140px;
 
-    &:hover,
-    &:focus {
-      color: rgb(141, 141, 141);
-      text-decoration: none;
-      cursor: pointer;
+      img {
+        height: 100%;
+        margin: 5px;
+        cursor: pointer;
+        transition: transform 0.1s;
+
+        &:hover {
+          -ms-transform: scale(1.05); /* IE 9 */
+          -webkit-transform: scale(1.05); /* Safari 3-8 */
+          transform: scale(1.05);
+        }
+      }
     }
+  }
+}
+
+.small {
+  .footer {
+    height: 20px;
+  }
+  .modal-content {
+    height: calc(100% - 50px - 20px);
   }
 }
 </style>
