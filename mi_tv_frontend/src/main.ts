@@ -9,9 +9,13 @@ import "./assets/main.css";
 /* import fontawesome */
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { faFolder } from "@fortawesome/free-solid-svg-icons";
+import {
+  faFolder,
+  faDownload,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
 
-library.add(faFolder);
+library.add(faFolder, faDownload, faTimes);
 
 const app = createApp(App);
 app.use(router);

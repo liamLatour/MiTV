@@ -1,7 +1,10 @@
 <!-- https://css-tricks.com/lazy-loading-images-with-vue-js-directives-and-intersection-observer/ -->
 
 <template>
-  <div class="viewer">
+  <div
+    class="viewer"
+    v-bind:style="{ 'grid-template-columns': 'repeat(' + columns + ', 1fr)' }"
+  >
     <!--
     <div class="media portrait" v-if="isglobal">
       <div>
@@ -51,7 +54,20 @@
     v-bind:class="{ small: medias[currentImg].others == null }"
   >
     <div class="top">
-      <span class="close" @click="showModal = false">&times;</span>
+      <div class="right-icons">
+        <a :href="'http://127.0.0.1:5000/download/' + getModalImg()" download>
+          <font-awesome-icon
+            icon="fa-solid fa-download"
+            class="download"
+            v-on:click.stop
+          />
+        </a>
+        <font-awesome-icon
+          icon="fa-solid fa-times"
+          class="close"
+          @click="showModal = false"
+        />
+      </div>
     </div>
     <div class="modal-content">
       <div class="imgContainer">
@@ -78,9 +94,10 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import ImageItem from "./ImageItem.vue";
 
-export default {
+export default defineComponent({
   name: "GalleryViewer",
   components: {
     ImageItem,
@@ -90,6 +107,7 @@ export default {
       showModal: false,
       currentImg: 0,
       modalImg: "",
+      columns: 36,
     };
   },
   props: {
@@ -102,11 +120,19 @@ export default {
       default: false,
     },
   },
+  created() {
+    window.addEventListener("resize", this.windowSizeChange);
+    this.windowSizeChange();
+  },
+  unmounted() {
+    window.removeEventListener("resize", this.windowSizeChange);
+  },
   methods: {
-    openImage(i: number) {
-      this.currentImg = i;
+    openImage(i: string) {
+      let index: number = parseInt(i);
+      this.currentImg = index;
       this.showModal = true;
-      this.modalImg = this.medias[i].path;
+      this.modalImg = this.medias[index].path;
     },
     changeModalImage(path: string) {
       console.log(path);
@@ -115,22 +141,21 @@ export default {
     getModalImg() {
       return this.modalImg;
     },
+    windowSizeChange() {
+      console.log(window.innerWidth);
+      let nb_columns = (window.innerWidth / 300) >> 0;
+      this.columns = 9 * nb_columns;
+    },
   },
-};
+});
 </script>
 
 <style scoped lang="scss">
 .viewer {
-  // display: flex;
-  // flex-wrap: wrap;
-  // justify-content: space-around;
   display: grid;
-  grid-template-columns: repeat(36, 1fr);
+  //grid-template-columns: repeat(36, 1fr);
 
   .media {
-    //flex-grow: 1;
-    //height: 200px;
-    //width: 300px;
     overflow: hidden;
     margin: 2px;
     grid-column: span 9;
@@ -195,19 +220,28 @@ export default {
 
   .top {
     height: 50px;
-    .close {
-      color: rgb(255, 255, 255);
-      float: right;
-      font-size: 40px;
-      font-weight: bold;
-      margin-right: 30px;
-      line-height: 45px;
 
-      &:hover,
-      &:focus {
-        color: rgb(141, 141, 141);
-        text-decoration: none;
-        cursor: pointer;
+    .right-icons {
+      position: absolute;
+      right: 10px;
+      margin: 5px;
+      color: rgb(255, 255, 255);
+      font-size: 30px;
+
+      a {
+        all: unset;
+      }
+
+      svg {
+        margin: 5px;
+        margin-right: 15px;
+
+        &:hover,
+        &:focus {
+          color: rgb(141, 141, 141);
+          text-decoration: none;
+          cursor: pointer;
+        }
       }
     }
   }
@@ -215,16 +249,17 @@ export default {
   .modal-content {
     margin: auto;
     height: calc(100% - 50px - 150px);
+    display: flex;
 
     .imgContainer {
       margin: auto;
       max-height: 100%;
-      aspect-ratio: 3/2;
+      max-width: 100%;
+      aspect-ratio: 3/2; //TODO: change that for portrait
 
       img {
-        position: absolute;
-        top: 0;
         height: 100%;
+        object-fit: cover;
       }
     }
   }

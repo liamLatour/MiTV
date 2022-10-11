@@ -5,7 +5,9 @@
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from "vue";
+
+export default defineComponent({
   name: "ImageItem",
   props: {
     source: {
@@ -13,7 +15,7 @@ export default {
       required: true,
     },
   },
-};
+});
 </script>
 
 <style scoped lang="scss">

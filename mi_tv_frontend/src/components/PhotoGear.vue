@@ -7,7 +7,8 @@
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from "vue";
+export default defineComponent({
   name: "PhotoGear",
   props: {
     type: {
@@ -20,7 +21,7 @@ export default {
       type: String,
     },
   },
-};
+});
 </script>
 
 <style scoped lang="scss">

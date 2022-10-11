@@ -1,6 +1,8 @@
-import type { DirectiveOptions } from "vue";
+import type { ObjectDirective } from "vue";
 
-const lazyload: DirectiveOptions = {
+type CallbackType = () => void;
+
+export default {
   // inserted / mounted
   mounted: (el: HTMLElement) => {
     function loadImage() {
@@ -55,6 +57,4 @@ const lazyload: DirectiveOptions = {
       createObserver();
     }
   },
-};
-
-export default lazyload;
+} as ObjectDirective<HTMLElement, CallbackType>;

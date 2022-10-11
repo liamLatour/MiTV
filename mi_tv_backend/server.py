@@ -114,6 +114,10 @@ def get_media(filename):
     
     return serve_pil_image(image, 100) #send_file(filename, mimetype='image/png')
 
+@app.route('/download/<path:filename>')
+def get_download_media(filename):
+    return send_file(filename, mimetype='image/png')
+
 @app.route('/architecture/<path:dirname>')
 def get_architecture(dirname):
     t = time.time()

@@ -7,10 +7,11 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import GalleryViewer from "../components/GalleryViewer.vue";
 import axios from "axios";
 
-export default {
+export default defineComponent({
   name: "GalleryView",
   components: {
     GalleryViewer: GalleryViewer,
@@ -18,12 +19,19 @@ export default {
   created() {
     this.getMedias();
   },
+  data() {
+    return {
+      items: {},
+      title: "",
+      organisation: "",
+    };
+  },
   methods: {
     async getMedias() {
       try {
         let url = "http://127.0.0.1:5000/architecture/";
 
-        for (let i in this.$route.params.path) {
+        for (let i in this.$route.params.path as Array<string>) {
           url += this.$route.params.path[i] + "/";
         }
 
@@ -37,14 +45,7 @@ export default {
       }
     },
   },
-  data() {
-    return {
-      items: {},
-      title: "",
-      organisation: "",
-    };
-  },
-};
+});
 </script>
 
 <style lang="scss">

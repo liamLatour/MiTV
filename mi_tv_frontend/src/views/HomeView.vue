@@ -47,16 +47,17 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import Member from "../components/Member.vue";
 import PhotoGear from "../components/PhotoGear.vue";
 
-export default {
+export default defineComponent({
   name: "HomeView",
   components: {
     Member: Member,
     PhotoGear: PhotoGear,
   },
-};
+});
 </script>
 
 <style scoped lang="scss">
