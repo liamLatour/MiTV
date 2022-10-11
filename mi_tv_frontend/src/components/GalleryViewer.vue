@@ -1,5 +1,3 @@
-<!-- https://css-tricks.com/lazy-loading-images-with-vue-js-directives-and-intersection-observer/ -->
-
 <template>
   <div
     class="viewer"

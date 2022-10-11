@@ -26,6 +26,8 @@ to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
 
 # https://towardsdatascience.com/image-similarity-with-deep-learning-c17d83068f59
 
+#FIXME: Problem with duplicates in groups display
+
 # TODO: could parallelize folders
 class ImageSimilarity():
     def __init__(self, paths):
@@ -71,9 +73,9 @@ class ImageSimilarity():
                     if stopped:
                         group_nb += 1
                         data[_path]["group_nb"] = group_nb
-                        groups["group_nb"] = [_path]
+                        groups[group_nb] = [_path]
                     data[last_pic]["group_nb"] = group_nb
-                    groups["group_nb"].append(last_pic)
+                    groups[group_nb].append(last_pic)
                     stopped = False
                 else:
                     stopped = True

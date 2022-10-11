@@ -1,4 +1,4 @@
-from flask import Flask, send_file, jsonify, send_from_directory, request
+from flask import Flask, send_file, jsonify
 from flask_cors import CORS
 from io import BytesIO 
 from os import listdir

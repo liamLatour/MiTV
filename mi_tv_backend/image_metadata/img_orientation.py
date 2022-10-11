@@ -13,9 +13,13 @@ class ImageOrientation(Images):
     
     def treat_img(self, path, data):
         print(path)
-        image = Image.open(path)
-        image = ImageOps.exif_transpose(image)
-        is_portrait = image.size[1] > image.size[0]
+        
+        if "is_portrait" not in data[path]:
+            image = Image.open(path)
+            image = ImageOps.exif_transpose(image)
+            is_portrait = image.size[1] > image.size[0]
+        else:
+            return (path, data[path]["is_portrait"])
         
         return (path, is_portrait)
     

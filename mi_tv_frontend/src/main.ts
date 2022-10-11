@@ -14,9 +14,10 @@ import {
   faDownload,
   faTimes,
   faPlay,
+  faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 
-library.add(faFolder, faDownload, faTimes, faPlay);
+library.add(faFolder, faDownload, faTimes, faPlay, faSpinner);
 
 const app = createApp(App);
 app.use(router);
