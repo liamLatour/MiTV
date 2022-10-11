@@ -28,7 +28,7 @@ class ImageOrientation(Images):
             else:
                 data[img[0]]["is_portrait"] = img[1]
         return data
-    
+
 class GetOrientation():
     def __init__(self, path):
         meta_path = join(path, ".people")

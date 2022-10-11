@@ -1,4 +1,4 @@
-from flask import Flask, send_file, jsonify, send_from_directory, render_template, request
+from flask import Flask, send_file, jsonify, send_from_directory, request
 from flask_cors import CORS
 from io import BytesIO 
 from os import listdir
@@ -11,12 +11,11 @@ from image_metadata.img_orientation import GetOrientation
 from image_metadata.img_facial_recognition import GetFaces
 import time
 
-# run with: waitress-serve --host 127.0.0.1 --port=5000 --threads=12 server:app
+# run with: waitress-serve --host 127.0.0.1 --port=5000 --threads=12 api_server:app
 
-app = Flask(__name__, template_folder="web")
+app = Flask(__name__)
 CORS(app)
 root_photos_path = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
-media_per_page = 5000
 get_faces = GetFaces()
 
 """
@@ -36,17 +35,6 @@ Return structure for media is:
 
 This way metadata is easy to add without breaking anything
 """
-
-
-# Serves flutter app
-
-@app.route('/')
-def render_page_web():
-    return render_template('index.html')
-
-@app.route('/<path:name>')
-def return_flutter_doc(name):
-    return send_from_directory("web", name)
 
 # Serve media
 
@@ -128,17 +116,8 @@ def get_architecture(dirname):
     orientation = GetOrientation(dirname)
     groups = GetGroups(dirname)
     groups.get_groups()
-    page_nb = 1 if request.args.get('page_nb')==None else request.args.get('page_nb')
-    page_nb = int(page_nb)
-    i = 0
-    
+
     for f in listdir(dirname):
-        i += 1
-        if i < (page_nb-1)*media_per_page:
-            continue
-        if i >= page_nb*media_per_page:
-            break
-    
         path = join(dirname, f)
         media_data = {
             "path": path,
