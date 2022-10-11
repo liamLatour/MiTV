@@ -53,11 +53,12 @@ class ImageSimilarity():
         if isfile(meta_path):
             with open(meta_path, 'rb') as f:
                 data = pickle.load(f)
-                
+        
         last_pic = None
         last_pic_encoding = None
         group_nb = 0
         stopped = True
+        groups = {}
         
         for f in listdir(path):
             _path = self.sanitize(join(path, f))
@@ -70,7 +71,9 @@ class ImageSimilarity():
                     if stopped:
                         group_nb += 1
                         data[_path]["group_nb"] = group_nb
+                        groups["group_nb"] = [_path]
                     data[last_pic]["group_nb"] = group_nb
+                    groups["group_nb"].append(last_pic)
                     stopped = False
                 else:
                     stopped = True
@@ -79,6 +82,8 @@ class ImageSimilarity():
                 last_pic_encoding = current_encoding
             elif isdir(_path):
                 self.parse_imgs(_path)
+        
+        data["groups"] = groups
 
         if data != {}:
             with open(meta_path, 'wb') as f:
@@ -101,7 +106,6 @@ class ImageSimilarity():
 class GetGroups():
     def __init__(self, path):
         self.already_seen_groups = []
-        self.groups = {}
         meta_path = join(path, ".people")
 
         if isfile(meta_path):
@@ -109,17 +113,6 @@ class GetGroups():
                 self.data = pickle.load(f)
         else:
             self.data = None
-    
-    def get_groups(self):
-        if self.data == None:
-            return
-        
-        for key in self.data:
-            if "group_nb" in self.data[key]:
-                if self.data[key]["group_nb"] not in self.groups:
-                    self.groups[self.data[key]["group_nb"]] = []    
-                
-                self.groups[self.data[key]["group_nb"]].append(key)
     
     def is_not_in_group(self, img_path):
         if self.data == None or abspath(img_path) not in self.data:
@@ -132,7 +125,7 @@ class GetGroups():
         
         if img_data["group_nb"] not in self.already_seen_groups:
             self.already_seen_groups.append(img_data["group_nb"])
-            return (True, self.groups[img_data["group_nb"]])
+            return (True, self.data["groups"][img_data["group_nb"]])
         
         return (False, None)
 

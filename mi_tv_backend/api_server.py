@@ -115,7 +115,6 @@ def get_architecture(dirname):
     
     orientation = GetOrientation(dirname)
     groups = GetGroups(dirname)
-    groups.get_groups()
 
     for f in listdir(dirname):
         path = join(dirname, f)

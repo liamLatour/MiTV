@@ -114,6 +114,8 @@ class Photos(Images):
    def after_treatment(self, face_encoding, data, path, updates):
       face_paths = []
       face_closeness = []
+      ref_updates = {}
+      i = 0
       
       if "faces" not in data[path]:
          updates["faces"] = ["?" for _ in range(len(face_encoding))]
@@ -121,7 +123,6 @@ class Photos(Images):
       else:
          old_names = data[path]["faces"]
       
-      #TODO: is refactorable in a single for loop
       for face in face_encoding:
          face_path = "?"
 
@@ -133,12 +134,11 @@ class Photos(Images):
          face_paths.append(face_path)
          face_closeness.append(face_distances[best_match_index])
 
-      ref_updates = {}
-
-      for i in range(len(face_paths)):
-         if face_paths[i] != old_names[i]:
-            ref_updates = self.update_ref(path, old_names[i], face_paths[i], face_closeness[i], ref_updates)
-            updates["faces"][i] = face_paths[i]
+         if face_path != old_names[i]:
+            ref_updates = self.update_ref(path, old_names[i], face_path, face_distances[best_match_index], ref_updates)
+            updates["faces"][i] = face_path
+         
+         i += 1
 
       return (updates, ref_updates)
 
