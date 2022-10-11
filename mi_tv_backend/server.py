@@ -134,9 +134,12 @@ def get_architecture(dirname):
             "path": path,
         }
         if isfile(path):
-            if imghdr.what(path) == "jpeg" and groups.is_not_in_group(path):
+            is_not_in_dir, others = groups.is_not_in_group(path)
+            if imghdr.what(path) == "jpeg" and is_not_in_dir:
                 media_data["type"] = "pic"
                 media_data["is_portrait"] = orientation.is_portrait(path)
+                if others != None:
+                    media_data["others"] = others
             elif f != ".meta" and f != ".people": #TODO: check if it is really a video
                 media_data["type"] = "vid"
         elif isdir(path):

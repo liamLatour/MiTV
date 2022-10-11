@@ -2,7 +2,7 @@ from PIL import Image, ImageOps
 from os.path import isfile, join, abspath
 import pickle
 import time
-from parallel_images import Images
+from .parallel_images import Images
 
 
 to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"

@@ -9,11 +9,11 @@ import pickle
 import face_recognition
 import numpy as np
 import multiprocessing
-from parallel_images import Images
+from .parallel_images import Images
 
 
 refs = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\people_ref"
-to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos\\photos_perm"
+to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
 encoding_version = 1
 
 #FIXME: Write on files at the end of sequence
