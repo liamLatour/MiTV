@@ -142,7 +142,7 @@ export default defineComponent({
     windowSizeChange() {
       console.log(window.innerWidth);
       let nb_columns = (window.innerWidth / 300) >> 0;
-      this.columns = 9 * nb_columns;
+      this.columns = nb_columns;
     },
   },
 });
@@ -156,7 +156,6 @@ export default defineComponent({
   .media {
     overflow: hidden;
     margin: 2px;
-    grid-column: span 9;
     aspect-ratio: 3/2;
 
     .image {
@@ -198,10 +197,10 @@ export default defineComponent({
       }
     }
   }
-
   .portrait {
-    grid-column: span 4;
     aspect-ratio: 2/3;
+    margin-left: 28%;
+    margin-right: 28%;
   }
 }
 
