@@ -27,6 +27,7 @@
         v-if="media.type == 'pic'"
         :source="'http://127.0.0.1:5000/media_low_res/' + media.path"
         @click="openImage(index)"
+        class="image"
       />
 
       <div v-if="media.type == 'dir'">
@@ -41,7 +42,6 @@
         </a>
       </div>
     </div>
-    <div class="media" v-for="n in 10" :key="n"></div>
   </div>
 
   <div
@@ -121,27 +121,29 @@ export default {
 
 <style scoped lang="scss">
 .viewer {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
+  // display: flex;
+  // flex-wrap: wrap;
+  // justify-content: space-around;
+  display: grid;
+  grid-template-columns: repeat(36, 1fr);
 
   .media {
-    height: 200px;
-    flex-grow: 1;
+    //flex-grow: 1;
+    //height: 200px;
+    //width: 300px;
     overflow: hidden;
     margin: 2px;
+    grid-column: span 9;
+    aspect-ratio: 3/2;
 
-    img {
-      max-height: 100%;
-      min-width: 100%;
-      object-fit: cover;
-      transition: transform 0.1s;
+    .image {
+      transition: transform 0.4s;
       cursor: pointer;
 
       &:hover {
-        -ms-transform: scale(1.05); /* IE 9 */
-        -webkit-transform: scale(1.05); /* Safari 3-8 */
-        transform: scale(1.05);
+        -ms-transform: scale(1.1); /* IE 9 */
+        -webkit-transform: scale(1.1); /* Safari 3-8 */
+        transform: scale(1.1);
       }
     }
 
@@ -175,8 +177,8 @@ export default {
   }
 
   .portrait {
-    width: 133px;
-    //height: 200px;
+    grid-column: span 4;
+    aspect-ratio: 2/3;
   }
 }
 

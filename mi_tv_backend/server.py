@@ -101,8 +101,8 @@ def get_photos_name(name):
 @app.route('/media_low_res/<path:filename>')
 def get_media_low_res(filename):
     image = Image.open(filename)
-    image = ImageOps.exif_transpose(image)
     image = image.resize((500, round(image.size[1]/(image.size[0]/500))),Image.Resampling.NEAREST)
+    image = ImageOps.exif_transpose(image)
     
     return serve_pil_image(image)
 
@@ -140,18 +140,19 @@ def get_architecture(dirname):
             "path": path,
         }
         if isfile(path):
-            is_not_in_group, others = groups.is_not_in_group(path)
-            if imghdr.what(path) == "jpeg" and is_not_in_group:
-                media_data["type"] = "pic"
-                media_data["is_portrait"] = orientation.is_portrait(path)
-                media_data["others"] = others
+            if imghdr.what(path) == "jpeg":
+                is_not_in_group, others = groups.is_not_in_group(path)
+                if is_not_in_group:
+                    media_data["type"] = "pic"
+                    media_data["is_portrait"] = orientation.is_portrait(path)
+                    media_data["others"] = others
+                    media["files"].append(media_data)
             elif f != ".meta" and f != ".people": #TODO: check if it is really a video
                 media_data["type"] = "vid"
+                media["files"].append(media_data)
         elif isdir(path):
             media_data["type"] = "dir"
             media_data = add_dir_info(path, media_data)
-        
-        if "type" in media_data:
             media["files"].append(media_data)
     
     # Global info on dir

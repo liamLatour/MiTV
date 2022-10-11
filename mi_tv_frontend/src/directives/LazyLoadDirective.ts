@@ -1,6 +1,7 @@
 import type { DirectiveOptions } from "vue";
 
 const lazyload: DirectiveOptions = {
+  // inserted / mounted
   mounted: (el: HTMLElement) => {
     function loadImage() {
       const imageElement = Array.from(el.children).find(

@@ -109,11 +109,11 @@ class GetGroups():
                 self.data = pickle.load(f)
         else:
             self.data = None
-            
+    
     def get_groups(self):
         if self.data == None:
             return
-            
+        
         for key in self.data:
             if "group_nb" in self.data[key]:
                 if self.data[key]["group_nb"] not in self.groups:

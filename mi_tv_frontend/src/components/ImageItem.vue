@@ -15,3 +15,13 @@ export default {
   },
 };
 </script>
+
+<style scoped lang="scss">
+.image__wrapper {
+  .image__item {
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
