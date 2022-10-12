@@ -98,15 +98,16 @@ class MetadataCreation():
                 cur_time = int(time.time())
                 delay = cur_time - cur_time%86400 + 86400 # midnight gmt
             else:
-                delay = 10 #360 # 5 mins
+                delay = 360 # 5 mins
 
             threading.Timer(delay, lambda: self.create_metadata(self.to_compute) ).start()
     
     def create_metadata(self, image_paths=None):
-        # TODO: remove computed paths from "to_compute"
         if image_paths == None:
             image_paths = self.image_root_paths
-            
+        else:
+            self.to_compute.remove(image_paths)
+        
         click.echo('Started on paths:' + str(image_paths))
         
         t = time.time()
@@ -125,4 +126,3 @@ class MetadataCreation():
         click.echo('Face recognition finished in: ' + str(time.time()-t1))
         
         click.echo('Finished in: ' + str(time.time()-t))
-        

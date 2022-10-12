@@ -40,6 +40,7 @@ export default {
         threshold: 0, // the degree of intersection between the target element and its root (0 - 1)
         // threshold of 1.0 means that when 100% of the target is visible within
         //the element specified by the root option, the callback is invoked
+        rootMargin: "1000px",
       };
 
       // Whether you're using the viewport or some other element as the root,the API works the same way,

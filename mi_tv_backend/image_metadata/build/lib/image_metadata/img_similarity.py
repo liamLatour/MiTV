@@ -77,7 +77,8 @@ class ImageSimilarity():
                         data[_path]["group_nb"] = group_nb
                         groups[group_nb] = [_path]
                     data[last_pic]["group_nb"] = group_nb
-                    groups[group_nb].append(last_pic)
+                    if last_pic not in groups[group_nb]: #FIXME: sould not have to put that
+                        groups[group_nb].append(last_pic)
                     stopped = False
                 else:
                     stopped = True

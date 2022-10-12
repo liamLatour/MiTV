@@ -25,7 +25,7 @@ to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
 
 #FIXME: Problem with duplicates in groups display
 
-# TODO: could parallelize folders
+# TODO: could parallelize folders, or parallelize encoding then sequential treatment
 class ImageSimilarity():
     def __init__(self):
         
@@ -77,7 +77,8 @@ class ImageSimilarity():
                         data[_path]["group_nb"] = group_nb
                         groups[group_nb] = [_path]
                     data[last_pic]["group_nb"] = group_nb
-                    groups[group_nb].append(last_pic)
+                    if last_pic not in groups[group_nb]: #FIXME: sould not have to put that
+                        groups[group_nb].append(last_pic)
                     stopped = False
                 else:
                     stopped = True
