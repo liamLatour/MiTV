@@ -1,0 +1,7 @@
+face-recognition
+numpy
+Pillow
+tensorflow
+tensorflow-hub
+scipy
+click

@@ -1,0 +1,12 @@
+setup.py
+./bin/meta_data_creation.py
+ImageMetadata.egg-info/PKG-INFO
+ImageMetadata.egg-info/SOURCES.txt
+ImageMetadata.egg-info/dependency_links.txt
+ImageMetadata.egg-info/requires.txt
+ImageMetadata.egg-info/top_level.txt
+image_metadata/__init__.py
+image_metadata/img_facial_recognition.py
+image_metadata/img_orientation.py
+image_metadata/img_similarity.py
+image_metadata/parallel_images.py
