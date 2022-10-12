@@ -6,9 +6,7 @@ from os.path import isfile, join, isdir
 import imghdr
 import json
 from PIL import Image, ImageOps
-
 from image_metadata import GetGroups, GetOrientation, GetFaces
-
 import time
 
 # run with: waitress-serve --host 127.0.0.1 --port=5000 --threads=12 api_server:app

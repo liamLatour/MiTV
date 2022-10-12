@@ -1,18 +1,11 @@
-from image_metadata import ImageSimilarity
-
-#from img_similarity import ImageSimilarity
-#from img_orientation import ImageOrientation
-#from img_facial_recognition import References, Photos
-
+from image_metadata import ImageSimilarity, ImageOrientation, References, Photos
 import click
 
 
 @click.command()
-@click.option('--count', default=1, help='Number of greetings.')
-@click.option('--name', prompt='Your name',
-              help='The person to greet.')
-def test(name):
-    print(name)
+def cli():
+    """Example script."""
+    click.echo('Hello World!')
 
 class MetadataCreation():
     def __init__(self, ref_path, image_root_paths):

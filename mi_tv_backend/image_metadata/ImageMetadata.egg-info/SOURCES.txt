@@ -1,8 +1,10 @@
+meta_data_creation.py
+print_metadata.py
 setup.py
-./bin/meta_data_creation.py
 ImageMetadata.egg-info/PKG-INFO
 ImageMetadata.egg-info/SOURCES.txt
 ImageMetadata.egg-info/dependency_links.txt
+ImageMetadata.egg-info/entry_points.txt
 ImageMetadata.egg-info/requires.txt
 ImageMetadata.egg-info/top_level.txt
 image_metadata/__init__.py

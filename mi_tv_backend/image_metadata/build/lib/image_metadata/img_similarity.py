@@ -10,13 +10,10 @@ from os import listdir
 from os.path import isdir, isfile, join, abspath
 
 import numpy as np
-import tensorflow as tf
-import tensorflow_hub as hub
 from PIL import Image
 from scipy.spatial import distance
+import click
 
-tf.get_logger().setLevel('FATAL')
-tf.autograph.set_verbosity(0)
 
 to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
 
@@ -30,7 +27,15 @@ to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
 
 # TODO: could parallelize folders
 class ImageSimilarity():
-    def __init__(self, paths):
+    def __init__(self):
+        
+        import tensorflow as tf
+        import tensorflow_hub as hub
+        
+        tf.get_logger().setLevel('FATAL')
+        tf.autograph.set_verbosity(0)
+        
+        
         model_url = "https://tfhub.dev/tensorflow/efficientnet/lite0/feature-vector/2"
 
         self.IMAGE_SHAPE = (224, 224)
@@ -41,10 +46,8 @@ class ImageSimilarity():
         self.metric = 'cosine'
         self.tolerance = 0.15
         
-        self.paths = paths
-        
-    def run(self):
-        for path in self.paths:
+    def run(self, paths):
+        for path in paths:
             assert isdir(path)
             self.parse_imgs(path)
             
@@ -67,7 +70,7 @@ class ImageSimilarity():
             
             if isfile(_path) and imghdr.what(_path) == "jpeg":
                 current_encoding = self.extract(_path)
-                print(_path)
+                click.echo(_path)
                 
                 if last_pic != None and distance.cdist([current_encoding], [last_pic_encoding], self.metric)[0] < self.tolerance:
                     if stopped:
@@ -135,4 +138,4 @@ if __name__ == '__main__':
     t = time.time()
     sim = ImageSimilarity([to_test])
     sim.run()
-    print(time.time() - t)
+    click.echo(time.time() - t)

@@ -5,3 +5,4 @@ tensorflow
 tensorflow-hub
 scipy
 click
+watchdog

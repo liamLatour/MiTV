@@ -3,18 +3,18 @@ from os.path import isfile, join, abspath
 import pickle
 import time
 from .parallel_images import Images
-
+import click
 
 to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
 
 class ImageOrientation(Images):
-    def __init__(self, paths):
-        super().__init__(paths)
+    def __init__(self):
+        super().__init__()
     
     def treat_img(self, path, data):
-        print(path)
+        click.echo(path)
         
-        if "is_portrait" not in data[path]:
+        if path not in data or "is_portrait" not in data[path]:
             image = Image.open(path)
             image = ImageOps.exif_transpose(image)
             is_portrait = image.size[1] > image.size[0]
@@ -58,4 +58,4 @@ if __name__ == '__main__':
     t = time.time()
     orient = ImageOrientation([to_test])
     orient.run()
-    print(time.time() - t)
+    click.echo(time.time() - t)

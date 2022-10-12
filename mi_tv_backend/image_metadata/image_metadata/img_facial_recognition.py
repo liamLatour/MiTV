@@ -5,9 +5,10 @@ from os.path import join
 import pickle
 import face_recognition
 import numpy as np
+import click
 
 from .parallel_images import Images
-   
+
 
 refs = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\people_ref"
 to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
@@ -16,15 +17,22 @@ encoding_version = 1
 # Only one folder
 class References(Images):
    def __init__(self, path) -> None:
-      super().__init__([path])
+      super().__init__()
       
+      self.path = path
       self.face_paths = []
       self.face_encodings = []
       self.cur_id = 0
       self.metapath = join(path, ".people")
       
+   def run(self, path=None):
+      if path == None:
+         super().run([self.path])
+      else:
+         super().run([path])
+   
    def treat_img(self, path, data):
-      print(path)
+      click.echo(path)
       updates = {}
 
       if path not in data or "encoding_version" not in data[path] or data[path]["encoding_version"] != encoding_version:
@@ -59,13 +67,18 @@ class References(Images):
       return data
       
 class Photos(Images):
-   def __init__(self, paths, references) -> None:
-      super().__init__(paths)
+   def __init__(self, references) -> None:
+      super().__init__()
       
       self.ref = references
+      
+   def run(self, paths):
+      with open(self.ref.metapath, 'rb') as f:
+         self.ref_data = pickle.load(f)
+      super().run(paths)
          
    def treat_img(self, path, data):
-      print(path)
+      click.echo(path)
       updates = {}
 
       if path not in data or "encoding_version" not in data[path] or data[path]["encoding_version"] != encoding_version:
@@ -84,9 +97,6 @@ class Photos(Images):
       return (path, updates, ref_updates)
     
    def decompress_data(self, data, res):
-      with open(self.ref.metapath, 'rb') as f:
-         ref_data = pickle.load(f)
-      
       for img in res:
          if img[0] not in data:
             data[img[0]] = {}
@@ -98,17 +108,17 @@ class Photos(Images):
          # Update ref data
          for key in img[2]:
             if "del" in img[2][key]:
-               del ref_data[img[2][key]["del"]]["seen_in"][img[0]]
+               del self.ref_data[img[2][key]["del"]]["seen_in"][img[0]]
             if "seen_in" in img[2][key]:
-               if "seen_in" not in ref_data[key]:
-                  ref_data[key]["seen_in"] = {}
+               if "seen_in" not in self.ref_data[key]:
+                  self.ref_data[key]["seen_in"] = {}
                
-               ref_data[key]["seen_in"][img[0]] = {
-                  "closeness": ref_data[key]["closeness"]
+               self.ref_data[key]["seen_in"][img[0]] = {
+                  "closeness": img[2][key]["closeness"]
                }
          
       with open(self.ref.metapath, 'wb') as f:
-         pickle.dump(ref_data, f)
+         pickle.dump(self.ref_data, f)
       
       return data
 
@@ -188,7 +198,7 @@ class GetFaces():
         return imgs_path
 
 if __name__ == '__main__':
-   print(time.time() - t1)
+   click.echo(time.time() - t1)
    t = time.time()
 
    ref = References(refs)
@@ -196,4 +206,4 @@ if __name__ == '__main__':
    sample = Photos([to_test], ref)
    sample.run()
 
-   print(time.time() - t)
+   click.echo(time.time() - t)

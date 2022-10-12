@@ -1,10 +1,12 @@
 from setuptools import setup
 
+# install with: pip install ./image_metadata
+
 setup(
     name='ImageMetadata',
-    version='0.1.0',
+    version='0.3.0',
     packages=['image_metadata'],
-    scripts=['./bin/meta_data_creation.py'],
+    py_modules=["meta_data_creation", "print_metadata"],
     description='Writes metadata for images',
     install_requires=[
         "face-recognition",
@@ -14,5 +16,12 @@ setup(
         "tensorflow-hub",
         "scipy",
         "click",
+        "watchdog",
     ],
+    entry_points={
+        'console_scripts': [
+            'meta_data_creation = meta_data_creation:cli',
+            'print_metadata = print_metadata:cli',
+        ],    
+    },
 )

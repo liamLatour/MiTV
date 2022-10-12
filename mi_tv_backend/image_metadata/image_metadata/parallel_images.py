@@ -6,11 +6,11 @@ import pickle
 import multiprocessing
 
 class Images():
-   def __init__(self, paths):      
-        self.paths = paths
+   def __init__(self):      
+        pass
 
-   def run(self):
-        for path in self.paths:
+   def run(self, paths):
+        for path in paths:
             assert isdir(path)
             self.parse_imgs(path)
     
