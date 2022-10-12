@@ -32,9 +32,10 @@
       />
 
       <div v-if="media.type == 'dir'">
-        <img
-          :src="'http://127.0.0.1:5000/media_low_res/' + media.thumbnail"
+        <ImageItem
+          :source="'http://127.0.0.1:5000/media_low_res/' + media.thumbnail"
           alt="image introuvable"
+          class="image"
         />
         <a :href="media.path" class="overlay">
           <h2 class="dirname">

@@ -6,7 +6,6 @@ frontend:
 
 backend:
     - Integrate videos
-    - Auto scheluded image metadata
     - Upload image from website
     - AI images by event
     - Add time metadata to images
