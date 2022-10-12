@@ -1,7 +1,7 @@
 import itertools
 import imghdr
 from os import listdir
-from os.path import isdir, isfile, join
+from os.path import isdir, isfile, join, abspath
 import pickle
 import multiprocessing
 
@@ -33,7 +33,7 @@ class Images():
             _path = self.sanitize(join(path, f))
             
             if isfile(_path) and imghdr.what(_path) == "jpeg":
-                imgs_paths.append(_path)
+                imgs_paths.append(abspath(_path))
             elif isdir(_path):
                 self.parse_imgs(_path)
 

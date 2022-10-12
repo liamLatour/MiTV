@@ -35,7 +35,6 @@ class ImageSimilarity():
         tf.get_logger().setLevel('FATAL')
         tf.autograph.set_verbosity(0)
         
-        
         model_url = "https://tfhub.dev/tensorflow/efficientnet/lite0/feature-vector/2"
 
         self.IMAGE_SHAPE = (224, 224)
@@ -66,7 +65,7 @@ class ImageSimilarity():
         groups = {}
         
         for f in listdir(path):
-            _path = self.sanitize(join(path, f))
+            _path = abspath(self.sanitize(join(path, f)))
             
             if isfile(_path) and imghdr.what(_path) == "jpeg":
                 current_encoding = self.extract(_path)
