@@ -1,6 +1,7 @@
 from PIL import Image, ImageOps
 from os.path import isfile, join, abspath
 import pickle
+from .get_metadata import GetMetadata
 from .parallel_images import Images
 import click
 
@@ -34,15 +35,9 @@ class ImageOrientation(Images):
                 data[img[0]][key] = img[1][key]
         return data
 
-class GetOrientation():
+class GetOrientation(GetMetadata):
     def __init__(self, path):
-        meta_path = join(path, ".people")
-
-        if isfile(meta_path):
-            with open(meta_path, 'rb') as f:
-                self.data = pickle.load(f)
-        else:
-            self.data = None
+        super().__init__(path)
     
     def is_portrait(self, img_path):
         if self.data == None:

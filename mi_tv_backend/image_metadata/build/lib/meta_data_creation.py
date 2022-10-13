@@ -25,7 +25,11 @@ from image_metadata import (ImageOrientation, ImageSimilarity, Photos,
     default=True,
     show_default=True
 )
-def cli(continuous, nightly, ref_path, images_path):
+@click.option(
+    '--prerun/--no-prerun',
+    default=False
+)
+def cli(continuous, nightly, prerun, ref_path, images_path):
     """Script to generate image metadata"""    
     if images_path == None:
         click.echo('No images to treat')
@@ -37,16 +41,19 @@ def cli(continuous, nightly, ref_path, images_path):
     click.echo('Images Paths: '+str(images_path))
     click.echo('References Paths: '+str(ref_path))
     
-    meta_creation = MetadataCreation(ref_path, images_path, continuous, nightly)
+    meta_creation = MetadataCreation(ref_path, images_path, continuous, nightly, prerun)
     meta_creation.run()
     
 class MetadataCreation():
-    def __init__(self, ref_path, image_root_paths, continuous, nightly):
+    def __init__(self, ref_path, image_root_paths, continuous, nightly, prerun):
         self.ref_path = ref_path
         self.image_root_paths = image_root_paths
         self.continuous = continuous
         self.nightly = nightly
+        self.prerun = prerun
+        
         self.to_compute = []
+        self.scheluded_ref_update = False
         
         self.orientation = ImageOrientation()
         self.similarity = ImageSimilarity()
@@ -54,7 +61,10 @@ class MetadataCreation():
         self.face_recognition = Photos(self.references)
         
     def run(self):
-        self.references.run() # temp
+        self.references.run()
+        
+        if not self.continuous or self.prerun:
+            self.create_metadata()
         
         if self.continuous:
             # event handler
@@ -76,8 +86,24 @@ class MetadataCreation():
             except KeyboardInterrupt:
                 observer.stop()
                 observer.join()
-        else:
-            self.create_metadata()
+                
+            # ref event handler
+            ref_event_handler = PatternMatchingEventHandler(["*"], None, False, True)
+            ref_event_handler.on_modified = self.ref_event_handler
+            ref_event_handler.on_created  = self.ref_event_handler
+            ref_event_handler.on_moved    = self.ref_event_handler
+            
+            # ref observer
+            ref_observer = Observer()
+            ref_observer.schedule(ref_event_handler, self.ref_path, recursive=True)
+            ref_observer.start()
+            
+            try:
+                while True:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                ref_observer.stop()
+                ref_observer.join()
 
     def event_handler(self, event):
         path = event.src_path
@@ -126,3 +152,26 @@ class MetadataCreation():
         click.echo('Face recognition finished in: ' + str(time.time()-t1))
         
         click.echo('Finished in: ' + str(time.time()-t))
+        
+    def ref_event_handler(self, event):
+        if self.scheluded_ref_update:
+            return
+        
+        if self.nightly:
+            # 24 h = 86400 sec
+            cur_time = int(time.time())
+            delay = cur_time - cur_time%86400 + 86400 # midnight gmt
+        else:
+            delay = 360 # 5 mins
+
+        self.scheluded_ref_update = True
+        threading.Timer(delay, self.create_ref_metadata).start()
+    
+    def create_ref_metadata(self):
+        click.echo('Started on references')
+        self.scheluded_ref_update = False
+        
+        t = time.time()
+        click.echo('Reference face recognition')
+        self.references.run()
+        click.echo('Reference face recognition finished in: ' + str(time.time()-t))

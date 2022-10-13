@@ -14,7 +14,7 @@ import time
 app = Flask(__name__)
 CORS(app)
 root_photos_path = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
-get_faces = GetFaces()
+get_faces = GetFaces("C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\people_ref")
 
 """
 Return structure for media is:

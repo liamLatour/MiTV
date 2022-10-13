@@ -3,8 +3,8 @@ import pickle
 import face_recognition
 import numpy as np
 import click
-
 from .parallel_images import Images
+from .get_metadata import GetMetadata
 
 encoding_version = 1
 
@@ -46,7 +46,7 @@ class References(Images):
          for key in img[1]:
             data[img[0]][key] = img[1][key]
          
-         if len(data[img[0]]["encoding"]) > 0: # FIXME: shouldn't have to put this
+         if len(data[img[0]]["encoding"]) > 0: #FIXME: shouldn't have to put this
             self.face_encodings.append(data[img[0]]["encoding"][0])
             self.face_paths.append(img[0])
          
@@ -154,35 +154,31 @@ class Photos(Images):
       
       return ref_updates
 
-class GetFaces():
-    def __init__(self):
-        ref_path = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\people_ref"
-        meta_path = join(ref_path, ".people")
-        
-        with open(meta_path, 'rb') as f:
-            self.data = pickle.load(f)
-    
-    # Should be the only one used, it allows multiple ref images
-    def get_face_by_id(self, id, order_by_closeness=True):
-        imgs_path = []
-        
-        for p in self.data:
-            if self.data[p]["id"] == id:
-                imgs_path.extend(list(self.data[p]["seen_in"].items()))
-                
-        if order_by_closeness:
-            imgs_path.sort(key=lambda x:x[1]["closeness"])
-        
-        return imgs_path
+class GetFaces(GetMetadata):
+   def __init__(self, path):
+      super().__init__(path)
+   
+   # Should be the only one used, it allows multiple ref images
+   def get_face_by_id(self, id, order_by_closeness=True):
+      imgs_path = []
+      
+      for p in self.data:
+         if self.data[p]["id"] == id:
+               imgs_path.extend(list(self.data[p]["seen_in"].items()))
+               
+      if order_by_closeness:
+         imgs_path.sort(key=lambda x:x[1]["closeness"])
+      
+      return imgs_path
 
-    def get_face_by_name(self, name, order_by_closeness=True):
-        imgs_path = []
-    
-        for p in self.data:
-            if name in p and "seen_in" in self.data[p]:
-                imgs_path.extend(list(self.data[p]["seen_in"].items()))
+   def get_face_by_name(self, name, order_by_closeness=True):
+      imgs_path = []
+   
+      for p in self.data:
+         if name in p and "seen_in" in self.data[p]:
+               imgs_path.extend(list(self.data[p]["seen_in"].items()))
 
-        if order_by_closeness:
-            imgs_path.sort(key=lambda x:x[1]["closeness"])
+      if order_by_closeness:
+         imgs_path.sort(key=lambda x:x[1]["closeness"])
 
-        return imgs_path
+      return imgs_path

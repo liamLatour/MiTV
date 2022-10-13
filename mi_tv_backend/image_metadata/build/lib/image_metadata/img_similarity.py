@@ -5,7 +5,6 @@ os.environ['AUTOGRAPH_VERBOSITY'] = '0'
 
 import imghdr
 import pickle
-import time
 from os import listdir
 from os.path import isdir, isfile, join, abspath
 
@@ -13,9 +12,7 @@ import numpy as np
 from PIL import Image
 from scipy.spatial import distance
 import click
-
-
-to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
+from .get_metadata import GetMetadata
 
 ##
 #   CAREFUl: This assumes similar photos are in order
@@ -23,9 +20,7 @@ to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
 
 # https://towardsdatascience.com/image-similarity-with-deep-learning-c17d83068f59
 
-#FIXME: Problem with duplicates in groups display
-
-# TODO: could parallelize folders
+# TODO: could parallelize encoding then sequential treatment
 class ImageSimilarity():
     def __init__(self):
         
@@ -73,14 +68,15 @@ class ImageSimilarity():
                 
                 if last_pic != None and distance.cdist([current_encoding], [last_pic_encoding], self.metric)[0] < self.tolerance:
                     if stopped:
-                        group_nb += 1
-                        data[_path]["group_nb"] = group_nb
-                        groups[group_nb] = [_path]
-                    data[last_pic]["group_nb"] = group_nb
-                    if last_pic not in groups[group_nb]: #FIXME: sould not have to put that
-                        groups[group_nb].append(last_pic)
+                        data[last_pic]["group_nb"] = group_nb
+                        groups[group_nb] = [last_pic]
+                        
+                    data[_path]["group_nb"] = group_nb
+                    groups[group_nb].append(_path)
+                    
                     stopped = False
-                else:
+                elif not stopped:
+                    group_nb += 1
                     stopped = True
                 
                 last_pic = _path
@@ -108,16 +104,9 @@ class ImageSimilarity():
 
         return flattended_feature
 
-class GetGroups():
+class GetGroups(GetMetadata):
     def __init__(self, path):
-        self.already_seen_groups = []
-        meta_path = join(path, ".people")
-
-        if isfile(meta_path):
-            with open(meta_path, 'rb') as f:
-                self.data = pickle.load(f)
-        else:
-            self.data = None
+        super().__init__(path)
     
     def is_not_in_group(self, img_path):
         if self.data == None or abspath(img_path) not in self.data:
@@ -133,9 +122,3 @@ class GetGroups():
             return (True, self.data["groups"][img_data["group_nb"]])
         
         return (False, None)
-
-if __name__ == '__main__':
-    t = time.time()
-    sim = ImageSimilarity([to_test])
-    sim.run()
-    click.echo(time.time() - t)

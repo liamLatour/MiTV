@@ -1,17 +1,11 @@
-import time
-t1 = time.time()
-
 from os.path import join
 import pickle
 import face_recognition
 import numpy as np
 import click
-
 from .parallel_images import Images
+from .get_metadata import GetMetadata
 
-
-refs = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\people_ref"
-to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
 encoding_version = 1
 
 # Only one folder
@@ -46,17 +40,13 @@ class References(Images):
    
    def decompress_data(self, data, res):
       for img in res:
-         if  img[1] != {}:
-            if img[0] not in data:
-               data[img[0]] = {
-                  "encoding": img[1]["encoding"],
-                  "encoding_version": img[1]["encoding_version"]
-               }
-            else:
-               data[img[0]]["encoding"] = img[1]["encoding"]
-               data[img[0]]["encoding_version"] = img[1]["encoding_version"]
+         if img[0] not in data:
+            data[img[0]] = {}
          
-         if len(data[img[0]]["encoding"]) > 0: # FIXME: shouldn't have to put this
+         for key in img[1]:
+            data[img[0]][key] = img[1][key]
+         
+         if len(data[img[0]]["encoding"]) > 0: #FIXME: shouldn't have to put this
             self.face_encodings.append(data[img[0]]["encoding"][0])
             self.face_paths.append(img[0])
          
@@ -164,46 +154,31 @@ class Photos(Images):
       
       return ref_updates
 
-class GetFaces():
-    def __init__(self):
-        ref_path = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\people_ref"
-        meta_path = join(ref_path, ".people")
-        
-        with open(meta_path, 'rb') as f:
-            self.data = pickle.load(f)
-    
-    # Should be the only one used, it allows multiple ref images
-    def get_face_by_id(self, id, order_by_closeness=True):
-        imgs_path = []
-        
-        for p in self.data:
-            if self.data[p]["id"] == id:
-                imgs_path.extend(list(self.data[p]["seen_in"].items()))
-                
-        if order_by_closeness:
-            imgs_path.sort(key=lambda x:x[1]["closeness"])
-        
-        return imgs_path
+class GetFaces(GetMetadata):
+   def __init__(self, path):
+      super().__init__(path)
+   
+   # Should be the only one used, it allows multiple ref images
+   def get_face_by_id(self, id, order_by_closeness=True):
+      imgs_path = []
+      
+      for p in self.data:
+         if self.data[p]["id"] == id:
+               imgs_path.extend(list(self.data[p]["seen_in"].items()))
+               
+      if order_by_closeness:
+         imgs_path.sort(key=lambda x:x[1]["closeness"])
+      
+      return imgs_path
 
-    def get_face_by_name(self, name, order_by_closeness=True):
-        imgs_path = []
-    
-        for p in self.data:
-            if name in p and "seen_in" in self.data[p]:
-                imgs_path.extend(list(self.data[p]["seen_in"].items()))
+   def get_face_by_name(self, name, order_by_closeness=True):
+      imgs_path = []
+   
+      for p in self.data:
+         if name in p and "seen_in" in self.data[p]:
+               imgs_path.extend(list(self.data[p]["seen_in"].items()))
 
-        if order_by_closeness:
-            imgs_path.sort(key=lambda x:x[1]["closeness"])
+      if order_by_closeness:
+         imgs_path.sort(key=lambda x:x[1]["closeness"])
 
-        return imgs_path
-
-if __name__ == '__main__':
-   click.echo(time.time() - t1)
-   t = time.time()
-
-   ref = References(refs)
-   ref.run()
-   sample = Photos([to_test], ref)
-   sample.run()
-
-   click.echo(time.time() - t)
+      return imgs_path
