@@ -1,3 +1,4 @@
+cmake==3.24.0
 absl-py==1.2.0
 asgiref==3.5.2
 astunparse==1.6.3

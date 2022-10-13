@@ -24,6 +24,6 @@ class MetadataCreation():
         self.face_recognition.run()
         
 if __name__ == '__main__':
-    refs = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\people_ref"
-    to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
+    refs = "people_ref"
+    to_test = "photos"
     meta_creation = MetadataCreation(refs, [to_test])
