@@ -1,7 +1,7 @@
 from flask import Flask, send_file, jsonify
 from flask_cors import CORS
 from io import BytesIO 
-from os import listdir
+from os import listdir, getcwd
 from os.path import isfile, join, isdir
 import imghdr
 import json
@@ -13,8 +13,8 @@ import time
 
 app = Flask(__name__)
 CORS(app)
-root_photos_path = "photos"
-get_faces = GetFaces("people_ref")
+root_photos_path = getcwd() + "\\mi_tv_backend\\photos"
+get_faces = GetFaces(getcwd() + "\\mi_tv_backend\\people_ref")
 
 """
 Return structure for media is:
