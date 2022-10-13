@@ -42,13 +42,9 @@ class References(Images):
       for img in res:
          if  img[1] != {}:
             if img[0] not in data:
-               data[img[0]] = {
-                  "encoding": img[1]["encoding"],
-                  "encoding_version": img[1]["encoding_version"]
-               }
-            else:
-               data[img[0]]["encoding"] = img[1]["encoding"]
-               data[img[0]]["encoding_version"] = img[1]["encoding_version"]
+               data[img[0]] = {}
+            data[img[0]]["encoding"] = img[1]["encoding"]
+            data[img[0]]["encoding_version"] = img[1]["encoding_version"]
          
          if len(data[img[0]]["encoding"]) > 0: # FIXME: shouldn't have to put this
             self.face_encodings.append(data[img[0]]["encoding"][0])

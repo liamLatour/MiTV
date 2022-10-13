@@ -10,24 +10,28 @@ class ImageOrientation(Images):
     
     def treat_img(self, path, data):
         click.echo(path)
+        updates = {}
+        image = None
         
         if path not in data or "is_portrait" not in data[path]:
             image = Image.open(path)
             image = ImageOps.exif_transpose(image)
-            is_portrait = image.size[1] > image.size[0]
-        else:
-            return (path, data[path]["is_portrait"])
+            updates["is_portrait"] = image.size[1] > image.size[0]
         
-        return (path, is_portrait)
+        if path not in data or "date" not in data[path]:
+            if image == None:
+                image = Image.open(path)
+            updates["date"] = image._getexif()[36867]
+        
+        return (path, updates)
     
     def decompress_data(self, data, res):
         for img in res:
             if img[0] not in data:
-                data[img[0]] = {
-                    "is_portrait": img[1]
-                }
-            else:
-                data[img[0]]["is_portrait"] = img[1]
+                data[img[0]] = {}
+            
+            for key in img[1]:
+                data[img[0]][key] = img[1][key]
         return data
 
 class GetOrientation():
