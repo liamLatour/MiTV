@@ -51,7 +51,9 @@ class MetadataCreation():
         self.continuous = continuous
         self.nightly = nightly
         self.prerun = prerun
+        
         self.to_compute = []
+        self.scheluded_ref_update = False
         
         self.orientation = ImageOrientation()
         self.similarity = ImageSimilarity()
@@ -59,7 +61,7 @@ class MetadataCreation():
         self.face_recognition = Photos(self.references)
         
     def run(self):
-        self.references.run() # temp
+        self.references.run()
         
         if not self.continuous or self.prerun:
             self.create_metadata()
@@ -83,7 +85,25 @@ class MetadataCreation():
                     time.sleep(1)
             except KeyboardInterrupt:
                 observer.stop()
-                observer.join()            
+                observer.join()
+                
+            # ref event handler
+            ref_event_handler = PatternMatchingEventHandler(["*"], None, False, True)
+            ref_event_handler.on_modified = self.ref_event_handler
+            ref_event_handler.on_created  = self.ref_event_handler
+            ref_event_handler.on_moved    = self.ref_event_handler
+            
+            # ref observer
+            ref_observer = Observer()
+            ref_observer.schedule(ref_event_handler, self.ref_path, recursive=True)
+            ref_observer.start()
+            
+            try:
+                while True:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                ref_observer.stop()
+                ref_observer.join()
 
     def event_handler(self, event):
         path = event.src_path
@@ -132,3 +152,26 @@ class MetadataCreation():
         click.echo('Face recognition finished in: ' + str(time.time()-t1))
         
         click.echo('Finished in: ' + str(time.time()-t))
+        
+    def ref_event_handler(self, event):
+        if self.scheluded_ref_update:
+            return
+        
+        if self.nightly:
+            # 24 h = 86400 sec
+            cur_time = int(time.time())
+            delay = cur_time - cur_time%86400 + 86400 # midnight gmt
+        else:
+            delay = 360 # 5 mins
+
+        self.scheluded_ref_update = True
+        threading.Timer(delay, self.create_ref_metadata).start()
+    
+    def create_ref_metadata(self):
+        click.echo('Started on references')
+        self.scheluded_ref_update = False
+        
+        t = time.time()
+        click.echo('Reference face recognition')
+        self.references.run()
+        click.echo('Reference face recognition finished in: ' + str(time.time()-t))

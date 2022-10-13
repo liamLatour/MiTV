@@ -40,11 +40,11 @@ class References(Images):
    
    def decompress_data(self, data, res):
       for img in res:
-         if  img[1] != {}:
-            if img[0] not in data:
-               data[img[0]] = {}
-            data[img[0]]["encoding"] = img[1]["encoding"]
-            data[img[0]]["encoding_version"] = img[1]["encoding_version"]
+         if img[0] not in data:
+            data[img[0]] = {}
+         
+         for key in img[1]:
+            data[img[0]][key] = img[1][key]
          
          if len(data[img[0]]["encoding"]) > 0: # FIXME: shouldn't have to put this
             self.face_encodings.append(data[img[0]]["encoding"][0])
