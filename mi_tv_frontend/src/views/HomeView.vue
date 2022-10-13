@@ -3,11 +3,11 @@
     <img src="../assets/paysage.jpg" alt="" />
     <div class="tagline">
       <h2>Rendre vos années mémorables</h2>
-      <a href="/photos/photos">Voir les photos</a>
+      <h3><a href="/photos/photos">Voir les photos</a></h3>
     </div>
   </div>
   <div id="team" class="fullpage">
-    <h2 class="title">L'équipe</h2>
+    <h1 class="title">L'équipe</h1>
     <div class="members">
       <Member role="Trésorier" nom="PHALIPPOU--GELABERT" prenom="Donatien" />
       <Member role="Président" nom="CHAZALON" prenom="Louis" />
@@ -25,7 +25,7 @@
     </div>
   </div>
   <div id="hardware" class="fullpage">
-    <h2 class="title">Le matériel</h2>
+    <h1 class="title">Le matériel</h1>
     <div class="gearlist">
       <PhotoGear
         type="Appareil photo"
@@ -38,10 +38,10 @@
     </div>
   </div>
   <div id="legal" class="fullpage">
-    <h2 class="title">Mention légales</h2>
+    <h1 class="title">Mention légales</h1>
 
     <!--https://entreprendre.service-public.fr/vosdroits/F31228/personnalisation/resultat?lang=&quest0=0&quest=-->
-    <h1>C'est pas de nôtre faute</h1>
+    <h2>C'est pas de nôtre faute</h2>
     <p>Je te promet si tu fais de la merde je te casse la gueule</p>
   </div>
 </template>
@@ -67,12 +67,10 @@ export default defineComponent({
 }
 
 .title {
-  font-size: 3em;
-  font-weight: 700;
   margin: auto;
   text-align: center;
   padding: 20px;
-  margin-bottom: 50px;
+  margin-bottom: 0px;
 }
 
 #team {
@@ -123,10 +121,6 @@ export default defineComponent({
     font-size: 40px;
     width: 400px;
     line-height: 70px;
-
-    h2 {
-      margin-bottom: 60px;
-    }
   }
 }
 </style>

@@ -7,10 +7,25 @@ body {
 a {
   text-decoration: none;
   color: rgb(157, 234, 248);
+  transition: .3s;
 }
+
+h1{
+  font-size: 4.2em;
+}
+
+h2{
+  font-size: 1.5em;
+}
+
+h3{
+  font-size: 1em;
+}
+
+
 
 @media (hover: hover) {
   a:hover {
-    color: rgb(155, 235, 235);
+    color: rgb(98, 129, 230);
   }
 }

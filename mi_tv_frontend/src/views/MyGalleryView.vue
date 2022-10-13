@@ -55,9 +55,5 @@ export default defineComponent({
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
-
-  .eventname {
-    font-size: 70px;
-  }
 }
 </style>
