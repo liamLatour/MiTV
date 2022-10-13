@@ -1,11 +1,8 @@
 from PIL import Image, ImageOps
 from os.path import isfile, join, abspath
 import pickle
-import time
 from .parallel_images import Images
 import click
-
-to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
 
 class ImageOrientation(Images):
     def __init__(self):
@@ -53,9 +50,3 @@ class GetOrientation():
             return False
         
         return img_data["is_portrait"]
-
-if __name__ == '__main__':
-    t = time.time()
-    orient = ImageOrientation([to_test])
-    orient.run()
-    click.echo(time.time() - t)

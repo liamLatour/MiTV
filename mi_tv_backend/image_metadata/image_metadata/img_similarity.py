@@ -5,7 +5,6 @@ os.environ['AUTOGRAPH_VERBOSITY'] = '0'
 
 import imghdr
 import pickle
-import time
 from os import listdir
 from os.path import isdir, isfile, join, abspath
 
@@ -14,16 +13,11 @@ from PIL import Image
 from scipy.spatial import distance
 import click
 
-
-to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
-
 ##
 #   CAREFUl: This assumes similar photos are in order
 ##
 
 # https://towardsdatascience.com/image-similarity-with-deep-learning-c17d83068f59
-
-#FIXME: Problem with duplicates in groups display
 
 # TODO: could parallelize folders, or parallelize encoding then sequential treatment
 class ImageSimilarity():
@@ -133,9 +127,3 @@ class GetGroups():
             return (True, self.data["groups"][img_data["group_nb"]])
         
         return (False, None)
-
-if __name__ == '__main__':
-    t = time.time()
-    sim = ImageSimilarity([to_test])
-    sim.run()
-    click.echo(time.time() - t)

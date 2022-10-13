@@ -1,6 +1,3 @@
-import time
-t1 = time.time()
-
 from os.path import join
 import pickle
 import face_recognition
@@ -9,9 +6,6 @@ import click
 
 from .parallel_images import Images
 
-
-refs = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\people_ref"
-to_test = "C:\\Users\\liaml\\Projets\\ROOTS Template\\mi_tv_backend\\photos"
 encoding_version = 1
 
 # Only one folder
@@ -196,14 +190,3 @@ class GetFaces():
             imgs_path.sort(key=lambda x:x[1]["closeness"])
 
         return imgs_path
-
-if __name__ == '__main__':
-   click.echo(time.time() - t1)
-   t = time.time()
-
-   ref = References(refs)
-   ref.run()
-   sample = Photos([to_test], ref)
-   sample.run()
-
-   click.echo(time.time() - t)
