@@ -57,7 +57,6 @@ export default defineComponent({
   margin-bottom: 20px;
 
   .eventname {
-    font-size: 70px;
     margin-top: 80px;
   }
 }
