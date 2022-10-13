@@ -134,7 +134,6 @@ export default defineComponent({
       this.modalImg = this.medias[index].path;
     },
     changeModalImage(path: string) {
-      console.log(path);
       this.modalImg = path;
     },
     getModalImg() {
@@ -187,6 +186,13 @@ export default defineComponent({
       bottom: 0;
       top: 0;
       background-color: rgba(0, 0, 0, 0.5);
+      transition: transform 0.4s;
+
+      &:hover {
+        -ms-transform: scale(1.1); /* IE 9 */
+        -webkit-transform: scale(1.1); /* Safari 3-8 */
+        transform: scale(1.1);
+      }
 
       .dirname {
         position: absolute;

@@ -8,4 +8,10 @@ backend:
     - Integrate videos
     - Upload image from website
     - AI images by event
+
+metadata creation:
     - Add time metadata to images
+    - Separate encoding and metadata for better loading perf
+    - Check for changes in getters
+    - Create unit tests
+    

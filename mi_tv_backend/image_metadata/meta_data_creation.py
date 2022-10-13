@@ -25,7 +25,11 @@ from image_metadata import (ImageOrientation, ImageSimilarity, Photos,
     default=True,
     show_default=True
 )
-def cli(continuous, nightly, ref_path, images_path):
+@click.option(
+    '--prerun/--no-prerun',
+    default=False
+)
+def cli(continuous, nightly, prerun, ref_path, images_path):
     """Script to generate image metadata"""    
     if images_path == None:
         click.echo('No images to treat')
@@ -37,15 +41,16 @@ def cli(continuous, nightly, ref_path, images_path):
     click.echo('Images Paths: '+str(images_path))
     click.echo('References Paths: '+str(ref_path))
     
-    meta_creation = MetadataCreation(ref_path, images_path, continuous, nightly)
+    meta_creation = MetadataCreation(ref_path, images_path, continuous, nightly, prerun)
     meta_creation.run()
     
 class MetadataCreation():
-    def __init__(self, ref_path, image_root_paths, continuous, nightly):
+    def __init__(self, ref_path, image_root_paths, continuous, nightly, prerun):
         self.ref_path = ref_path
         self.image_root_paths = image_root_paths
         self.continuous = continuous
         self.nightly = nightly
+        self.prerun = prerun
         self.to_compute = []
         
         self.orientation = ImageOrientation()
@@ -55,6 +60,9 @@ class MetadataCreation():
         
     def run(self):
         self.references.run() # temp
+        
+        if not self.continuous or self.prerun:
+            self.create_metadata()
         
         if self.continuous:
             # event handler
@@ -75,9 +83,7 @@ class MetadataCreation():
                     time.sleep(1)
             except KeyboardInterrupt:
                 observer.stop()
-                observer.join()
-        else:
-            self.create_metadata()
+                observer.join()            
 
     def event_handler(self, event):
         path = event.src_path
