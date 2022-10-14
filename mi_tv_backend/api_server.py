@@ -1,8 +1,9 @@
+from genericpath import exists
 from flask import Flask, send_file, jsonify
 from flask_cors import CORS
 from io import BytesIO 
 from os import listdir, getcwd
-from os.path import isfile, join, isdir
+from os.path import isfile, join, isdir, exists
 import imghdr
 import json
 from PIL import Image, ImageOps
@@ -13,8 +14,8 @@ import time
 
 app = Flask(__name__)
 CORS(app)
-root_photos_path = getcwd() + "\\mi_tv_backend\\photos"
-get_faces = GetFaces(getcwd() + "\\mi_tv_backend\\people_ref")
+root_photos_path = getcwd() + "\\photos"
+get_faces = GetFaces(getcwd() + "\\people_ref")
 
 """
 Return structure for media is:
@@ -110,15 +111,16 @@ def get_architecture(dirname):
     media = {
         "files": []
     }
-    
+
     orientation = GetOrientation(dirname)
     groups = GetGroups(dirname)
-
+    
     for f in listdir(dirname):
         path = join(dirname, f)
         media_data = {
             "path": path,
         }
+
         if isfile(path):
             if imghdr.what(path) == "jpeg":
                 is_not_in_group, others = groups.is_not_in_group(path)
