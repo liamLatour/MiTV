@@ -107,6 +107,7 @@ class ImageSimilarity():
 class GetGroups(GetMetadata):
     def __init__(self, path):
         super().__init__(path)
+        self.already_seen_groups = []
     
     def is_not_in_group(self, img_path):
         if self.data == None or abspath(img_path) not in self.data:

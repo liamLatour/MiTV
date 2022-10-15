@@ -22,7 +22,11 @@ class ImageOrientation(Images):
         if path not in data or "date" not in data[path]:
             if image == None:
                 image = Image.open(path)
-            updates["date"] = image._getexif()[36867]
+            try:
+                updates["date"] = image._getexif()[36867]
+            except Exception as e:
+                click.echo(e)
+                updates["date"] = "-1"
         
         return (path, updates)
     
