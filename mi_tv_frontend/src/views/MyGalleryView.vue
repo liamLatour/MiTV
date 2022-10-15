@@ -1,7 +1,7 @@
 <template>
-  <div class="header">
-    <h1 class="eventname">{{ title }}</h1>
-    <h2 class="organisation">{{ organisation }}</h2>
+  <div class="flex flex-col items-center mb-5 mt-10 sm:mt-16">
+    <h1 class="text-3xl sm:text-6xl">{{ title }}</h1>
+    <h2 class="text-xl sm:text-2xl">{{ organisation }}</h2>
   </div>
   <GalleryViewer :medias="items" :is-global="false" />
 </template>
@@ -12,17 +12,24 @@ import GalleryViewer from "../components/GalleryViewer.vue";
 import axios from "axios";
 
 export default defineComponent({
-  name: "GalleryView",
+  name: "MyGalleryView",
   components: {
     GalleryViewer: GalleryViewer,
   },
   created() {
     this.getMedias();
   },
+  data() {
+    return {
+      items: {},
+      title: "",
+      organisation: "",
+    };
+  },
   methods: {
     async getMedias() {
       try {
-        let url = "http://127.0.0.1:5000/get_by_name/";
+        let url = "http://127.0.0.1:5000/get_by_name/munier";
 
         for (let i in this.$route.params.path as Array<string>) {
           url += this.$route.params.path[i] + "/";
@@ -38,22 +45,5 @@ export default defineComponent({
       }
     },
   },
-  data() {
-    return {
-      items: {},
-      title: "",
-      organisation: "",
-    };
-  },
 });
 </script>
-
-<style lang="scss">
-.header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-</style>

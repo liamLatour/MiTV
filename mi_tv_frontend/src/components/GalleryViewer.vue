@@ -3,18 +3,20 @@
     class="grid"
     v-bind:style="{ 'grid-template-columns': 'repeat(' + columns + ', 1fr)' }"
   >
-    <!--
-    <div class="media portrait" v-if="isglobal">
-      <div>
-        <img
-          src="http://127.0.0.1:5000/media_low_res/people_ref/liam.jpg"
-          alt="image introuvable"
-        />
-        <a href="/mes_photos" class="overlay">
-          <h2 class="dirname">Mes Photos</h2>
-        </a>
-      </div>
-    </div>-->
+    <div class="overflow-hidden m-0.5 bg-slate-500" v-if="isGlobal">
+      <ImageItem
+        source="http://127.0.0.1:5000/media_low_res/people_ref/liam.jpg"
+        alt="image introuvable"
+        class="cursor-pointer image-anim portrait"
+      />
+      <a
+        href="/mes_photos"
+        class="absolute flex items-center justify-center left-0 right-0 bottom-0 top-0 bg-black bg-opacity-50 transition-all duration-300 hover:bg-opacity-5 hover:text-transparent"
+      >
+        <h2 class="text-2xl">Mes Photos</h2>
+      </a>
+    </div>
+
     <div
       class="overflow-hidden m-0.5"
       v-for="(media, index) in medias"
@@ -32,14 +34,14 @@
         v-if="media.type == 'pic'"
         :source="'http://127.0.0.1:5000/media_low_res/' + media.path"
         @click="openImage(index)"
-        class="cursor-pointer image"
+        class="cursor-pointer image-anim"
       />
 
       <div v-if="media.type == 'dir'">
         <ImageItem
           :source="'http://127.0.0.1:5000/media_low_res/' + media.thumbnail"
           alt="image introuvable"
-          class="cursor-pointer image"
+          class="cursor-pointer image-anim"
         />
         <a
           :href="media.path"
@@ -100,7 +102,7 @@
           v-for="path in medias[currentImg].others"
           :key="path"
           :src="'http://127.0.0.1:5000/media_low_res/' + path"
-          class="h-full p-1 cursor-pointer image"
+          class="h-full p-1 cursor-pointer image-anim"
           alt="image introuvable"
           @click="changeModalImage(path)"
           v-on:click.stop
@@ -167,7 +169,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.image {
+.image-anim {
   transition: transform 0.4s;
 
   &:hover {
@@ -178,8 +180,8 @@ export default defineComponent({
 }
 
 .portrait {
-  margin-left: 28%;
-  margin-right: 28%;
+  padding-left: 28%;
+  padding-right: 28%;
 }
 
 .modal {

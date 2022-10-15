@@ -4,7 +4,6 @@ frontend:
     - Upload image from website
     - Integrate AI images
     - Configure axios globally (baseurl)
-    - Create global styling for better consistency and responsivness
 
 backend:
     - Integrate videos
