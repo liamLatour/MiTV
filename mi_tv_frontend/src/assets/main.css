@@ -4,6 +4,20 @@ body {
   color: white;
 }
 
+button, input[type="submit"], input[type="reset"] {
+	background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+}
+
+input[type="file"]{
+  display: none;
+}
+
 a {
   text-decoration: none;
   color: rgb(157, 234, 248);
