@@ -16,9 +16,10 @@ import {
   faPlay,
   faSpinner,
   faUpload,
+  faBars,
 } from "@fortawesome/free-solid-svg-icons";
 
-library.add(faFolder, faDownload, faTimes, faPlay, faSpinner, faUpload);
+library.add(faFolder, faDownload, faTimes, faPlay, faSpinner, faUpload, faBars);
 
 const app = createApp(App);
 app.use(router);

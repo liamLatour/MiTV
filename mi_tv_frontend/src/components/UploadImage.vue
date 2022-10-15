@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper">
+  <div class="flex flex-col mt-11 h-2/4">
     <div v-if="progressInfos">
       <div class="" v-for="(progressInfo, index) in progressInfos" :key="index">
         <span>{{ progressInfo.fileName }}</span>
@@ -18,12 +18,20 @@
       </div>
     </div>
 
-    <div class="files">
+    <div
+      class="flex w-11/12 sm:w-2/3 max-w-screen-lg h-full m-auto rounded-xl mb-5 border-dashed border-gray-500 border-2 justify-center items-center"
+    >
       <input type="file" multiple @change="selectFile" />
-      <label>Déposer vos images ici</label>
+      <label class="font-semibold text-xl sm:text-2xl"
+        >Déposer vos images ici</label
+      >
     </div>
 
-    <button class="upload" :disabled="!selectedFiles" @click="uploadFiles">
+    <button
+      class="text-green-400 text-4xl"
+      :disabled="!selectedFiles"
+      @click="uploadFiles"
+    >
       <font-awesome-icon icon="fa-solid fa-upload" />
     </button>
 
@@ -105,36 +113,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-.wrapper {
-  display: flex;
-  flex-direction: column;
-  margin-top: 50px;
-  height: 50%;
-
-  .files {
-    display: block;
-    width: 70%;
-    height: 100%;
-    margin: auto;
-    border: 2px dashed grey;
-    border-radius: 10px;
-    margin-bottom: 20px;
-
-    label {
-      position: absolute;
-      transform: translate(-50%, -50%);
-      left: 50%;
-      top: 50%;
-      font-weight: 700;
-      font-size: large;
-    }
-  }
-  .upload {
-    color: rgb(84, 223, 107);
-    font-size: 2.3em;
-  }
-}
-
 #app {
   height: 100vh;
 }
