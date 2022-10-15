@@ -19,7 +19,7 @@
     </div>
 
     <div
-      class="flex w-11/12 sm:w-2/3 max-w-screen-lg h-full m-auto rounded-xl mb-5 border-dashed border-gray-500 border-2 justify-center items-center"
+      class="flex w-11/12 sm:w-2/3 h-72 max-w-screen-lg m-auto rounded-xl mb-5 border-dashed border-gray-500 border-2 justify-center items-center"
     >
       <input type="file" multiple @change="selectFile" />
       <label class="font-semibold text-xl sm:text-2xl"
@@ -111,9 +111,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="scss">
-#app {
-  height: 100vh;
-}
-</style>

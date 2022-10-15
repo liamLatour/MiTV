@@ -1,6 +1,6 @@
 <template>
   <div
-    class="viewer"
+    class="grid"
     v-bind:style="{ 'grid-template-columns': 'repeat(' + columns + ', 1fr)' }"
   >
     <!--
@@ -16,29 +16,36 @@
       </div>
     </div>-->
     <div
-      class="media"
+      class="overflow-hidden m-0.5"
       v-for="(media, index) in medias"
       :key="media.path"
       v-bind:class="{ portrait: media.is_portrait }"
     >
-      <span class="group" v-if="media.others != null">
+      <span
+        class="z-10 m-2 text-4xl opacity-60 absolute bottom-0 right-0"
+        v-if="media.others != null"
+      >
         <font-awesome-icon icon="fa-solid fa-folder" />
       </span>
+
       <ImageItem
         v-if="media.type == 'pic'"
         :source="'http://127.0.0.1:5000/media_low_res/' + media.path"
         @click="openImage(index)"
-        class="image"
+        class="cursor-pointer image"
       />
 
       <div v-if="media.type == 'dir'">
         <ImageItem
           :source="'http://127.0.0.1:5000/media_low_res/' + media.thumbnail"
           alt="image introuvable"
-          class="image"
+          class="cursor-pointer image"
         />
-        <a :href="media.path" class="overlay">
-          <h2 class="dirname">
+        <a
+          :href="media.path"
+          class="absolute flex items-center justify-center left-0 right-0 bottom-0 top-0 bg-black bg-opacity-50 transition-all duration-300 hover:bg-opacity-5 hover:text-transparent"
+        >
+          <h2 class="text-2xl">
             {{ media.event_name }}
           </h2>
         </a>
@@ -47,42 +54,53 @@
   </div>
 
   <div
-    class="modal"
+    class="modal fixed flex flex-col z-30 left-0 top-0 w-full h-screen overflow-auto bg-black bg-opacity-70"
     v-if="showModal"
     @click="showModal = false"
-    v-bind:class="{ small: medias[currentImg].others == null }"
+    :class="{ small: medias[currentImg].others == null }"
   >
-    <div class="top">
-      <div class="right-icons">
-        <a :href="'http://127.0.0.1:5000/download/' + getModalImg()" download>
+    <div class="h-12">
+      <div class="absolute right-2 m-1 text-white text-3xl">
+        <a
+          :href="'http://127.0.0.1:5000/download/' + getModalImg()"
+          class=""
+          download
+        >
           <font-awesome-icon
             icon="fa-solid fa-download"
-            class="download"
+            class="m-1 mr-4 hover:text-gray-300"
             v-on:click.stop
           />
         </a>
         <font-awesome-icon
           icon="fa-solid fa-times"
-          class="close"
+          class="m-1 mr-4 hover:text-gray-300 cursor-pointer"
           @click="showModal = false"
         />
       </div>
     </div>
-    <div class="modal-content">
-      <div class="imgContainer">
+
+    <div class="modal-content flex m-auto">
+      <div class="imgContainer max-w-full max-h-full m-auto">
         <img
           :src="'http://127.0.0.1:5000/media/' + getModalImg()"
           alt="image introuvable"
           v-on:click.stop
+          class="object-cover max-h-full max-w-full"
         />
       </div>
     </div>
-    <div class="footer">
-      <div class="others" v-if="medias[currentImg].others != null">
+
+    <div :class="{ 'h-5': medias[currentImg].others == null }" class="max-h-36">
+      <div
+        class="flex justify-center h-36"
+        v-if="medias[currentImg].others != null"
+      >
         <img
           v-for="path in medias[currentImg].others"
           :key="path"
           :src="'http://127.0.0.1:5000/media_low_res/' + path"
+          class="h-full p-1 cursor-pointer image"
           alt="image introuvable"
           @click="changeModalImage(path)"
           v-on:click.stop
@@ -149,154 +167,34 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.viewer {
-  display: grid;
-  //grid-template-columns: repeat(36, 1fr);
+.image {
+  transition: transform 0.4s;
 
-  .media {
-    overflow: hidden;
-    margin: 2px;
-    aspect-ratio: 3/2;
-
-    .image {
-      transition: transform 0.4s;
-      cursor: pointer;
-
-      &:hover {
-        -ms-transform: scale(1.1); /* IE 9 */
-        -webkit-transform: scale(1.1); /* Safari 3-8 */
-        transform: scale(1.1);
-      }
-    }
-
-    .group {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      z-index: 10;
-      margin: 10px;
-      font-size: 25px;
-      color: rgba(255, 255, 255, 0.616);
-    }
-
-    .overlay {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      top: 0;
-      background-color: rgba(0, 0, 0, 0.5);
-      transition: transform 0.4s;
-
-      &:hover {
-        -ms-transform: scale(1.1); /* IE 9 */
-        -webkit-transform: scale(1.1); /* Safari 3-8 */
-        transform: scale(1.1);
-      }
-
-      .dirname {
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: calc(50% - 24px);
-        text-align: center;
-        font-size: 30px;
-      }
-    }
-  }
-  .portrait {
-    aspect-ratio: 2/3;
-    margin-left: 28%;
-    margin-right: 28%;
+  &:hover {
+    -ms-transform: scale(1.1); /* IE 9 */
+    -webkit-transform: scale(1.1); /* Safari 3-8 */
+    transform: scale(1.1);
   }
 }
 
+.portrait {
+  margin-left: 28%;
+  margin-right: 28%;
+}
+
 .modal {
-  position: fixed; /* Stay in place */
-  z-index: 100; /* Sit on top */
-  left: 0;
-  top: 0;
-  width: 100%; /* Full width */
-  height: 100vh; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0, 0, 0); /* Fallback color */
-  background-color: rgba(0, 0, 0, 0.685); /* Black w/ opacity */
-
-  .top {
-    height: 50px;
-
-    .right-icons {
-      position: absolute;
-      right: 10px;
-      margin: 5px;
-      color: rgb(255, 255, 255);
-      font-size: 30px;
-
-      a {
-        all: unset;
-      }
-
-      svg {
-        margin: 5px;
-        margin-right: 15px;
-
-        &:hover,
-        &:focus {
-          color: rgb(141, 141, 141);
-          text-decoration: none;
-          cursor: pointer;
-        }
-      }
-    }
-  }
-
   .modal-content {
-    margin: auto;
-    height: calc(100% - 50px - 150px);
-    display: flex;
+    height: calc(100% - 48px - 144px);
 
     .imgContainer {
-      margin: auto;
-      max-height: 100%;
-      max-width: 100%;
       aspect-ratio: 3/2; //TODO: change that for portrait
-
-      img {
-        height: 100%;
-        object-fit: cover;
-      }
-    }
-  }
-
-  .footer {
-    height: 150px;
-    .others {
-      display: flex;
-      justify-content: center;
-      height: 140px;
-
-      img {
-        height: 100%;
-        margin: 5px;
-        cursor: pointer;
-        transition: transform 0.1s;
-
-        &:hover {
-          -ms-transform: scale(1.05); /* IE 9 */
-          -webkit-transform: scale(1.05); /* Safari 3-8 */
-          transform: scale(1.05);
-        }
-      }
     }
   }
 }
 
 .small {
-  .footer {
-    height: 20px;
-  }
   .modal-content {
-    height: calc(100% - 50px - 20px);
+    height: calc(100% - 48px - 20px);
   }
 }
 </style>

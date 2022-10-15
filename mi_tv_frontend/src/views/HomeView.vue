@@ -1,20 +1,26 @@
 <template>
-  <div id="landing" class="fullpage">
-    <img src="../assets/paysage.jpg" alt="" />
-    <div class="tagline">
+  <div id="landing" class="h-screen overflow-clip">
+    <img
+      src="../assets/paysage.jpg"
+      alt=""
+      class="min-h-screen min-w-full max-w-none"
+    />
+    <div
+      class="absolute left-8 bottom-8 sm:left-20 sm:bottom-20 text-2xl w-72 leading-snug sm:w-96 sm:leading-snug sm:text-4xl"
+    >
       <h2>Rendre vos années mémorables</h2>
       <h3><a href="/photos/photos">Voir les photos</a></h3>
     </div>
   </div>
-  <div id="team" class="fullpage">
-    <h1 class="title">L'équipe</h1>
-    <div class="members">
+  <div id="team" class="h-screen overflow-clip bg-indigo-900 bg-opacity-10">
+    <h1 class="text-center text-3xl p-4 sm:text-6xl">L'équipe</h1>
+    <div class="flex items-center justify-around flex-wrap max-w-4xl m-auto">
       <Member role="Trésorier" nom="PHALIPPOU--GELABERT" prenom="Donatien" />
       <Member role="Président" nom="CHAZALON" prenom="Louis" />
       <Member role="Secrétaire" nom="GUERRIERI" prenom="Hugo" />
     </div>
-    <hr />
-    <div class="members">
+    <hr class="w-2/3 m-auto border-gray-600" />
+    <div class="flex items-center justify-around flex-wrap max-w-4xl m-auto">
       <Member role="Membre" nom="POTTIER" prenom="Etienne" />
       <Member role="Membre" nom="ANDRE" prenom="Victor" />
       <Member role="Membre" nom="PORTIER" prenom="Aurélien" />
@@ -24,9 +30,9 @@
       <Member role="Membre" nom="GUERIN" prenom="Gabriel" />
     </div>
   </div>
-  <div id="hardware" class="fullpage">
-    <h1 class="title">Le matériel</h1>
-    <div class="gearlist">
+  <div id="hardware" class="h-screen overflow-clip bg-red-900 bg-opacity-10">
+    <h1 class="text-center text-3xl p-4 sm:text-6xl">Le matériel</h1>
+    <div class="flex items-center justify-around flex-wrap max-w-4xl m-auto">
       <PhotoGear
         type="Appareil photo"
         name="Nikon d3500"
@@ -37,8 +43,8 @@
       <PhotoGear type="Membre" name="GUERIN" reference="Gabriel" />
     </div>
   </div>
-  <div id="legal" class="fullpage">
-    <h1 class="title">Mention légales</h1>
+  <div id="legal" class="h-screen overflow-clip bg-teal-900 bg-opacity-10">
+    <h1 class="text-center text-3xl p-4 sm:text-6xl">Mention légales</h1>
 
     <!--https://entreprendre.service-public.fr/vosdroits/F31228/personnalisation/resultat?lang=&quest0=0&quest=-->
     <h2>C'est pas de nôtre faute</h2>
@@ -59,68 +65,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style scoped lang="scss">
-.fullpage {
-  height: 100vh;
-  overflow: clip;
-}
-
-.title {
-  margin: auto;
-  text-align: center;
-  padding: 20px;
-  margin-bottom: 0px;
-}
-
-#team {
-  background-color: rgb(34, 26, 26);
-
-  hr {
-    width: 60%;
-    margin: auto;
-    margin-bottom: 20px;
-    margin-top: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.137);
-  }
-
-  .members {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    flex-wrap: wrap;
-
-    width: 70%;
-    margin: auto;
-  }
-}
-
-#hardware {
-  background-color: rgb(25, 25, 32);
-
-  .gearlist {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    flex-wrap: wrap;
-
-    width: 70%;
-    margin: auto;
-  }
-}
-
-#landing {
-  img {
-    min-width: 100%;
-    min-height: 100%;
-  }
-  .tagline {
-    position: absolute;
-    bottom: 0;
-    margin: 100px;
-    font-size: 40px;
-    width: 400px;
-    line-height: 70px;
-  }
-}
-</style>

@@ -21,6 +21,7 @@ input[type="file"]{
   display: none;
 }
 
+/*
 a {
   text-decoration: none;
   color: rgb(157, 234, 248);
@@ -40,9 +41,9 @@ h3{
 }
 
 
-
 @media (hover: hover) {
   a:hover {
     color: rgb(98, 129, 230);
   }
 }
+*/

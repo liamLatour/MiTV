@@ -1,8 +1,8 @@
 <template>
-  <div class="member">
-    <h2>{{ role }}</h2>
-    <h3>{{ prenom }}</h3>
-    <h3>{{ nom }}</h3>
+  <div class="text-center rounded bg-neutral-900 m-1 p-3 sm:w-52 sm:p-5 sm:m-5">
+    <h2 class="font-semibold mb-2">{{ role }}</h2>
+    <h3 class="">{{ prenom }}</h3>
+    <h3 class="">{{ nom }}</h3>
   </div>
 </template>
 
@@ -23,19 +23,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style scoped lang="scss">
-.member {
-  background-color: rgb(39, 38, 31);
-  text-align: center;
-  padding: 20px;
-  margin: 20px;
-  border-radius: 5px;
-  width: 250px;
-
-  h2 {
-    font-weight: 600;
-    margin-bottom: 10px;
-  }
-}
-</style>

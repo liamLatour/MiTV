@@ -1,7 +1,9 @@
 <!--https://www.bezkoder.com/vue-upload-image-axios/-->
 
 <template>
-  <h1 class="title">Uploadez vos images</h1>
+  <h1 class="text-center mt-10 text-3xl sm:text-6xl sm:mt-16">
+    Uploadez vos images
+  </h1>
   <upload-image></upload-image>
 </template>
 
@@ -16,10 +18,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="scss" scoped>
-.title {
-  text-align: center;
-  padding-top: 70px;
-}
-</style>

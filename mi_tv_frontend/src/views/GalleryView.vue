@@ -1,7 +1,7 @@
 <template>
-  <div class="header">
-    <h1 class="eventname">{{ title }}</h1>
-    <h2 class="organisation">{{ organisation }}</h2>
+  <div class="flex flex-col items-center mb-5 mt-10 sm:mt-16">
+    <h1 class="text-3xl sm:text-6xl">{{ title }}</h1>
+    <h2 class="text-xl sm:text-2xl">{{ organisation }}</h2>
   </div>
   <GalleryViewer :medias="items" :is-global="true" />
 </template>
@@ -47,17 +47,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="scss">
-.header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-
-  .eventname {
-    margin-top: 80px;
-  }
-}
-</style>

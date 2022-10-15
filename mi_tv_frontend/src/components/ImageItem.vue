@@ -1,9 +1,12 @@
 <!-- https://css-tricks.com/lazy-loading-images-with-vue-js-directives-and-intersection-observer/ -->
 
 <template>
-  <figure v-lazyload class="image__wrapper">
-    <font-awesome-icon icon="fa-solid fa-spinner" />
-    <img class="image__item" :data-url="source" alt="" />
+  <figure v-lazyload class="h-full flex justify-center items-center">
+    <font-awesome-icon
+      icon="fa-solid fa-spinner"
+      class="animate-spin w-10 h-10 absolute"
+    />
+    <img class="object-cover h-full w-full" :data-url="source" alt="" />
   </figure>
 </template>
 
@@ -20,28 +23,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style scoped lang="scss">
-.image__wrapper {
-  height: 100%;
-  .image__item {
-    object-fit: cover;
-    height: 100%;
-    width: 100%;
-  }
-}
-
-@keyframes spinner {
-  to {
-    transform: rotate(360deg);
-  }
-}
-.fa-spinner {
-  animation: spinner 1s linear infinite;
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  left: calc(50% - 20px);
-  top: calc(50% - 20px);
-}
-</style>

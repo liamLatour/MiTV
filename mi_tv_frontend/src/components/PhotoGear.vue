@@ -1,8 +1,8 @@
 <template>
-  <div class="gear">
-    <h2>{{ name }}</h2>
-    <h3>{{ type }}</h3>
-    <h4>{{ reference }}</h4>
+  <div class="text-center rounded bg-neutral-900 m-1 p-3 sm:w-52 sm:p-5 sm:m-5">
+    <h2 class="font-semibold mb-2">{{ name }}</h2>
+    <h3 class="">{{ type }}</h3>
+    <h4 class="mt-2 text-gray-500">{{ reference }}</h4>
   </div>
 </template>
 
@@ -24,24 +24,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style scoped lang="scss">
-.gear {
-  background-color: rgb(39, 38, 31);
-  text-align: center;
-  padding: 20px;
-  margin: 20px;
-  border-radius: 5px;
-  width: 250px;
-
-  h2 {
-    font-weight: 600;
-    margin-bottom: 10px;
-  }
-
-  h4 {
-    margin-top: 10px;
-    color: rgba(255, 255, 255, 0.521);
-  }
-}
-</style>
