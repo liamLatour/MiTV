@@ -1,9 +1,8 @@
-from genericpath import exists
 from flask import Flask, send_file, jsonify
 from flask_cors import CORS
 from io import BytesIO 
 from os import listdir, getcwd
-from os.path import isfile, join, isdir, exists
+from os.path import isfile, join, isdir
 import imghdr
 import json
 from PIL import Image, ImageOps
@@ -14,8 +13,8 @@ import time
 
 app = Flask(__name__)
 CORS(app)
-root_photos_path = getcwd() + "\\photos"
-get_faces = GetFaces(getcwd() + "\\people_ref")
+root_photos_path = join(getcwd(), "photos")
+get_faces = GetFaces(join(getcwd(), "people_ref"))
 
 """
 Return structure for media is:
