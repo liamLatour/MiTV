@@ -12,25 +12,20 @@ const router = createRouter({
     {
       path: "/photos/:path(.*)*",
       name: "photos",
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
       component: () => import("../views/GalleryView.vue"),
     },
     {
       path: "/mes_photos",
       name: "mes_photos",
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import("../views/MyGalleryView.vue"),
+      component: () => import("../views/GalleryView.vue"),
+      props: {
+        url: "/get_by_name/munier",
+        isGlobal: false,
+      },
     },
     {
       path: "/upload",
       name: "upload",
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
       component: () => import("../views/UploadView.vue"),
     },
   ],
