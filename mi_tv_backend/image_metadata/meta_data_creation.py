@@ -7,7 +7,7 @@ from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
 
 from image_metadata import (ImageOrientation, ImageSimilarity, Photos,
-                            References)
+                            References, ImageFormatHandler)
 
 # run with:
 #   meta_data_creation --continuous --immediate ./people_ref ./photos
@@ -59,6 +59,7 @@ class MetadataCreation():
         self.similarity = ImageSimilarity()
         self.references = References(self.ref_path)
         self.face_recognition = Photos(self.references)
+        self.format = ImageFormatHandler()
         
     def run(self):
         self.references.run()
