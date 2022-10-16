@@ -9,6 +9,7 @@ ImageMetadata.egg-info/requires.txt
 ImageMetadata.egg-info/top_level.txt
 image_metadata/__init__.py
 image_metadata/get_metadata.py
+image_metadata/img_conversion.py
 image_metadata/img_facial_recognition.py
 image_metadata/img_orientation.py
 image_metadata/img_similarity.py
