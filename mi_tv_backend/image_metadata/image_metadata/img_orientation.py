@@ -22,10 +22,15 @@ class ImageOrientation(Images):
         if path not in data or "date" not in data[path]:
             if image == None:
                 image = Image.open(path)
-            try:
+
+            if "Raw profile type exif" in image.info:
+                rawProfileTypeExif = bytes.fromhex("".join(image.info["Raw profile type exif"].split("\n")[3:]))
+                if rawProfileTypeExif[:6] != "Exif\x00\x00":
+                    click.echo("No EXIF prefix for " + path + ". Trying to add it...")
+                    image.info["exif"] = b"Exif\x00\x00" + rawProfileTypeExif
+
                 updates["date"] = image._getexif()[36867]
-            except Exception as e:
-                click.echo(e)
+            else:
                 updates["date"] = "-1"
         
         return (path, updates)
