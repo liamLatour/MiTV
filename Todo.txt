@@ -1,7 +1,6 @@
 frontend:
     - Integrate videos
     - Better UI (main page)
-    - Configure axios globally (baseurl)
 
 backend:
     - Integrate videos

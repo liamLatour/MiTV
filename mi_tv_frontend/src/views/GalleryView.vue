@@ -3,7 +3,7 @@
     <h1 class="text-3xl sm:text-6xl">{{ title }}</h1>
     <h2 class="text-xl sm:text-2xl">{{ organisation }}</h2>
   </div>
-  <GalleryViewer :medias="items" :is-global="true" />
+  <GalleryViewer :medias="items" :is-global="isGlobal" />
 </template>
 
 <script lang="ts">
@@ -17,7 +17,7 @@ export default defineComponent({
     GalleryViewer: GalleryViewer,
   },
   created() {
-    let url = "/architecture/";
+    let url = this.url; //"/architecture/";
 
     for (let i in this.$route.params.path as Array<string>) {
       url += this.$route.params.path[i] + "/";
@@ -32,6 +32,16 @@ export default defineComponent({
       .catch((error) => {
         console.log(error);
       });
+  },
+  props: {
+    url: {
+      type: String,
+      default: "/architecture/",
+    },
+    isGlobal: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
