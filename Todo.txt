@@ -5,6 +5,7 @@ frontend:
 backend:
     - Integrate videos
     - AI images by event
+    - Create .meta when images are uploaded
 
 metadata creation:
     - Separate encoding and metadata for better loading perf
