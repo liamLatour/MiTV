@@ -3,11 +3,11 @@
     class="grid"
     v-bind:style="{ 'grid-template-columns': 'repeat(' + columns + ', 1fr)' }"
   >
-    <div class="overflow-hidden m-0.5 bg-slate-500" v-if="isGlobal">
+    <div class="overflow-hidden m-0.5 bg-slate-500 aspect" v-if="isGlobal">
       <ImageItem
         source="http://127.0.0.1:5000/media_low_res/people_ref/liam.jpg"
         alt="image introuvable"
-        class="cursor-pointer image-anim portrait"
+        class="cursor-pointer image-anim"
       />
       <a
         href="/mes_photos"
@@ -18,7 +18,7 @@
     </div>
 
     <div
-      class="overflow-hidden m-0.5"
+      class="overflow-hidden m-0.5 aspect"
       v-for="(media, index) in medias"
       :key="media.path"
       v-bind:class="{ portrait: media.is_portrait }"
@@ -160,15 +160,17 @@ export default defineComponent({
       return this.modalImg;
     },
     windowSizeChange() {
-      console.log(window.innerWidth);
-      let nb_columns = (window.innerWidth / 300) >> 0;
-      this.columns = nb_columns;
+      this.columns = (window.innerWidth / 300) >> 0;
     },
   },
 });
 </script>
 
 <style scoped lang="scss">
+.aspect {
+  aspect-ratio: 3/2;
+}
+
 .image-anim {
   transition: transform 0.4s;
 
@@ -177,11 +179,6 @@ export default defineComponent({
     -webkit-transform: scale(1.1); /* Safari 3-8 */
     transform: scale(1.1);
   }
-}
-
-.portrait {
-  padding-left: 28%;
-  padding-right: 28%;
 }
 
 .modal {

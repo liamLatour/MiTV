@@ -1,4 +1,4 @@
-from flask import Flask, send_file, jsonify
+from flask import Flask, send_file, jsonify, request
 from flask_cors import CORS
 from io import BytesIO 
 from os import listdir, getcwd
@@ -8,6 +8,8 @@ import json
 from PIL import Image, ImageOps
 from image_metadata import GetGroups, GetOrientation, GetFaces
 import time
+from werkzeug.utils import secure_filename
+from pathlib import Path
 
 # run with: waitress-serve --host 127.0.0.1 --port=5000 --threads=12 api_server:app
 
@@ -33,6 +35,22 @@ Return structure for media is:
 
 This way metadata is easy to add without breaking anything
 """
+
+# Upload media
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_files():
+    if request.method == 'POST':
+        event_name = request.form["event_name"]
+        association = request.form["association"]
+        save_path = join(join(join(getcwd(), "uploadDir"), association), event_name)
+        Path(save_path).mkdir(parents=True, exist_ok=False)
+        
+        for file in request.files:
+            f = request.files[file]
+            f.save(join(save_path, secure_filename(f.filename)))
+        
+        return 'File uploaded successfully'
 
 # Serve media
 

@@ -1,113 +1,158 @@
 <template>
-  <div class="flex flex-col mt-11 h-2/4">
-    <div v-if="progressInfos">
-      <div class="" v-for="(progressInfo, index) in progressInfos" :key="index">
-        <span>{{ progressInfo.fileName }}</span>
-        <div class="">
-          <div
-            class=""
-            role="progressbar"
-            :aria-valuenow="progressInfo.percentage"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            :style="{ width: progressInfo.percentage + '%' }"
-          >
-            {{ progressInfo.percentage }}%
-          </div>
+  <div class="flex flex-col mt-11 h-2/4 justify-center items-center">
+    <div
+      class="flex justify-center items-center w-10/12"
+      v-if="progressInfo != 0"
+    >
+      <span>{{ progressInfo }}%</span>
+      <hr class="m-2 border-green-500" :style="{ width: progressInfo + '%' }" />
+    </div>
+
+    <div
+      class="aspect overflow-clip flex w-11/12 sm:w-2/3 max-w-screen-lg m-auto rounded-xl mb-5 border-dashed border-gray-500 border-2 justify-center items-center"
+    >
+      <input
+        type="file"
+        multiple
+        name="test"
+        @change="selectFile"
+        class="h-full w-full opacity-0 cursor-pointer z-10"
+      />
+
+      <label
+        class="absolute font-semibold text-xl p-5 sm:text-2xl cursor-pointer hover:text-3xl duration-200"
+        v-if="!selectedFiles"
+      >
+        Déposer vos images ici
+      </label>
+
+      <div
+        class="grid absolute left-0 right-0 top-0 bottom-0 p-1"
+        :style="{ 'grid-template-columns': 'repeat(' + columns + ', 1fr)' }"
+        v-if="selectedFiles"
+      >
+        <div
+          v-for="(file, index) in selectedFiles"
+          :key="file"
+          class="overflow-clip m-0.5 aspect max-h-full max-w-full"
+        >
+          <template v-if="index < 25">
+            <ImageItem :source="imageUrl(file)" />
+          </template>
         </div>
       </div>
     </div>
 
-    <div
-      class="flex w-11/12 sm:w-2/3 h-72 max-w-screen-lg m-auto rounded-xl mb-5 border-dashed border-gray-500 border-2 justify-center items-center"
-    >
-      <input type="file" multiple @change="selectFile" />
-      <label class="font-semibold text-xl sm:text-2xl"
-        >Déposer vos images ici</label
-      >
-    </div>
-
-    <button
-      class="text-green-400 text-4xl"
-      :disabled="!selectedFiles"
-      @click="uploadFiles"
-    >
-      <font-awesome-icon icon="fa-solid fa-upload" />
-    </button>
-
-    <div v-if="message" class="">
-      <ul>
-        <li v-for="(ms, i) in message.split('\n')" :key="i">
-          {{ ms }}
-        </li>
-      </ul>
-    </div>
     <!--
-    <div class="">
-      <div class="">List of Files</div>
-      <ul class="">
-        <li class="" v-for="(file, index) in fileInfos" :key="index">
-          <a :href="file.url">{{ file.name }}</a>
-        </li>
-      </ul>
+    {
+      "thumbnail": "",
+      "exlude_thumbnail": "false",
+      "event_name": "Photos",
+      "association": "MiTV"
+    }
+    -->
+
+    <form
+      class="w-11/12 flex flex-wrap flex-col items-stretch m-4 justify-center md:items-center md:flex-row"
+    >
+      <label class="m-2 text-lg" for="event_name">Nom de l'événement</label>
+      <input
+        class="align-middle p-1 border bg-transparent md:m-3"
+        type="text"
+        id="event_name"
+        v-model="event_name"
+        name="event_name"
+      />
+      <label class="m-2 text-lg" for="association">Association</label>
+      <input
+        class="align-middle p-1 border bg-transparent md:m-3"
+        type="text"
+        id="association"
+        v-model="association"
+        name="association"
+      />
+    </form>
+
+    <div class="flex justify-center items-center mb-12">
+      <button
+        class="text-green-400 text-4xl cursor-pointer p-2 border-2 border-green-400 border-solid rounded-lg duration-300 hover:text-white hover:border-white disabled:text-gray-500 disabled:border-gray-500 disabled:cursor-default"
+        :disabled="!selectedFiles || association == '' || event_name == ''"
+        @click="uploadFiles"
+      >
+        <font-awesome-icon icon="fa-solid fa-upload" />
+        Upload
+      </button>
     </div>
-  --></div>
+  </div>
 </template>
 
 <script lang="ts">
 import UploadService from "../services/UploadFilesService";
+import ImageItem from "./ImageItem.vue";
 import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "UploadFiles",
+  components: {
+    ImageItem,
+  },
   data() {
     return {
-      selectedFiles: undefined,
-      progressInfos: [],
-      message: "",
+      selectedFiles: undefined as any,
+      progressInfos: [] as Array<number>,
+      progressInfo: 0,
 
-      fileInfos: [],
+      columns: 6,
+      association: "",
+      event_name: "",
     };
   },
   methods: {
-    selectFile() {
+    selectFile(event: Event) {
       this.progressInfos = [];
-      this.selectedFiles = event.target.files;
+
+      const files = (event.target as HTMLInputElement).files;
+      if (files != null) {
+        this.columns = Math.sqrt(Math.min(25, files.length)) >> 0;
+      }
+      this.selectedFiles = files;
     },
     uploadFiles() {
-      this.message = "";
-
-      for (let i = 0; i < this.selectedFiles.length; i++) {
-        this.upload(i, this.selectedFiles[i]);
-      }
-    },
-    upload(idx, file) {
-      this.progressInfos[idx] = { percentage: 0, fileName: file.name };
-
-      UploadService.upload(file, (event) => {
-        this.progressInfos[idx].percentage = Math.round(
-          (100 * event.loaded) / event.total
-        );
-      })
+      UploadService.uploadFiles(
+        this.selectedFiles,
+        {
+          thumbnail: "",
+          exlude_thumbnail: false,
+          event_name: this.event_name,
+          association: this.association,
+        },
+        (event: any) => {
+          this.progressInfo = Math.round((100 * event.loaded) / event.total);
+        }
+      )
         .then((response) => {
-          let prevMessage = this.message ? this.message + "\n" : "";
-          this.message = prevMessage + response.data.message;
-
-          return UploadService.getFiles();
-        })
-        .then((files) => {
-          this.fileInfos = files.data;
+          alert(response.data);
         })
         .catch(() => {
-          this.progressInfos[idx].percentage = 0;
-          this.message = "Could not upload the file:" + file.name;
+          this.progressInfo = 0;
         });
     },
-  },
-  mounted() {
-    UploadService.getFiles().then((response) => {
-      this.fileInfos = response.data;
-    });
+    imageUrl(file: File) {
+      return URL.createObjectURL(file);
+    },
+    globalProgress() {
+      if (this.progressInfos.length == 0) return 0;
+      return Math.round(
+        this.progressInfos.reduce((partialSum, a) => partialSum + a, 0) /
+          this.progressInfos.length
+      );
+    },
   },
 });
 </script>
+
+<style scoped lang="scss">
+.aspect {
+  aspect-ratio: 3/2;
+}
+</style>

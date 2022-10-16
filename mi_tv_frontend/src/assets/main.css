@@ -17,10 +17,6 @@ button, input[type="submit"], input[type="reset"] {
 	outline: inherit;
 }
 
-input[type="file"]{
-  display: none;
-}
-
 /*
 a {
   text-decoration: none;

@@ -1,4 +1,4 @@
-<!--https://www.bezkoder.com/vue-upload-image-axios/-->
+<!--https://www.bezkoder.com/vue-upload-image-axios/ -->
 
 <template>
   <h1 class="text-center mt-10 text-3xl sm:text-6xl sm:mt-16">

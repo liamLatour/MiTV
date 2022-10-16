@@ -6,7 +6,7 @@
       icon="fa-solid fa-spinner"
       class="animate-spin w-10 h-10 absolute"
     />
-    <img class="object-cover h-full w-full" :data-url="source" alt="" />
+    <img class="object-cover h-full max-w-full" :data-url="source" alt="" />
   </figure>
 </template>
 
