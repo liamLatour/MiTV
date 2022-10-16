@@ -87,9 +87,9 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import UploadService from "../services/UploadFilesService";
 import ImageItem from "./ImageItem.vue";
-import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "UploadFiles",

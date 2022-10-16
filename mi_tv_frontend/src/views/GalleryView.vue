@@ -9,7 +9,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import GalleryViewer from "../components/GalleryViewer.vue";
-import axios from "axios";
+import GetMediaService from "../services/GetMediaService";
 
 export default defineComponent({
   name: "GalleryView",
@@ -17,7 +17,21 @@ export default defineComponent({
     GalleryViewer: GalleryViewer,
   },
   created() {
-    this.getMedias();
+    let url = "/architecture/";
+
+    for (let i in this.$route.params.path as Array<string>) {
+      url += this.$route.params.path[i] + "/";
+    }
+
+    GetMediaService.getMedia(url)
+      .then((response) => {
+        this.items = response.data.files;
+        this.title = response.data.event_name;
+        this.organisation = response.data.association;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   },
   data() {
     return {
@@ -25,25 +39,6 @@ export default defineComponent({
       title: "",
       organisation: "",
     };
-  },
-  methods: {
-    async getMedias() {
-      try {
-        let url = "http://127.0.0.1:5000/architecture/";
-
-        for (let i in this.$route.params.path as Array<string>) {
-          url += this.$route.params.path[i] + "/";
-        }
-
-        const response = await axios.get(url);
-
-        this.items = response.data.files;
-        this.title = response.data.event_name;
-        this.organisation = response.data.association;
-      } catch (error) {
-        console.log(error);
-      }
-    },
   },
 });
 </script>

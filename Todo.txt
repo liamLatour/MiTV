@@ -1,13 +1,10 @@
 frontend:
     - Integrate videos
     - Better UI (main page)
-    - Upload image from website
-    - Integrate AI images
     - Configure axios globally (baseurl)
 
 backend:
     - Integrate videos
-    - Upload images from website
     - AI images by event
 
 metadata creation:
