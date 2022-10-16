@@ -55,78 +55,29 @@
     </div>
   </div>
 
-  <div
-    class="modal fixed flex flex-col z-30 left-0 top-0 w-full h-screen overflow-auto bg-black bg-opacity-70"
-    v-if="showModal"
-    @click="showModal = false"
-    :class="{ small: medias[currentImg].others == null }"
-  >
-    <div class="h-12">
-      <div class="absolute right-2 m-1 text-white text-3xl">
-        <a
-          :href="'http://127.0.0.1:5000/download/' + getModalImg()"
-          class=""
-          download
-        >
-          <font-awesome-icon
-            icon="fa-solid fa-download"
-            class="m-1 mr-4 hover:text-gray-300"
-            v-on:click.stop
-          />
-        </a>
-        <font-awesome-icon
-          icon="fa-solid fa-times"
-          class="m-1 mr-4 hover:text-gray-300 cursor-pointer"
-          @click="showModal = false"
-        />
-      </div>
-    </div>
-
-    <div class="modal-content flex m-auto">
-      <div class="imgContainer max-w-full max-h-full m-auto">
-        <img
-          :src="'http://127.0.0.1:5000/media/' + getModalImg()"
-          alt="image introuvable"
-          v-on:click.stop
-          class="object-cover max-h-full max-w-full"
-        />
-      </div>
-    </div>
-
-    <div :class="{ 'h-5': medias[currentImg].others == null }" class="max-h-36">
-      <div
-        class="flex justify-center h-36"
-        v-if="medias[currentImg].others != null"
-      >
-        <img
-          v-for="path in medias[currentImg].others"
-          :key="path"
-          :src="'http://127.0.0.1:5000/media_low_res/' + path"
-          class="h-full p-1 cursor-pointer image-anim"
-          alt="image introuvable"
-          @click="changeModalImage(path)"
-          v-on:click.stop
-        />
-      </div>
-    </div>
-  </div>
+  <ImageModal
+    :images="modalImages"
+    :show="showModal"
+    @close="showModal = false"
+  />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import ImageItem from "./ImageItem.vue";
+import ImageModal from "./ImageModal.vue";
 
 export default defineComponent({
   name: "GalleryViewer",
   components: {
     ImageItem,
+    ImageModal,
   },
   data: function () {
     return {
       showModal: false,
-      currentImg: 0,
-      modalImg: "",
-      columns: 36,
+      modalImages: [] as Array<string>,
+      columns: 1,
     };
   },
   props: {
@@ -149,15 +100,13 @@ export default defineComponent({
   methods: {
     openImage(i: string) {
       let index: number = parseInt(i);
-      this.currentImg = index;
       this.showModal = true;
-      this.modalImg = this.medias[index].path;
-    },
-    changeModalImage(path: string) {
-      this.modalImg = path;
-    },
-    getModalImg() {
-      return this.modalImg;
+
+      if (this.medias[index].others == null) {
+        this.modalImages = [this.medias[index].path];
+      } else {
+        this.modalImages = this.medias[index].others;
+      }
     },
     windowSizeChange() {
       this.columns = (window.innerWidth / 300) >> 0;
@@ -166,7 +115,7 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .aspect {
   aspect-ratio: 3/2;
 }
@@ -178,22 +127,6 @@ export default defineComponent({
     -ms-transform: scale(1.1); /* IE 9 */
     -webkit-transform: scale(1.1); /* Safari 3-8 */
     transform: scale(1.1);
-  }
-}
-
-.modal {
-  .modal-content {
-    height: calc(100% - 48px - 144px);
-
-    .imgContainer {
-      aspect-ratio: 3/2; //TODO: change that for portrait
-    }
-  }
-}
-
-.small {
-  .modal-content {
-    height: calc(100% - 48px - 20px);
   }
 }
 </style>

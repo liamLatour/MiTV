@@ -17,7 +17,7 @@ export default defineComponent({
     GalleryViewer: GalleryViewer,
   },
   created() {
-    let url = this.url; //"/architecture/";
+    let url = this.url;
 
     for (let i in this.$route.params.path as Array<string>) {
       url += this.$route.params.path[i] + "/";
