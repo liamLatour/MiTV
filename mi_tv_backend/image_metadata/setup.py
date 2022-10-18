@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='ImageMetadata',
-    version='0.4.0',
+    version='0.5.0',
     packages=['image_metadata'],
     py_modules=["meta_data_creation", "print_metadata"],
     description='Writes metadata for images',

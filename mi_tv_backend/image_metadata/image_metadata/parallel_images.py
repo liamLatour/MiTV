@@ -6,15 +6,15 @@ import pickle
 import multiprocessing
 
 class Images():
-   def __init__(self):      
+    def __init__(self):      
         pass
 
-   def run(self, paths):
+    def run(self, paths):
         for path in paths:
             assert isdir(path)
             self.parse_imgs(path)
     
-   def parse_imgs(self, path):
+    def parse_imgs(self, path):
         meta_path = join(path, ".people")
         data = {}
 
@@ -33,7 +33,7 @@ class Images():
             _path = self.sanitize(join(path, f))
             
             if isfile(_path) and imghdr.what(_path) == "jpeg":
-                imgs_paths.append(abspath(_path))
+                imgs_paths.append(_path)
             elif isdir(_path):
                 self.parse_imgs(_path)
 
@@ -46,5 +46,8 @@ class Images():
             with open(meta_path, 'wb') as f:
                 pickle.dump(data, f)
    
-   def sanitize(self, path):
-        return path.replace('/', '\\')
+    def sanitize(self, path):
+        return abspath(path.replace('/', '\\'))
+    
+    def decompress_data(self, data, res):
+        return {}

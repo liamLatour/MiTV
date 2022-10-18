@@ -13,33 +13,33 @@ from image_metadata import (ImageOrientation, ImageSimilarity, Photos,
 #   meta_data_creation --continuous --immediate ./people_ref ./photos
 
 @click.command()
-@click.argument('ref_path', type=click.Path(exists=True))
-@click.argument('images_path', type=click.Path(exists=True), nargs=-1)
+@click.argument("ref_path", type=click.Path(exists=True))
+@click.argument("images_path", type=click.Path(exists=True), nargs=-1)
 @click.option(
-    '--continuous/--once',
+    "--continuous/--once",
     default=False,
     show_default=True
 )
 @click.option(
-    '--nightly/--immediate',
+    "--nightly/--immediate",
     default=True,
     show_default=True
 )
 @click.option(
-    '--prerun/--no-prerun',
+    "--prerun/--no-prerun",
     default=False
 )
 def cli(continuous, nightly, prerun, ref_path, images_path):
     """Script to generate image metadata"""    
     if images_path == None:
-        click.echo('No images to treat')
+        click.echo("No images to treat")
         return
     
-    click.echo('Runing with options:')
-    click.echo('Nightly: '+str(nightly))
-    click.echo('Continuous: '+str(continuous))
-    click.echo('Images Paths: '+str(images_path))
-    click.echo('References Paths: '+str(ref_path))
+    click.echo("Runing with options:")
+    click.echo("Nightly: "+str(nightly))
+    click.echo("Continuous: "+str(continuous))
+    click.echo("Images Paths: "+str(images_path))
+    click.echo("References Paths: "+str(ref_path))
     
     meta_creation = MetadataCreation(ref_path, images_path, continuous, nightly, prerun)
     meta_creation.run()
@@ -77,7 +77,7 @@ class MetadataCreation():
             # observer
             observer = Observer()
             for path in self.image_root_paths:
-                click.echo('Looking at: '+str(path))
+                click.echo("Looking at: "+str(path))
                 observer.schedule(event_handler, path, recursive=True)
             observer.start()
             
@@ -125,7 +125,7 @@ class MetadataCreation():
                 cur_time = int(time.time())
                 delay = cur_time - cur_time%86400 + 86400 # midnight gmt
             else:
-                delay = 360 # 5 mins
+                delay = 1 #360 # 5 mins
 
             threading.Timer(delay, lambda: self.create_metadata(self.to_compute) ).start()
     
@@ -133,31 +133,33 @@ class MetadataCreation():
         if image_paths == None:
             image_paths = self.image_root_paths
         else:
-            self.to_compute.remove(image_paths)
+            pass
+            #for path in image_paths:
+            #    self.to_compute.remove(path)
         
-        click.echo('Started on paths:' + str(image_paths))
+        click.echo("Started on paths:" + str(image_paths))
         
         t = time.time()
-        click.echo('Format')
+        click.echo("Format")
         self.format.run(image_paths)
-        click.echo('Format handling finished in: ' + str(time.time()-t))
-
+        click.echo("Format finished in: " + str(time.time()-t))
+        
         t1 = time.time()
-        click.echo('Orientation')
+        click.echo("Orientation")
         self.orientation.run(image_paths)
-        click.echo('Orientation finished in: ' + str(time.time()-t1))
+        click.echo("Orientation finished in: " + str(time.time()-t1))
         
         t1 = time.time()
-        click.echo('Similarity')
+        click.echo("Similarity")
         self.similarity.run(image_paths)
-        click.echo('Similarity finished in: ' + str(time.time()-t1))
+        click.echo("Similarity finished in: " + str(time.time()-t1))
         
         t1 = time.time()
-        click.echo('Face recognition')
+        click.echo("Face recognition")
         self.face_recognition.run(image_paths)
-        click.echo('Face recognition finished in: ' + str(time.time()-t1))
+        click.echo("Face recognition finished in: " + str(time.time()-t1))
         
-        click.echo('Finished in: ' + str(time.time()-t))
+        click.echo("Finished in: " + str(time.time()-t))
         
     def ref_event_handler(self, event):
         if self.scheluded_ref_update:
@@ -174,10 +176,10 @@ class MetadataCreation():
         threading.Timer(delay, self.create_ref_metadata).start()
     
     def create_ref_metadata(self):
-        click.echo('Started on references')
+        click.echo("Started on references")
         self.scheluded_ref_update = False
         
         t = time.time()
-        click.echo('Reference face recognition')
+        click.echo("Reference face recognition")
         self.references.run()
-        click.echo('Reference face recognition finished in: ' + str(time.time()-t))
+        click.echo("Reference face recognition finished in: " + str(time.time()-t))

@@ -116,7 +116,7 @@ def get_media(filename):
     image = image.resize((2250, round(image.size[1]/(image.size[0]/2250))),Image.Resampling.LANCZOS)
     image = ImageOps.exif_transpose(image)
     
-    return serve_pil_image(image, 100) #send_file(filename, mimetype='image/png')
+    return serve_pil_image(image, 100)
 
 @app.route('/download/<path:filename>')
 def get_download_media(filename):
