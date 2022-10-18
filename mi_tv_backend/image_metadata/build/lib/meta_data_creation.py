@@ -132,10 +132,6 @@ class MetadataCreation():
     def create_metadata(self, image_paths=None):
         if image_paths == None:
             image_paths = self.image_root_paths
-        else:
-            pass
-            #for path in image_paths:
-            #    self.to_compute.remove(path)
         
         click.echo("Started on paths:" + str(image_paths))
         
@@ -160,6 +156,10 @@ class MetadataCreation():
         click.echo("Face recognition finished in: " + str(time.time()-t1))
         
         click.echo("Finished in: " + str(time.time()-t))
+        
+        for path in image_paths:
+            if path in self.to_compute:
+                self.to_compute.remove(path)
         
     def ref_event_handler(self, event):
         if self.scheluded_ref_update:

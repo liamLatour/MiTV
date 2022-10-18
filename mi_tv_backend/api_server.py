@@ -1,15 +1,18 @@
-from flask import Flask, send_file, jsonify, request
-from flask_cors import CORS
-from io import BytesIO 
-from os import listdir, getcwd
-from os.path import isfile, join, isdir
 import imghdr
 import json
-from PIL import Image, ImageOps
-from image_metadata import GetGroups, GetOrientation, GetFaces
 import time
-from werkzeug.utils import secure_filename
+from io import BytesIO
+from os import getcwd, listdir
+from os.path import isdir, isfile, join
 from pathlib import Path
+import random
+
+from flask import Flask, jsonify, request, send_file
+from flask_cors import CORS
+from PIL import Image, ImageOps
+from werkzeug.utils import secure_filename
+
+from image_metadata import GetFaces, GetGroups, GetOrientation, UpdateMetadata
 
 # run with: waitress-serve --host 127.0.0.1 --port=5000 --threads=12 api_server:app
 
@@ -18,9 +21,12 @@ CORS(app)
 root_photos_path = join(getcwd(), "photos")
 get_faces = GetFaces(join(getcwd(), "people_ref"))
 
+# This is temp until fusion with portail-etu
+allowed_cookies = []
+
 """
 Return structure for media is:
-    if 'dir':
+    if "dir":
         "path": {
             "type": "dir",
             "thumbnail": path/to/thumbnail,
@@ -28,7 +34,7 @@ Return structure for media is:
             "event_name": "Photos",
             "association": "cercle"
         }
-    elif 'pic' or 'vid':
+    elif "pic" or "vid":
         "path": {
             "type": "pic"/"vid"
         }
@@ -38,9 +44,13 @@ This way metadata is easy to add without breaking anything
 
 # Upload media
 
-@app.route('/upload', methods=['GET', 'POST'])
+@app.route("/upload", methods=["GET", "POST"])
 def upload_files():
-    if request.method == 'POST':
+    if request.method == "POST":
+        # Check if it has the right to
+        if request.form["login"] not in allowed_cookies:
+            return "Vous n'etes pas connecter"
+        
         event_name = request.form["event_name"]
         association = request.form["association"]
         save_path = join(join(join(getcwd(), "uploadDir"), association), event_name)
@@ -50,18 +60,50 @@ def upload_files():
             f = request.files[file]
             f.save(join(save_path, secure_filename(f.filename)))
         
-        return 'File uploaded successfully'
+        return "File uploaded successfully"
+
+@app.route("/update/<path:dirname>", methods=["GET", "POST"])
+def update(dirname):
+    if request.method == "POST":
+        # Check if it has the right to
+        #if request.json["login"] not in allowed_cookies:
+        #    return "Vous n'etes pas connecter"
+        
+        print(request.json["metaData"])
+        update_meta = UpdateMetadata(dirname)
+        update_meta.update_metadata(request.json["metaData"])
+        
+        return "File updated successfully"
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.json["username"]
+        password = request.json["password"]
+        
+        if username == "admin" and password == "pass":
+            allowed_cookies.append(str(random.random())[2:])
+            return {"res": allowed_cookies[-1]}
+        return {"res": False}
+
+@app.route("/disconnect", methods=["GET", "POST"])
+def disconnect():
+    if request.method == "POST":
+        login = request.json["login"]
+        if login in allowed_cookies:
+            allowed_cookies.remove(login)
+            return "Logged out"
+    return "Not logged in"
 
 # Serve media
-
 def serve_pil_image(pil_img, quality=90):
     img_io = BytesIO()
-    pil_img.save(img_io, 'JPEG', quality=quality)
+    pil_img.save(img_io, "JPEG", quality=quality)
     img_io.seek(0)
     
-    return send_file(img_io, mimetype='image/jpeg')
+    return send_file(img_io, mimetype="image/jpeg")
 
-@app.route('/get_by_id/<id>')
+@app.route("/get_by_id/<id>")
 def get_photos_id(id):
     media = {
         "files": []
@@ -81,7 +123,7 @@ def get_photos_id(id):
 
     return jsonify(media)
 
-@app.route('/get_by_name/<name>')
+@app.route("/get_by_name/<name>")
 def get_photos_name(name):
     media = {
         "files": []
@@ -102,7 +144,7 @@ def get_photos_name(name):
     return jsonify(media)
 
 #TODO: only for images for now
-@app.route('/media_low_res/<path:filename>')
+@app.route("/media_low_res/<path:filename>")
 def get_media_low_res(filename):
     image = Image.open(filename)
     image = image.resize((500, round(image.size[1]/(image.size[0]/500))),Image.Resampling.NEAREST)
@@ -110,7 +152,7 @@ def get_media_low_res(filename):
     
     return serve_pil_image(image)
 
-@app.route('/media/<path:filename>')
+@app.route("/media/<path:filename>")
 def get_media(filename):
     image = Image.open(filename)
     image = image.resize((2250, round(image.size[1]/(image.size[0]/2250))),Image.Resampling.LANCZOS)
@@ -118,11 +160,11 @@ def get_media(filename):
     
     return serve_pil_image(image, 100)
 
-@app.route('/download/<path:filename>')
+@app.route("/download/<path:filename>")
 def get_download_media(filename):
-    return send_file(filename, mimetype='image/png')
+    return send_file(filename, mimetype="image/png")
 
-@app.route('/architecture/<path:dirname>')
+@app.route("/architecture/<path:dirname>")
 def get_architecture(dirname):
     t = time.time()
     media = {
@@ -162,7 +204,7 @@ def get_architecture(dirname):
     return response
 
 def add_dir_info(path, meta):
-    with open(join(path, ".meta"), 'r', encoding='utf-8') as file:
+    with open(join(path, ".meta"), "r", encoding="utf-8") as file:
         data = json.load(file)
         for label in data:
             if label == "thumbnail":
@@ -171,5 +213,5 @@ def add_dir_info(path, meta):
                 meta[label] = data[label]
     return meta
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run()

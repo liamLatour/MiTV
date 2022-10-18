@@ -6,6 +6,7 @@ backend:
     - Integrate videos
     - AI images by event
     - Create .meta when images are uploaded
+    - Make architecture avoid ill formed folders, or, better put default meta
 
 metadata creation:
     - Separate encoding and metadata for better loading perf

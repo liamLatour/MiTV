@@ -28,6 +28,11 @@ const router = createRouter({
       name: "upload",
       component: () => import("../views/UploadView.vue"),
     },
+    {
+      path: "/login",
+      name: "login",
+      component: () => import("../views/AdminLoginView.vue"),
+    },
   ],
 });
 

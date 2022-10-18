@@ -8,6 +8,7 @@ class UploadFilesService {
       exlude_thumbnail: boolean;
       event_name: string;
       association: string;
+      login: string;
     },
     uploadProgress: (progressEvent: any) => void
   ) {
@@ -15,6 +16,7 @@ class UploadFilesService {
 
     formData.append("event_name", metaData.event_name);
     formData.append("association", metaData.association);
+    formData.append("login", metaData.login);
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -27,10 +29,6 @@ class UploadFilesService {
       },
       onUploadProgress: uploadProgress,
     });
-  }
-
-  getFiles() {
-    return http.get("/files");
   }
 }
 

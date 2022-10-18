@@ -125,6 +125,7 @@ export default defineComponent({
           exlude_thumbnail: false,
           event_name: this.event_name,
           association: this.association,
+          login: this.$cookies.get("login"),
         },
         (event: any) => {
           this.progressInfo = Math.round((100 * event.loaded) / event.total);
