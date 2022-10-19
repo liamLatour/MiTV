@@ -7,7 +7,7 @@ from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
 
 from image_metadata import (ImageOrientation, ImageSimilarity, Photos,
-                            References, ImageFormatHandler)
+                            References, ImageFormatHandler, Videos)
 
 # run with:
 #   meta_data_creation --continuous --immediate ./people_ref ./photos
@@ -60,6 +60,7 @@ class MetadataCreation():
         self.references = References(self.ref_path)
         self.face_recognition = Photos(self.references)
         self.format = ImageFormatHandler()
+        self.vid = Videos()
         
     def run(self):
         self.references.run()
@@ -125,7 +126,7 @@ class MetadataCreation():
                 cur_time = int(time.time())
                 delay = cur_time - cur_time%86400 + 86400 # midnight gmt
             else:
-                delay = 1 #360 # 5 mins
+                delay = 360 # 5 mins
 
             threading.Timer(delay, lambda: self.create_metadata(self.to_compute) ).start()
     
@@ -154,6 +155,11 @@ class MetadataCreation():
         click.echo("Face recognition")
         self.face_recognition.run(image_paths)
         click.echo("Face recognition finished in: " + str(time.time()-t1))
+
+        t1 = time.time()
+        click.echo("Video handling")
+        self.vid.run(image_paths)
+        click.echo("Videos finished in: " + str(time.time()-t1))
         
         click.echo("Finished in: " + str(time.time()-t))
         
@@ -170,7 +176,7 @@ class MetadataCreation():
             cur_time = int(time.time())
             delay = cur_time - cur_time%86400 + 86400 # midnight gmt
         else:
-            delay = 360 # 5 mins
+            delay = 1 #360 # 5 mins
 
         self.scheluded_ref_update = True
         threading.Timer(delay, self.create_ref_metadata).start()

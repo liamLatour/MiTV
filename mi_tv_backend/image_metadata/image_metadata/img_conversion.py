@@ -1,8 +1,9 @@
 import imghdr
 from PIL import Image
-from os.path import join, abspath, isfile, isdir, splitext
+from os.path import join, abspath, isfile, isdir, splitext, basename
 from os import listdir
 from .parallel_images import Images
+from .vid_handler import Videos
 import click
 import multiprocessing
 
@@ -12,6 +13,9 @@ class ImageFormatHandler(Images):
 
     
     def parse_imgs(self, path):
+        if Videos.small_dir_name in basename(path):
+            return
+
         context = multiprocessing
         if "forkserver" in multiprocessing.get_all_start_methods():
             context = multiprocessing.get_context("forkserver")

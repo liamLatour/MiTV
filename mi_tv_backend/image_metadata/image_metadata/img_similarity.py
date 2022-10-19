@@ -6,13 +6,15 @@ os.environ['AUTOGRAPH_VERBOSITY'] = '0'
 import imghdr
 import pickle
 from os import listdir
-from os.path import isdir, isfile, join, abspath
+from os.path import isdir, isfile, join, abspath, basename
 
 import numpy as np
 from PIL import Image
 from scipy.spatial import distance
 import click
+
 from .get_metadata import GetMetadata
+from .vid_handler import Videos
 
 ##
 #   CAREFUl: This assumes similar photos are in order
@@ -46,6 +48,9 @@ class ImageSimilarity():
             self.parse_imgs(path)
             
     def parse_imgs(self, path):
+        if Videos.small_dir_name in basename(path):
+            return
+
         meta_path = join(path, ".people")
         data = {}
 

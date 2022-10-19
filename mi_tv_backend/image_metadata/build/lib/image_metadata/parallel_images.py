@@ -1,9 +1,11 @@
 import itertools
 import imghdr
 from os import listdir
-from os.path import isdir, isfile, join, abspath
+from os.path import isdir, isfile, join, abspath, basename
 import pickle
 import multiprocessing
+
+from .vid_handler import Videos
 
 class Images():
     def __init__(self):      
@@ -15,6 +17,9 @@ class Images():
             self.parse_imgs(path)
     
     def parse_imgs(self, path):
+        if Videos.small_dir_name in basename(path):
+            return
+
         meta_path = join(path, ".people")
         data = {}
 

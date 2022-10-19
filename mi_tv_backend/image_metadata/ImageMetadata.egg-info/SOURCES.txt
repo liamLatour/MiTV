@@ -14,3 +14,4 @@ image_metadata/img_facial_recognition.py
 image_metadata/img_orientation.py
 image_metadata/img_similarity.py
 image_metadata/parallel_images.py
+image_metadata/vid_handler.py
