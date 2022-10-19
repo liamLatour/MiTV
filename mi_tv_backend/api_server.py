@@ -22,6 +22,13 @@ CORS(app)
 root_photos_path = join(getcwd(), "photos")
 get_faces = GetFaces(join(getcwd(), "people_ref"))
 
+default_meta = {
+    "event_name": "Evenement",
+    "association": "Aucune",
+    "thumbnail": "photos/default.jpg",
+    "exlude_thumbnail": "false"
+}
+
 # This is temp until fusion with portail-etu
 allowed_cookies = []
 
@@ -67,10 +74,9 @@ def upload_files():
 def update(dirname):
     if request.method == "POST":
         # Check if it has the right to
-        #if request.json["login"] not in allowed_cookies:
-        #    return "Vous n'etes pas connecter"
+        if request.json["login"] not in allowed_cookies:
+            return "Vous n'etes pas connecter"
         
-        print(request.json["metaData"])
         update_meta = UpdateMetadata(dirname)
         update_meta.update_metadata(request.json["metaData"])
         
@@ -168,6 +174,7 @@ def get_media(filename):
 def get_download_media(filename):
     return send_file(filename, mimetype="image/png")
 
+# Architecture
 @app.route("/architecture/<path:dirname>")
 def get_architecture(dirname):
     t = time.time()
@@ -212,13 +219,21 @@ def get_architecture(dirname):
     return response
 
 def add_dir_info(path, meta):
-    with open(join(path, ".meta"), "r", encoding="utf-8") as file:
-        data = json.load(file)
-        for label in data:
-            if label == "thumbnail":
-                meta[label] = join(path, data[label])
-            else:
-                meta[label] = data[label]
+    meta_path = join(path, ".meta")
+    if isfile(meta_path):
+        with open(meta_path, "r", encoding="utf-8") as file:
+            data = json.load(file)
+            for label in data:
+                if label == "thumbnail":
+                    meta[label] = join(path, data[label])
+                else:
+                    meta[label] = data[label]
+    
+    # Add default config
+    for key in default_meta:
+        if key not in meta:
+            meta[key] = default_meta[key]
+    
     return meta
 
 if __name__ == "__main__":
