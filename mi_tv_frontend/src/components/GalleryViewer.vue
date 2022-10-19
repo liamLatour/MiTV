@@ -37,6 +37,12 @@
         class="cursor-pointer image-anim"
       />
 
+      <ImageItem
+        v-else-if="media.type == 'vid'"
+        :source="'http://127.0.0.1:5000/media_low_res/' + media.path"
+        class="cursor-pointer image-anim"
+      />
+
       <div v-if="media.type == 'dir'">
         <ImageItem
           :source="'http://127.0.0.1:5000/media_low_res/' + media.thumbnail"

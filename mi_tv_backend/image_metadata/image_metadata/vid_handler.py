@@ -5,6 +5,7 @@ import click
 
 class Videos():
     small_dir_name = ".vid_small"
+    supported_formats = ["mp4", "avi", "mov", "webm", "wmv", "mkv", "flv"]
 
     _compression_width = 640
 
@@ -21,8 +22,6 @@ class Videos():
         if self.small_dir_name in basename(path):
             return
 
-        supported_formats = ["mp4", "avi", "mov", "webm", "wmv", "mkv", "flv"]
-
         for f in listdir(path):
             _path = join(path, f)
 
@@ -30,7 +29,7 @@ class Videos():
                 self.parse_vids(_path)
                 continue
 
-            if splitext(f)[-1][1:] in supported_formats:
+            if splitext(f)[-1][1:] in self.supported_formats:
                 if not self.small_dir_name in listdir(path):
                     mkdir(join(path, self.small_dir_name))
 

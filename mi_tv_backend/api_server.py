@@ -1,9 +1,10 @@
+from email.mime import base
 import imghdr
 import json
 import time
 from io import BytesIO
 from os import getcwd, listdir
-from os.path import isdir, isfile, join
+from os.path import isdir, isfile, join, basename, splitext, dirname
 from pathlib import Path
 import random
 
@@ -12,7 +13,7 @@ from flask_cors import CORS
 from PIL import Image, ImageOps
 from werkzeug.utils import secure_filename
 
-from image_metadata import GetFaces, GetGroups, GetOrientation, UpdateMetadata
+from image_metadata import GetFaces, GetGroups, GetOrientation, UpdateMetadata, Videos
 
 # run with: waitress-serve --host 127.0.0.1 --port=5000 --threads=12 api_server:app
 
@@ -146,6 +147,9 @@ def get_photos_name(name):
 #TODO: only for images for now
 @app.route("/media_low_res/<path:filename>")
 def get_media_low_res(filename):
+    if splitext(basename(filename))[1][1:] in Videos.supported_formats:
+        filename = join(dirname(filename), Videos.small_dir_name, splitext(basename(filename))[0]) + ".jpg"
+
     image = Image.open(filename)
     image = image.resize((500, round(image.size[1]/(image.size[0]/500))),Image.Resampling.NEAREST)
     image = ImageOps.exif_transpose(image)
@@ -176,6 +180,10 @@ def get_architecture(dirname):
     
     for f in listdir(dirname):
         path = join(dirname, f)
+
+        if isdir(path) and Videos.small_dir_name in basename(f):
+            continue
+
         media_data = {
             "path": path,
         }
