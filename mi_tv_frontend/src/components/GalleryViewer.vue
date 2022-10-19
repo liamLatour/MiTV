@@ -24,7 +24,7 @@
       v-bind:class="{ portrait: media.is_portrait }"
     >
       <span
-        class="z-10 m-2 text-4xl opacity-60 absolute bottom-0 right-0"
+        class="z-10 m-2 text-4xl opacity-80 absolute bottom-0 right-0"
         v-if="media.others != null"
       >
         <font-awesome-icon icon="fa-solid fa-folder" />
@@ -37,11 +37,18 @@
         class="cursor-pointer image-anim"
       />
 
-      <ImageItem
-        v-else-if="media.type == 'vid'"
-        :source="'http://127.0.0.1:5000/media_low_res/' + media.path"
-        class="cursor-pointer image-anim"
-      />
+      <div v-else-if="media.type == 'vid'">
+        <font-awesome-icon
+          icon="fa-solid fa-film"
+          class="z-10 m-2 text-4xl opacity-80 absolute bottom-0 right-0"
+        />
+
+        <ImageItem
+          :source="'http://127.0.0.1:5000/media_low_res/' + media.path"
+          alt="image introuvable"
+          class="cursor-pointer image-anim"
+        />
+      </div>
 
       <div v-if="media.type == 'dir'">
         <ImageItem
