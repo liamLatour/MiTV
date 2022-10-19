@@ -32,7 +32,12 @@
     />
   </div>
 
-  <GalleryViewer :medias="items" :is-global="isGlobal" />
+  <GalleryViewer
+    :medias="items"
+    :is-global="isGlobal"
+    :thumbnail="thumbnail"
+    :exclude_thumbnail="exclude_thumbnail"
+  />
 </template>
 
 <script lang="ts">
@@ -66,9 +71,12 @@ export default defineComponent({
 
     GetMediaService.getMedia(this.url + this.media_url)
       .then((response) => {
+        console.log(response.data);
         this.items = response.data.files;
         this.event_name = response.data.event_name;
         this.association = response.data.association;
+        this.exclude_thumbnail = response.data.exlude_thumbnail == "true";
+        this.thumbnail = response.data.thumbnail;
       })
       .catch((error) => {
         console.log(error);
@@ -90,6 +98,8 @@ export default defineComponent({
       media_url: "",
       event_name: "",
       association: "",
+      exclude_thumbnail: false,
+      thumbnail: "",
       modifying: false,
     };
   },

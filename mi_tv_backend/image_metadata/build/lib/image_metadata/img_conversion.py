@@ -11,7 +11,6 @@ class ImageFormatHandler(Images):
     def __init__(self):
         super().__init__()
 
-    
     def parse_imgs(self, path):
         if Videos.small_dir_name in basename(path):
             return

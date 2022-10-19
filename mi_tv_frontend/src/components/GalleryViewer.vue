@@ -18,10 +18,13 @@
     </div>
 
     <div
-      class="overflow-hidden m-0.5 aspect"
+      class="overflow-hidden m-0.5 aspec"
       v-for="(media, index) in medias"
       :key="media.path"
-      v-bind:class="{ portrait: media.is_portrait }"
+      v-bind:class="{
+        portrait: media.is_portrait,
+        hidden: exclude_thumbnail && media.path == thumbnail,
+      }"
     >
       <span
         class="z-10 m-2 text-4xl opacity-80 absolute bottom-0 right-0"
@@ -101,6 +104,14 @@ export default defineComponent({
     isGlobal: {
       type: Boolean,
       default: false,
+    },
+    exclude_thumbnail: {
+      type: Boolean,
+      default: false,
+    },
+    thumbnail: {
+      type: String,
+      default: "",
     },
   },
   created() {
