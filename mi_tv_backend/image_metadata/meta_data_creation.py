@@ -10,7 +10,7 @@ from image_metadata import (ImageOrientation, ImageSimilarity, Photos,
                             References, ImageFormatHandler, Videos)
 
 # run with:
-#   meta_data_creation --continuous --immediate ./people_ref ./photos
+#   meta_data_creation --continuous --immediate ./temp_people_ref ./uploadDir
 #   meta_data_creation --once --immediate ./temp_people_ref ./photos
 
 @click.command()
@@ -55,6 +55,7 @@ class MetadataCreation():
         
         self.to_compute = []
         self.scheluded_ref_update = False
+        self.delay = 1 # in secs
         
         self.orientation = ImageOrientation()
         self.similarity = ImageSimilarity()
@@ -64,6 +65,7 @@ class MetadataCreation():
         self.vid = Videos()
         
     def run(self):
+        # First run to initialize references
         self.references.run()
         
         if not self.continuous or self.prerun:
@@ -72,9 +74,7 @@ class MetadataCreation():
         if self.continuous:
             # event handler
             event_handler = PatternMatchingEventHandler(["*"], None, False, True)
-            event_handler.on_modified = self.event_handler
             event_handler.on_created  = self.event_handler
-            event_handler.on_moved    = self.event_handler
             
             # observer
             observer = Observer()
@@ -122,41 +122,44 @@ class MetadataCreation():
                 cur_time = int(time.time())
                 delay = cur_time - cur_time%86400 + 86400 # midnight gmt
             else:
-                delay = 360 # 5 mins
+                delay = self.delay
 
             threading.Timer(delay, lambda: self.create_metadata(self.to_compute) ).start()
     
-    def create_metadata(self, image_paths=None):
+    def create_metadata(self, image_paths=None, full=True):
         if image_paths == None:
             image_paths = self.image_root_paths
         
         click.echo("Started on paths:" + str(image_paths))
         
         t = time.time()
-        click.echo("Format")
-        self.format.run(image_paths)
-        click.echo("Format finished in: " + str(time.time()-t))
         
-        t1 = time.time()
-        click.echo("Orientation")
-        self.orientation.run(image_paths)
-        click.echo("Orientation finished in: " + str(time.time()-t1))
+        if full:
+            t1 = time.time()
+            click.echo("Format")
+            self.format.run(image_paths)
+            click.echo("Format finished in: " + str(time.time()-t1))
         
-        t1 = time.time()
-        click.echo("Similarity")
-        self.similarity.run(image_paths)
-        click.echo("Similarity finished in: " + str(time.time()-t1))
+            t1 = time.time()
+            click.echo("Orientation")
+            self.orientation.run(image_paths)
+            click.echo("Orientation finished in: " + str(time.time()-t1))
+
+            t1 = time.time()
+            click.echo("Similarity")
+            self.similarity.run(image_paths)
+            click.echo("Similarity finished in: " + str(time.time()-t1))
+            
+            t1 = time.time()
+            click.echo("Video handling")
+            self.vid.run(image_paths)
+            click.echo("Videos finished in: " + str(time.time()-t1))
         
         t1 = time.time()
         click.echo("Face recognition")
         self.face_recognition.run(image_paths)
         click.echo("Face recognition finished in: " + str(time.time()-t1))
 
-        t1 = time.time()
-        click.echo("Video handling")
-        self.vid.run(image_paths)
-        click.echo("Videos finished in: " + str(time.time()-t1))
-        
         click.echo("Finished in: " + str(time.time()-t))
         
         for path in image_paths:
@@ -172,13 +175,12 @@ class MetadataCreation():
             cur_time = int(time.time())
             delay = cur_time - cur_time%86400 + 86400 # midnight gmt
         else:
-            delay = 1 #360 # 5 mins
+            delay = self.delay
 
         self.scheluded_ref_update = True
         threading.Timer(delay, self.create_ref_metadata).start()
-        threading.Timer(delay, self.create_metadata).start()
     
-    def create_ref_metadata(self):
+    def create_ref_metadata(self, recheck_images=False):
         click.echo("Started on references")
         
         t = time.time()
@@ -186,3 +188,6 @@ class MetadataCreation():
         self.references.run()
         click.echo("Reference face recognition finished in: " + str(time.time()-t))
         self.scheluded_ref_update = False
+        
+        if recheck_images:
+            self.create_metadata(None, False)

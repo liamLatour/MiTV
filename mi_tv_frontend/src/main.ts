@@ -5,6 +5,8 @@ import VueCookies from "vue-cookies";
 import withUUID from "vue-uuid";
 import LazyLoadDirective from "./directives/LazyLoadDirective";
 
+// var ExifImage = require('exif').ExifImage;
+
 import "./assets/main.css";
 
 /* import fontawesome */

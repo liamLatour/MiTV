@@ -1,16 +1,8 @@
-frontend:
-    - Integrate videos
-    - Better UI (main page)
-
 backend:
-    - Integrate videos
     - AI images by event
     - Create .meta when images are uploaded
-    - Make architecture avoid ill formed folders, or, better put default meta
+    - Convert .people into non-relational DB
 
 metadata creation:
     - Separate encoding and metadata for better loading perf
     - Create unit tests
-    
-unknown:
-    - fix image groups order

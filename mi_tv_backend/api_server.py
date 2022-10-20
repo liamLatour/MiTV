@@ -1,4 +1,3 @@
-from email.mime import base
 import imghdr
 import json
 import time
@@ -18,10 +17,10 @@ from image_metadata import GetFaces, GetGroups, GetOrientation, UpdateMetadata, 
 # run with: waitress-serve --host 127.0.0.1 --port=5000 --threads=12 api_server:app
 
 ref_path = join(getcwd(), "temp_people_ref")
+root_photos_path = join(getcwd(), "photos")
 
 app = Flask(__name__)
 CORS(app)
-root_photos_path = join(getcwd(), "photos")
 get_faces = GetFaces(ref_path)
 
 default_meta = {
@@ -120,7 +119,10 @@ def disconnect():
 # Serve media
 def serve_pil_image(pil_img, quality=90):
     img_io = BytesIO()
-    pil_img.save(img_io, "JPEG", quality=quality)
+    if 'exif' in pil_img.info:
+        pil_img.save(img_io, "JPEG", quality=quality, exif=pil_img.info['exif'])
+    else:
+        pil_img.save(img_io, "JPEG", quality=quality)
     img_io.seek(0)
     
     return send_file(img_io, mimetype="image/jpeg")
@@ -194,7 +196,7 @@ def get_download_vmedia(filename):
 
 @app.route("/download/<path:filename>")
 def get_download_media(filename):
-    return send_file(filename, mimetype="image/png")
+    return send_file(filename, mimetype="image/jpeg")
 
 # Architecture
 @app.route("/architecture/<path:dirname>")
