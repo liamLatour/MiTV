@@ -150,7 +150,6 @@ def get_photos_name(name):
 
     return jsonify(media)
 
-#TODO: only for images for now
 @app.route("/media_low_res/<path:filename>")
 def get_media_low_res(filename):
     if splitext(basename(filename))[1][1:] in Videos.supported_formats:
@@ -169,6 +168,14 @@ def get_media(filename):
     image = ImageOps.exif_transpose(image)
     
     return serve_pil_image(image, 100)
+
+@app.route("/vmedia/<path:filename>")
+def get_vmedia(filename):
+    return send_file(join(dirname(filename), Videos.small_dir_name, splitext(basename(filename))[0]) + ".webm", mimetype="video/webm")
+
+@app.route("/vdownload/<path:filename>")
+def get_download_vmedia(filename):
+    return send_file(join(dirname(filename), splitext(basename(filename))[0]) + ".webm", mimetype="video/webm")
 
 @app.route("/download/<path:filename>")
 def get_download_media(filename):

@@ -49,6 +49,7 @@
         <ImageItem
           :source="'http://127.0.0.1:5000/media_low_res/' + media.path"
           alt="image introuvable"
+          @click="openVideo(index)"
           class="cursor-pointer image-anim"
         />
       </div>
@@ -76,23 +77,33 @@
     :show="showModal"
     @close="showModal = false"
   />
+
+  <VideoModal
+    :video="modalVideo"
+    :show="showVModal"
+    @close="showVModal = false"
+  />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import ImageItem from "./ImageItem.vue";
 import ImageModal from "./ImageModal.vue";
+import VideoModal from "./VideoModal.vue";
 
 export default defineComponent({
   name: "GalleryViewer",
   components: {
     ImageItem,
     ImageModal,
+    VideoModal,
   },
   data: function () {
     return {
       showModal: false,
       modalImages: [] as Array<string>,
+      showVModal: false,
+      modalVideo: "",
       columns: 1,
     };
   },
@@ -131,6 +142,13 @@ export default defineComponent({
       } else {
         this.modalImages = this.medias[index].others;
       }
+    },
+    openVideo(i: string) {
+      let index: number = parseInt(i);
+
+      this.showVModal = true;
+      this.modalVideo = this.medias[index].path;
+
     },
     windowSizeChange() {
       this.columns = (window.innerWidth / 300) >> 0;

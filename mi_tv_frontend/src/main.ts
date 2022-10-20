@@ -24,6 +24,8 @@ import {
   faPen,
   faCheck,
   faFilm,
+  faPause,
+  faVolumeLow
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
@@ -39,7 +41,9 @@ library.add(
   faPen,
   faCheck,
   faRightFromBracket,
-  faFilm
+  faFilm,
+  faPause,
+  faVolumeLow
 );
 
 const app = createApp(App);
