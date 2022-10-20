@@ -4,7 +4,7 @@
       v-if="show"
     >
       <!--Header-->
-      <div class="h-12">
+      <div class="h-12" ref="header">
         <div class="absolute right-2 m-1 text-white text-3xl">
           <a
             :href="'http://127.0.0.1:5000/vdownload/' + video"
@@ -33,6 +33,7 @@
             :src="'http://127.0.0.1:5000/vmedia/' + video"
             autoplay="true"
             loop="true"
+            v-bind:style="[phone ? {width: vidDim + 'px'} : {height: vidDim + 'px'}]"
             @timeupdate="updateTime"
             @waiting="buffering = true"
             @canplay="buffering = false"
@@ -123,7 +124,9 @@ import { defineComponent } from "vue";
       elapsedTime: "",
       totalTime: "",
       progressWidth: 0,
-      volumeWidth: 0
+      volumeWidth: 0,
+      vidDim: 360,
+      phone: false
     };
   },
     methods: {
@@ -217,17 +220,40 @@ import { defineComponent } from "vue";
         (this.$refs.video as HTMLVideoElement).currentTime = newTime;
       },
       setVolume(event: MouseEvent) {
-        const volume = 1.0 * event.offsetX / (this.$refs.totalVolume as HTMLElement).clientWidth;
+        const volume = event.offsetX / (this.$refs.totalVolume as HTMLElement).clientWidth;
         (this.$refs.video as HTMLVideoElement).volume = volume;
 
         this.volumeWidth = event.offsetX;
+      },
+      setVolumeVal(val: number) {
+        (this.$refs.video as HTMLVideoElement).volume = val;
+
+        this.volumeWidth = Math.round((this.$refs.totalVolume as HTMLElement).clientWidth * val);
+      },
+      onResize() {
+        const ratio = (this.$refs.video as HTMLVideoElement).videoWidth / (this.$refs.video as HTMLVideoElement).videoHeight * 0.9;
+
+        if (window.innerWidth / window.innerHeight < ratio) {
+          this.phone = true;
+          this.vidDim = window.innerWidth;
+        } else {
+          this.phone = false;
+          this.vidDim = Math.round((window.innerHeight - (this.$refs.header as HTMLElement).clientHeight) * 0.75);
+        }
       }
     },
     computed: {
       playing() {
         return !this.paused;
       }
-    }
+    },
+    mounted(){
+      this.$nextTick(() => {
+        window.addEventListener('resize', this.onResize);
+      })
+      this.onResize();
+      this.setVolumeVal(0.8);
+    },
   });
   </script>
 
