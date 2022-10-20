@@ -13,14 +13,16 @@ from flask_cors import CORS
 from PIL import Image, ImageOps
 from werkzeug.utils import secure_filename
 
-from image_metadata import GetFaces, GetGroups, GetOrientation, UpdateMetadata, Videos
+from image_metadata import GetFaces, GetGroups, GetOrientation, UpdateMetadata, Videos, add_uuid
 
 # run with: waitress-serve --host 127.0.0.1 --port=5000 --threads=12 api_server:app
+
+ref_path = join(getcwd(), "temp_people_ref")
 
 app = Flask(__name__)
 CORS(app)
 root_photos_path = join(getcwd(), "photos")
-get_faces = GetFaces(join(getcwd(), "people_ref"))
+get_faces = GetFaces(ref_path)
 
 default_meta = {
     "event_name": "Evenement",
@@ -70,6 +72,19 @@ def upload_files():
         
         return "File uploaded successfully"
 
+@app.route("/upload_ref", methods=["GET", "POST"])
+def upload_ref():
+    if request.method == "POST":        
+        uuid = request.form["uuid"]
+        
+        f = request.files["file"]
+        f.save(join(ref_path, secure_filename(f.filename)))
+        
+        # Add uuid to .people
+        add_uuid(uuid, join(ref_path, secure_filename(f.filename)), join(ref_path, '.people'))
+        
+        return "File uploaded successfully"
+
 @app.route("/update/<path:dirname>", methods=["GET", "POST"])
 def update(dirname):
     if request.method == "POST":
@@ -116,7 +131,7 @@ def get_photos_id(id):
         "files": []
     }
     
-    for img in get_faces.get_face_by_id(id):
+    for img in get_faces.get_face_by_id(int(id)):
         media["files"].append(
             {
                 "path": img[0],
@@ -130,22 +145,22 @@ def get_photos_id(id):
 
     return jsonify(media)
 
-@app.route("/get_by_name/<name>")
-def get_photos_name(name):
+@app.route("/get_by_uuid/<uuid>")
+def get_photos_uuid(uuid):
     media = {
         "files": []
     }
     
-    for img in get_faces.get_face_by_name(name):
+    for img in get_faces.get_face_by_uuid(uuid):
         media["files"].append(
             {
                 "path": img[0],
                 "type": "pic",
-                "closeness": img[1]["closeness"],
+                "closeness": img[1],
             }
         )
 
-    media["event_name"] = "Photo de " + name.capitalize()
+    media["event_name"] = "Mes Photos"
     media["association"] = "IA"
 
     return jsonify(media)
@@ -209,6 +224,7 @@ def get_architecture(dirname):
         elif isdir(path):
             media_data["type"] = "dir"
             media_data = add_dir_info(path, media_data)
+            print(media_data)
             media["files"].append(media_data)
     
     # Global info on dir
@@ -224,14 +240,14 @@ def add_dir_info(path, meta):
         with open(meta_path, "r", encoding="utf-8") as file:
             data = json.load(file)
             for label in data:
-                if label == "thumbnail":
+                if label == "thumbnail" and data["thumbnail"] != "":
                     meta[label] = join(path, data[label])
                 else:
                     meta[label] = data[label]
     
     # Add default config
     for key in default_meta:
-        if key not in meta:
+        if key not in meta or meta[key] == "":
             meta[key] = default_meta[key]
     
     return meta

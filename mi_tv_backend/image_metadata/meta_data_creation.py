@@ -11,6 +11,7 @@ from image_metadata import (ImageOrientation, ImageSimilarity, Photos,
 
 # run with:
 #   meta_data_creation --continuous --immediate ./people_ref ./photos
+#   meta_data_creation --once --immediate ./temp_people_ref ./photos
 
 @click.command()
 @click.argument("ref_path", type=click.Path(exists=True))
@@ -81,13 +82,6 @@ class MetadataCreation():
                 click.echo("Looking at: "+str(path))
                 observer.schedule(event_handler, path, recursive=True)
             observer.start()
-            
-            try:
-                while True:
-                    time.sleep(1)
-            except KeyboardInterrupt:
-                observer.stop()
-                observer.join()
                 
             # ref event handler
             ref_event_handler = PatternMatchingEventHandler(["*"], None, False, True)
@@ -104,6 +98,8 @@ class MetadataCreation():
                 while True:
                     time.sleep(1)
             except KeyboardInterrupt:
+                observer.stop()
+                observer.join()
                 ref_observer.stop()
                 ref_observer.join()
 
@@ -180,12 +176,13 @@ class MetadataCreation():
 
         self.scheluded_ref_update = True
         threading.Timer(delay, self.create_ref_metadata).start()
+        threading.Timer(delay, self.create_metadata).start()
     
     def create_ref_metadata(self):
         click.echo("Started on references")
-        self.scheluded_ref_update = False
         
         t = time.time()
         click.echo("Reference face recognition")
         self.references.run()
         click.echo("Reference face recognition finished in: " + str(time.time()-t))
+        self.scheluded_ref_update = False

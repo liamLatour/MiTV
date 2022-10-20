@@ -6,7 +6,7 @@
       class="absolute text-3xl right-0 m-4 cursor-pointer hover:text-teal-400"
       icon="fa-solid fa-pen"
       @click="modifying = true"
-      v-if="$cookies.isKey('login')"
+      v-if="$cookies.isKey('login') && isGlobal"
     />
   </div>
   <div class="flex flex-col items-center mb-5 mt-10 sm:mt-16" v-else>
@@ -28,7 +28,7 @@
       class="absolute text-3xl right-0 m-4 cursor-pointer hover:text-teal-400"
       icon="fa-solid fa-check"
       @click="modify"
-      v-if="$cookies.isKey('login')"
+      v-if="$cookies.isKey('login') && isGlobal"
     />
   </div>
 
@@ -37,12 +37,15 @@
     :is-global="isGlobal"
     :thumbnail="thumbnail"
     :exclude_thumbnail="exclude_thumbnail"
+    v-if="isGlobal || is_registered"
   />
+  <AiRegistration v-else />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import GalleryViewer from "../components/GalleryViewer.vue";
+import AiRegistration from "../components/AiRegistration.vue";
 import GetMediaService from "../services/GetMediaService";
 import UpdateMetaService from "../services/UpdateMetaService";
 
@@ -50,6 +53,7 @@ export default defineComponent({
   name: "GalleryView",
   components: {
     GalleryViewer: GalleryViewer,
+    AiRegistration: AiRegistration,
   },
   methods: {
     modify() {
@@ -65,6 +69,28 @@ export default defineComponent({
     },
   },
   created() {
+    // If it is AI
+    if (!this.isGlobal) {
+      if (this.$cookies.isKey("uuid")) {
+        this.is_registered = true;
+
+        GetMediaService.getMedia("/get_by_uuid/" + this.$cookies.get("uuid"))
+          .then((response) => {
+            console.log(response.data);
+            this.items = response.data.files;
+            this.event_name = response.data.event_name;
+            this.association = response.data.association;
+            this.exclude_thumbnail = response.data.exlude_thumbnail == "true";
+            this.thumbnail = response.data.thumbnail;
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+
+      return;
+    }
+
     for (let i in this.$route.params.path as Array<string>) {
       this.media_url += this.$route.params.path[i] + "/";
     }
@@ -101,6 +127,7 @@ export default defineComponent({
       exclude_thumbnail: false,
       thumbnail: "",
       modifying: false,
+      is_registered: false,
     };
   },
 });

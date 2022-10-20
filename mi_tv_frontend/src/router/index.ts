@@ -19,7 +19,7 @@ const router = createRouter({
       name: "mes_photos",
       component: () => import("../views/GalleryView.vue"),
       props: {
-        url: "/get_by_name/munier",
+        url: "",
         isGlobal: false,
       },
     },
