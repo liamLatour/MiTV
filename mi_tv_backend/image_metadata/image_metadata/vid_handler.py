@@ -48,7 +48,9 @@ class Videos():
         height = int(video_stream["height"])
 
         if not exists(base + ".webm"):
-            vid = ffmpeg.input(join(path, name))
+            file = ffmpeg.input(join(path, name))
+            vid = ffmpeg.video
+            aud = ffmpeg.video
 
             if width > self._compression_width:
                 new_height = int(self._compression_width * height / width)
@@ -57,13 +59,13 @@ class Videos():
 
                 vid = ffmpeg.filter(vid, "scale", self._compression_width, new_height)
 
-            vid = ffmpeg.output(vid, base + ".webm", format="webm", vcodec="libvpx-vp9", acodec="libopus", framerate=30, crf=30)
-            vid = ffmpeg._ffmpeg.global_args(vid, "-hide_banner")
-            vid = ffmpeg._ffmpeg.global_args(vid, "-loglevel", "error")
+            file = ffmpeg.output(aud, vid, base + ".webm", format="webm", vcodec="libvpx-vp9", acodec="libopus", framerate=30, crf=30)
+            file = ffmpeg._ffmpeg.global_args(file, "-hide_banner")
+            file = ffmpeg._ffmpeg.global_args(file, "-loglevel", "error")
 
             click.echo("Converting... ", nl=False)
 
-            ffmpeg.run(vid)
+            ffmpeg.run(file)
 
         if not exists(base + ".jpg"):
             click.echo("Thumbnail... ", nl = False)

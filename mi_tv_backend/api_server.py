@@ -186,6 +186,14 @@ def get_media(filename):
     
     return serve_pil_image(image, 100)
 
+@app.route("/vmedia/<path:filename>")
+def get_vmedia(filename):
+    return send_file(join(dirname(filename), Videos.small_dir_name, splitext(basename(filename))[0]) + ".webm", mimetype="video/webm")
+
+@app.route("/vdownload/<path:filename>")
+def get_download_vmedia(filename):
+    return send_file(join(dirname(filename), splitext(basename(filename))[0]) + ".webm", mimetype="video/webm")
+
 @app.route("/download/<path:filename>")
 def get_download_media(filename):
     return send_file(filename, mimetype="image/jpeg")
