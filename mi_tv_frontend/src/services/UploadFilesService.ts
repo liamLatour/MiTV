@@ -30,6 +30,24 @@ class UploadFilesService {
       onUploadProgress: uploadProgress,
     });
   }
+
+  uploadRef(
+    files: FileList,
+    uuid: string,
+    uploadProgress: (progressEvent: any) => void
+  ) {
+    const formData = new FormData();
+
+    formData.append("uuid", uuid);
+    formData.append("file", files[0]);
+
+    return http.post("/upload_ref", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      onUploadProgress: uploadProgress,
+    });
+  }
 }
 
 export default new UploadFilesService();

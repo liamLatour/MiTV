@@ -2,7 +2,7 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
 import VueCookies from "vue-cookies";
-
+import withUUID from "vue-uuid";
 import LazyLoadDirective from "./directives/LazyLoadDirective";
 
 import "./assets/main.css";
@@ -46,9 +46,9 @@ library.add(
   faVolumeLow
 );
 
-const app = createApp(App);
+const app = withUUID(createApp(App));
 app.use(router);
-app.use(VueCookies, { expire: "7d" });
+app.use(VueCookies, { expire: "1d" });
 app.directive("lazyload", LazyLoadDirective);
 app.component("font-awesome-icon", FontAwesomeIcon);
 app.mount("#app");

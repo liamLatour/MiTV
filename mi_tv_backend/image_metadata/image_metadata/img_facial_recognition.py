@@ -88,38 +88,42 @@ class Photos(Images):
     
    def decompress_data(self, data, res):
       for img in res:
-         if img[0] not in data:
-            data[img[0]] = {}
+         path = img[0]
+         updates = img[1]
+         ref_updates = img[2]
+         
+         if path not in data:
+            data[path] = {}
             
          # Update data
-         for key in img[1]:
-            data[img[0]][key] = img[1][key]
+         for key in updates:
+            data[path][key] = updates[key]
             
          # Update ref data
-         for key in img[2]:
-            if "del" in img[2][key]:
-               del self.ref_data[img[2][key]["del"]]["seen_in"][img[0]]
-            if "seen_in" in img[2][key]:
+         click.echo(ref_updates)
+         for key in ref_updates:
+            if "del" in ref_updates[key]:
+               del self.ref_data[ref_updates[key]["del"]]["seen_in"][path]
+            if "seen_in" in ref_updates[key]:
                if "seen_in" not in self.ref_data[key]:
                   self.ref_data[key]["seen_in"] = {}
                
-               self.ref_data[key]["seen_in"][img[0]] = {
-                  "closeness": img[2][key]["closeness"]
-               }
-         
+               if path not in self.ref_data[key]["seen_in"]:
+                  self.ref_data[key]["seen_in"][path] = {
+                     "closeness": ref_updates[key]["closeness"]
+                  }
+      
       with open(self.ref.metapath, 'wb') as f:
          pickle.dump(self.ref_data, f)
       
       return data
 
    def after_treatment(self, face_encoding, data, path, updates):
-      face_paths = []
-      face_closeness = []
       ref_updates = {}
       i = 0
       
+      updates["faces"] = ["?" for _ in range(len(face_encoding))]
       if "faces" not in data[path]:
-         updates["faces"] = ["?" for _ in range(len(face_encoding))]
          old_names = updates["faces"]
       else:
          old_names = data[path]["faces"]
@@ -132,12 +136,10 @@ class Photos(Images):
          if face_distances[best_match_index] < 0.6:
             face_path = self.ref.face_paths[best_match_index]
 
-         face_paths.append(face_path)
-         face_closeness.append(face_distances[best_match_index])
-
          if face_path != old_names[i]:
             ref_updates = self.update_ref(path, old_names[i], face_path, face_distances[best_match_index], ref_updates)
-            updates["faces"][i] = face_path
+      
+         updates["faces"][i] = face_path
          
          i += 1
 
@@ -160,25 +162,31 @@ class GetFaces(GetMetadata):
    
    # Should be the only one used, it allows multiple ref images
    def get_face_by_id(self, id, order_by_closeness=True):
+      if self.data == None:
+         print("no data")
+         return
       imgs_path = []
       
       for p in self.data:
-         if self.data[p]["id"] == id:
-               imgs_path.extend(list(self.data[p]["seen_in"].items()))
+         if self.data[p]["id"] == id and "seen_in" in self.data[p]:
+            imgs_path.extend(list(self.data[p]["seen_in"].items()))
                
       if order_by_closeness:
          imgs_path.sort(key=lambda x:x[1]["closeness"])
       
       return imgs_path
 
-   def get_face_by_name(self, name, order_by_closeness=True):
+   def get_face_by_uuid(self, uuid, order_by_closeness=True):
+      if self.data == None:
+         print("no data")
+         return
       imgs_path = []
-   
+      
       for p in self.data:
-         if name in p and "seen_in" in self.data[p]:
-               imgs_path.extend(list(self.data[p]["seen_in"].items()))
-
+         if self.data[p]["uuid"] == uuid and "seen_in" in self.data[p]:
+            imgs_path.extend(list(self.data[p]["seen_in"].items()))
+      
       if order_by_closeness:
          imgs_path.sort(key=lambda x:x[1]["closeness"])
-
+      
       return imgs_path

@@ -4,10 +4,10 @@
     v-bind:style="{ 'grid-template-columns': 'repeat(' + columns + ', 1fr)' }"
   >
     <div class="overflow-hidden m-0.5 bg-slate-500 aspect" v-if="isGlobal">
-      <ImageItem
-        source="http://127.0.0.1:5000/media_low_res/people_ref/liam.jpg"
+      <img
+        src="../assets/camera.jpg"
         alt="image introuvable"
-        class="cursor-pointer image-anim"
+        class="object-cover h-full max-w-full cursor-pointer image-anim"
       />
       <a
         href="/mes_photos"
@@ -18,7 +18,7 @@
     </div>
 
     <div
-      class="overflow-hidden m-0.5 aspec"
+      class="overflow-hidden m-0.5 aspect"
       v-for="(media, index) in medias"
       :key="media.path"
       v-bind:class="{
