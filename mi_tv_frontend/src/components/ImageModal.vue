@@ -35,7 +35,7 @@
         v-on:click.stop
         ref="image"
         @load="getEXIF"
-        class="max-h-full max-w-full"
+        class="max-h-full max-w-full m-auto"
         id="img1"
       />
     </div>

@@ -1,6 +1,7 @@
 backend:
     - AI images by event
     - Create .meta when images are uploaded
+    - Convert .people into non-relational DB
 
 metadata creation:
     - Separate encoding and metadata for better loading perf
