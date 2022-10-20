@@ -33,7 +33,10 @@
         :src="'http://127.0.0.1:5000/media/' + images[currentImg]"
         alt="image introuvable"
         v-on:click.stop
+        ref="image"
+        @load="getEXIF"
         class="max-h-full max-w-full"
+        id="img1"
       />
     </div>
 
@@ -56,6 +59,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import EXIF from "exif-js";
 
 export default defineComponent({
   name: "ImageModal",
@@ -73,6 +77,17 @@ export default defineComponent({
     return {
       currentImg: 0,
     };
+  },
+  methods: {
+    getEXIF() {
+      let image = this.$refs.image as HTMLImageElement;
+      let url = this.$refs.image as string; // Only to please typescript
+
+      EXIF.getData(url, function () {
+        console.log(EXIF.getAllTags(image));
+        console.log(EXIF.getTag(image, "DateTime"));
+      });
+    },
   },
 });
 </script>
