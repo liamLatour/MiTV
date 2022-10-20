@@ -3,7 +3,7 @@ import json
 import time
 from io import BytesIO
 from os import getcwd, listdir
-from os.path import isdir, isfile, join, basename, splitext, dirname
+from os.path import isdir, isfile, join, basename, splitext, dirname, exists
 from pathlib import Path
 import random
 
@@ -17,6 +17,10 @@ from image_metadata import GetFaces, GetGroups, GetOrientation, UpdateMetadata, 
 # run with: waitress-serve --host 127.0.0.1 --port=5000 --threads=12 api_server:app
 
 ref_path = join(getcwd(), "temp_people_ref")
+
+if not exists(ref_path):
+    ref_path = join(getcwd(), "people_ref")
+
 root_photos_path = join(getcwd(), "photos")
 
 app = Flask(__name__)
