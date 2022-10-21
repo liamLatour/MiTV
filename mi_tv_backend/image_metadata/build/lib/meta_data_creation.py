@@ -132,8 +132,6 @@ class MetadataCreation():
         
         click.echo("Started on paths:" + str(image_paths))
         
-        return #FIXME: REMOVE ME
-        
         t = time.time()
         
         if full:

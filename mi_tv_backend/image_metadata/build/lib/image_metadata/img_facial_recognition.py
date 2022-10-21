@@ -1,4 +1,4 @@
-from os.path import join
+from os.path import join, commonpath
 import pickle
 import face_recognition
 import numpy as np
@@ -176,15 +176,18 @@ class GetFaces(GetMetadata):
       
       return imgs_path
 
-   def get_face_by_uuid(self, uuid, order_by_closeness=True):
+   def get_face_by_uuid(self, uuid, path, order_by_closeness=True):
       if self.data == None:
          print("no data")
          return
       imgs_path = []
       
       for p in self.data:
-         if self.data[p]["uuid"] == uuid and "seen_in" in self.data[p]:
-            imgs_path.extend(list(self.data[p]["seen_in"].items()))
+         if "uuid" in self.data[p] and self.data[p]["uuid"] == uuid and "seen_in" in self.data[p]:
+            candidates = list(self.data[p]["seen_in"].items())
+            for can in candidates:
+               if commonpath([path, can[0]]) == path:
+                  imgs_path.append(can)
       
       if order_by_closeness:
          imgs_path.sort(key=lambda x:x[1]["closeness"])

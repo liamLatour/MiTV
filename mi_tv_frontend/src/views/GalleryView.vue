@@ -69,12 +69,20 @@ export default defineComponent({
     },
   },
   created() {
+    for (let i in this.$route.params.path as Array<string>) {
+      this.media_url += this.$route.params.path[i] + "/";
+    }
+
     // If it is AI
     if (!this.isGlobal) {
       if (this.$cookies.isKey("uuid")) {
         this.is_registered = true;
 
-        GetMediaService.getMedia("/get_by_uuid/" + this.$cookies.get("uuid"))
+        console.log(this.media_url);
+
+        GetMediaService.getMedia("/get_by_uuid/" + this.$cookies.get("uuid"), {
+          path: this.media_url,
+        })
           .then((response) => {
             console.log(response.data);
             this.items = response.data.files;
@@ -89,10 +97,6 @@ export default defineComponent({
       }
 
       return;
-    }
-
-    for (let i in this.$route.params.path as Array<string>) {
-      this.media_url += this.$route.params.path[i] + "/";
     }
 
     GetMediaService.getMedia(this.url + this.media_url)
