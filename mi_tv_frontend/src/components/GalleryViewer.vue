@@ -77,12 +77,11 @@
     :show="showModal"
     @close="showModal = false"
   />
-  <!--
   <VideoModal
     :video="modalVideo"
     :show="showVModal"
     @close="showVModal = false"
-  />-->
+  />
 </template>
 
 <script lang="ts">

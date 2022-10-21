@@ -131,6 +131,10 @@ import { defineComponent } from "vue";
   },
     methods: {
       updateTime(event: Event) {
+        if (this.$refs.video === null) {
+          return;
+        }
+
         let current = (this.$refs.video as HTMLVideoElement).currentTime;
         this.elapsedTime = this.formatTime(current);
 
@@ -231,10 +235,6 @@ import { defineComponent } from "vue";
         this.volumeWidth = Math.round((this.$refs.totalVolume as HTMLElement).clientWidth * val);
       },
       onResize() {
-        if ((this.$refs.video as HTMLVideoElement).readyState < 2) {
-          return;
-        }
-
         const ratio = (this.$refs.video as HTMLVideoElement).videoWidth / (this.$refs.video as HTMLVideoElement).videoHeight * 0.9;
 
         if (window.innerWidth / window.innerHeight < ratio) {

@@ -194,11 +194,11 @@ def get_media(filename):
 
 @app.route("/vmedia/<path:filename>")
 def get_vmedia(filename):
-    return send_file(join(dirname(filename), Videos.small_dir_name, splitext(basename(filename))[0]) + ".webm", mimetype="video/webm")
+    return send_file(join(dirname(filename), Videos.small_dir_name, splitext(basename(filename))[0]) + ".mp4", mimetype="video/mp4")
 
 @app.route("/vdownload/<path:filename>")
 def get_download_vmedia(filename):
-    return send_file(join(dirname(filename), splitext(basename(filename))[0]) + ".webm", mimetype="video/webm")
+    return send_file(filename, mimetype="video/webm")
 
 @app.route("/download/<path:filename>")
 def get_download_media(filename):
