@@ -33,6 +33,7 @@
             :src="'http://127.0.0.1:5000/vmedia/' + video"
             autoplay="true"
             loop="true"
+            disablePictureInPicture
             v-bind:style="[phone ? {width: vidDim + 'px'} : {height: vidDim + 'px'}]"
             @timeupdate="updateTime"
             @waiting="buffering = true"
@@ -85,7 +86,7 @@
             <div class="flex flex-nowrap flex-row">
               <font-awesome-icon
               icon="fa-solid fa-volume-low"
-              class="text-3xl"/>
+              class="text-3xl ml-8"/>
               <div
                 class="grow m-2 rounded-lg progress-container w-20"
                 ref="totalVolume"
@@ -244,6 +245,18 @@ import { defineComponent } from "vue";
           this.phone = false;
           this.vidDim = Math.round((window.innerHeight - (this.$refs.header as HTMLElement).clientHeight) * 0.75);
         }
+      },
+      init() {
+        if (this.$refs.video != null) {
+          if ((this.$refs.video as HTMLVideoElement).readyState > 0) {
+            this.onResize();
+            this.setVolumeVal(0.8);
+            return;
+          }
+        }
+
+
+        setTimeout(this.init, 50);
       }
     },
     computed: {
@@ -251,14 +264,13 @@ import { defineComponent } from "vue";
         return !this.paused;
       }
     },
-    activated() {
+    mounted() {
       this.$nextTick(() => {
         window.addEventListener("resize", this.onResize);
+        this.init();
       })
-      this.onResize();
-      this.setVolumeVal(0.8);
     },
-    deactivated() {
+    beforeUnmount() {
       window.removeEventListener("resize", this.onResize);
     },
   });
@@ -266,11 +278,11 @@ import { defineComponent } from "vue";
 
   <style lang="scss">
 .progress-container {
-  background: #000;
+  background: rgba(224, 224, 224, 0.5);
 }
 
 .progress {
-  background: #aaa;
+  background: rgb(224, 224, 224);
 }
 
 .image-anim {
