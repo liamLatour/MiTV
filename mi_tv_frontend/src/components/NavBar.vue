@@ -7,7 +7,7 @@
       class="flex flex-col m-auto items-center justify-between h-full w-full sm:flex-row"
     >
       <span class="grow"></span>
-      <NavItem href="/#"> Dernières photos </NavItem>
+      <NavItem href="/photos/photos"> Les photos </NavItem>
       <NavItem href="/#team"> L'équipe </NavItem>
       <NavItem href="/" class="text-xl"> MiTV </NavItem>
       <NavItem href="/#hardware"> Le matériel </NavItem>

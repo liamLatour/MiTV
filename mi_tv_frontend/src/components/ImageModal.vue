@@ -41,7 +41,8 @@
     </div>
 
     <!--Footer-->
-    <div :class="{ 'h-5': images.length == 1 }" class="max-h-36">
+    <div class="text-center">
+      <span>{{ currentDate }}</span>
       <div class="flex justify-center h-36" v-if="images.length > 1">
         <img
           v-for="(url, index) in images"
@@ -76,17 +77,32 @@ export default defineComponent({
   data: function () {
     return {
       currentImg: 0,
+      currentDate: "",
     };
   },
   methods: {
     getEXIF() {
       let image = this.$refs.image as HTMLImageElement;
       let url = this.$refs.image as string; // Only to please typescript
+      let that = this;
 
       EXIF.getData(url, function () {
         console.log(EXIF.getAllTags(image));
-        console.log(EXIF.getTag(image, "DateTime"));
+
+        const date = that.parseDate(EXIF.getTag(image, "DateTime"));
+        that.currentDate = date.toLocaleString();
       });
+    },
+    parseDate(date: string) {
+      let parts = date.match(/(\d+)/g);
+
+      return new Date(
+        parseInt(parts[0]),
+        parseInt(parts[1]) - 1,
+        parseInt(parts[2]),
+        parseInt(parts[3]),
+        parseInt(parts[4])
+      );
     },
   },
 });

@@ -3,7 +3,7 @@ import json
 import time
 from io import BytesIO
 from os import getcwd, listdir
-from os.path import isdir, isfile, join, basename, splitext, dirname, exists
+from os.path import isdir, isfile, join, basename, splitext, dirname, exists, abspath
 from pathlib import Path
 import random
 
@@ -157,7 +157,9 @@ def get_photos_uuid(uuid):
         "files": []
     }
     
-    for img in get_faces.get_face_by_uuid(uuid):
+    path = abspath(request.args.get("path"))
+    
+    for img in get_faces.get_face_by_uuid(uuid, path):
         media["files"].append(
             {
                 "path": img[0],

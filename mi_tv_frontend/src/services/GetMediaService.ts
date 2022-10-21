@@ -1,8 +1,10 @@
 import http from "../http-common";
 
 class GetMediaService {
-  getMedia(url: string) {
-    return http.get(url);
+  getMedia(url: string, data?: object) {
+    return http.get(url, {
+      params: data,
+    });
   }
 }
 

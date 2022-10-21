@@ -10,7 +10,7 @@
         class="object-cover h-full max-w-full cursor-pointer image-anim"
       />
       <a
-        href="/mes_photos"
+        :href="'/mes_photos/' + media_url"
         class="absolute flex items-center justify-center left-0 right-0 bottom-0 top-0 bg-black bg-opacity-50 transition-all duration-300 hover:bg-opacity-5 hover:text-transparent"
       >
         <h2 class="text-2xl">Mes Photos</h2>
@@ -77,12 +77,12 @@
     :show="showModal"
     @close="showModal = false"
   />
-
+  <!--
   <VideoModal
     :video="modalVideo"
     :show="showVModal"
     @close="showVModal = false"
-  />
+  />-->
 </template>
 
 <script lang="ts">
@@ -105,6 +105,7 @@ export default defineComponent({
       showVModal: false,
       modalVideo: "",
       columns: 1,
+      media_url: "",
     };
   },
   props: {
@@ -126,6 +127,10 @@ export default defineComponent({
     },
   },
   created() {
+    for (let i in this.$route.params.path as Array<string>) {
+      this.media_url += this.$route.params.path[i] + "/";
+    }
+
     window.addEventListener("resize", this.windowSizeChange);
     this.windowSizeChange();
   },
