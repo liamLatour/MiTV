@@ -86,7 +86,7 @@
             <div class="flex flex-nowrap flex-row">
               <font-awesome-icon
               icon="fa-solid fa-volume-low"
-              class="text-3xl ml-8"/>
+              class="text-3xl ml-4"/>
               <div
                 class="grow m-2 rounded-lg progress-container w-20"
                 ref="totalVolume"
@@ -251,6 +251,7 @@ import { defineComponent } from "vue";
           if ((this.$refs.video as HTMLVideoElement).readyState > 0) {
             this.onResize();
             this.setVolumeVal(0.8);
+            (this.$refs.video as HTMLVideoElement).disablePictureInPicture = true;
             return;
           }
         }

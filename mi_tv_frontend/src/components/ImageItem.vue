@@ -5,8 +5,14 @@
     <font-awesome-icon
       icon="fa-solid fa-spinner"
       class="animate-spin w-10 h-10 absolute"
+      v-if="buffering"
     />
-    <img class="object-cover h-full max-w-full" :data-url="source" alt="" />
+    <img
+      class="object-cover h-full max-w-full"
+      :data-url="source"
+      @load="buffering = false"
+      alt=""
+    />
   </figure>
 </template>
 
@@ -20,6 +26,11 @@ export default defineComponent({
       type: String,
       required: true,
     },
+  },
+  data() {
+    return {
+      buffering: true,
+    };
   },
 });
 </script>

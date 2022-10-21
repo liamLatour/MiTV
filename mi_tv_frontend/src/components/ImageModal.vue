@@ -34,10 +34,18 @@
         alt="image introuvable"
         v-on:click.stop
         ref="image"
-        @load="getEXIF"
+        @loadstart="buffering = true"
+        @load="getEXIF(); buffering = false"
         class="max-h-full max-w-full m-auto"
         id="img1"
       />
+      <div class="absolute inset-0 flex justify-center items-center z-50">
+        <font-awesome-icon
+          icon="fa-solid fa-spinner"
+          class="animate-spin text-8xl"
+          v-if="buffering"
+        />
+      </div>
     </div>
 
     <!--Footer-->
@@ -78,6 +86,7 @@ export default defineComponent({
     return {
       currentImg: 0,
       currentDate: "",
+      buffering: true,
     };
   },
   methods: {
