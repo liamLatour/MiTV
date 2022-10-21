@@ -77,12 +77,12 @@
     :show="showModal"
     @close="showModal = false"
   />
-
+  <!--
   <VideoModal
     :video="modalVideo"
     :show="showVModal"
     @close="showVModal = false"
-  />
+  />-->
 </template>
 
 <script lang="ts">
@@ -148,7 +148,6 @@ export default defineComponent({
 
       this.showVModal = true;
       this.modalVideo = this.medias[index].path;
-
     },
     windowSizeChange() {
       this.columns = (window.innerWidth / 300) >> 0;
