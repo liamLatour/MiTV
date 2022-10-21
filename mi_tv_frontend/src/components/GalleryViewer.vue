@@ -148,7 +148,6 @@ export default defineComponent({
 
       this.showVModal = true;
       this.modalVideo = this.medias[index].path;
-
     },
     windowSizeChange() {
       this.columns = (window.innerWidth / 300) >> 0;
