@@ -30,7 +30,7 @@ class Videos():
                 self.parse_vids(_path)
                 continue
 
-            if splitext(f)[-1][1:].lower in self.supported_formats:
+            if splitext(f.lower())[-1][1:] in self.supported_formats:
                 if not self.small_dir_name in listdir(path):
                     mkdir(join(path, self.small_dir_name))
 

@@ -129,27 +129,25 @@ class MetadataCreation():
     def create_metadata(self, image_paths=None, full=True):
         if image_paths == None:
             image_paths = self.image_root_paths
+
+        t = time.time()
         
         click.echo("Started on paths:" + str(image_paths))
-        
-        return #FIXME: REMOVE ME
-        
-        t = time.time()
         
         if full:
             t1 = time.time()
             click.echo("Format")
-            self.format.run(image_paths)
+            #self.format.run(image_paths)
             click.echo("Format finished in: " + str(time.time()-t1))
         
             t1 = time.time()
             click.echo("Orientation")
-            self.orientation.run(image_paths)
+            #self.orientation.run(image_paths)
             click.echo("Orientation finished in: " + str(time.time()-t1))
 
             t1 = time.time()
             click.echo("Similarity")
-            self.similarity.run(image_paths)
+            #self.similarity.run(image_paths)
             click.echo("Similarity finished in: " + str(time.time()-t1))
             
             t1 = time.time()
@@ -159,7 +157,7 @@ class MetadataCreation():
         
         t1 = time.time()
         click.echo("Face recognition")
-        self.face_recognition.run(image_paths)
+        #self.face_recognition.run(image_paths)
         click.echo("Face recognition finished in: " + str(time.time()-t1))
 
         click.echo("Finished in: " + str(time.time()-t))

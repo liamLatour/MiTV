@@ -74,7 +74,7 @@
           </div>
 
           <div
-            class="grow m-2 rounded-lg border-solid border-2 border-gray-200 progress-container"
+            class="grow m-2 rounded-lg progress-container"
             ref="totalBar"
             @click="setTime"
           >
@@ -87,7 +87,7 @@
               icon="fa-solid fa-volume-low"
               class="text-3xl"/>
               <div
-                class="grow m-2 rounded-lg border-solid border-2 border-gray-200 progress-container w-20"
+                class="grow m-2 rounded-lg progress-container w-20"
                 ref="totalVolume"
                 @click="setVolume"
               >

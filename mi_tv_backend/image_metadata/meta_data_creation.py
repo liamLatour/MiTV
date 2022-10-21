@@ -129,10 +129,10 @@ class MetadataCreation():
     def create_metadata(self, image_paths=None, full=True):
         if image_paths == None:
             image_paths = self.image_root_paths
+
+        t = time.time()
         
         click.echo("Started on paths:" + str(image_paths))
-        
-        t = time.time()
         
         if full:
             t1 = time.time()
