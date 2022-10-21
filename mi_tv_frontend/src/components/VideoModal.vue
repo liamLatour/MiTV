@@ -231,6 +231,10 @@ import { defineComponent } from "vue";
         this.volumeWidth = Math.round((this.$refs.totalVolume as HTMLElement).clientWidth * val);
       },
       onResize() {
+        if ((this.$refs.video as HTMLVideoElement).readyState < 2) {
+          return;
+        }
+
         const ratio = (this.$refs.video as HTMLVideoElement).videoWidth / (this.$refs.video as HTMLVideoElement).videoHeight * 0.9;
 
         if (window.innerWidth / window.innerHeight < ratio) {
@@ -247,12 +251,15 @@ import { defineComponent } from "vue";
         return !this.paused;
       }
     },
-    mounted(){
+    activated() {
       this.$nextTick(() => {
-        window.addEventListener('resize', this.onResize);
+        window.addEventListener("resize", this.onResize);
       })
       this.onResize();
       this.setVolumeVal(0.8);
+    },
+    deactivated() {
+      window.removeEventListener("resize", this.onResize);
     },
   });
   </script>
