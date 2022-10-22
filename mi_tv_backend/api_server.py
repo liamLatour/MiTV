@@ -1,9 +1,8 @@
 import imghdr
-import json
 import time
 from io import BytesIO
 from os import getcwd, listdir
-from os.path import isdir, isfile, join, basename, splitext, dirname, exists, abspath
+from os.path import isdir, isfile, join, basename, splitext, dirname, exists
 from pathlib import Path
 import random
 
@@ -12,7 +11,7 @@ from flask_cors import CORS
 from PIL import Image, ImageOps
 from werkzeug.utils import secure_filename
 
-from image_metadata import GetFaces, GetGroups, GetOrientation, UpdateMetadata, Videos, add_uuid
+from image_metadata import Videos, db_interface
 
 # run with: waitress-serve --host 127.0.0.1 --port=5000 --threads=12 api_server:app
 
@@ -25,14 +24,6 @@ root_photos_path = join(getcwd(), "photos")
 
 app = Flask(__name__)
 CORS(app)
-get_faces = GetFaces(ref_path)
-
-default_meta = {
-    "event_name": "Evenement",
-    "association": "Aucune",
-    "thumbnail": "photos/default.jpg",
-    "exlude_thumbnail": "false"
-}
 
 # This is temp until fusion with portail-etu
 allowed_cookies = []
@@ -66,8 +57,9 @@ def upload_files():
         
         event_name = request.form["event_name"]
         association = request.form["association"]
-        save_path = join(join(join(getcwd(), "uploadDir"), association), event_name)
+        save_path = join(join(getcwd(), "uploadDir"), association + '-' + event_name)
         Path(save_path).mkdir(parents=True, exist_ok=False)
+        db_interface.add_folder_info(save_path, event_name, association)
         
         for file in request.files:
             f = request.files[file]
@@ -81,10 +73,11 @@ def upload_ref():
         uuid = request.form["uuid"]
         
         f = request.files["file"]
-        f.save(join(ref_path, secure_filename(f.filename)))
+        img_path = join(ref_path, secure_filename(f.filename))
+        f.save(img_path)
         
         # Add uuid to .people
-        add_uuid(uuid, join(ref_path, secure_filename(f.filename)), join(ref_path, '.people'))
+        db_interface.add_reference_uuid(img_path, uuid)
         
         return "File uploaded successfully"
 
@@ -94,9 +87,8 @@ def update(dirname):
         # Check if it has the right to
         if request.json["login"] not in allowed_cookies:
             return "Vous n'etes pas connecter"
-        
-        update_meta = UpdateMetadata(dirname)
-        update_meta.update_metadata(request.json["metaData"])
+
+        db_interface.update_folder_info(dirname, request.json["metaData"])
         
         return "File updated successfully"
 
@@ -131,42 +123,9 @@ def serve_pil_image(pil_img, quality=90):
     
     return send_file(img_io, mimetype="image/jpeg")
 
-@app.route("/get_by_id/<id>")
-def get_photos_id(id):
-    media = {
-        "files": []
-    }
-    
-    for img in get_faces.get_face_by_id(int(id)):
-        media["files"].append(
-            {
-                "path": img[0],
-                "type": "pic",
-                "closeness": img[1],
-            }
-        )
-
-    media["event_name"] = "Photo de " + id
-    media["association"] = "IA"
-
-    return jsonify(media)
-
 @app.route("/get_by_uuid/<uuid>")
 def get_photos_uuid(uuid):
-    media = {
-        "files": []
-    }
-    
-    path = abspath(request.args.get("path"))
-    
-    for img in get_faces.get_face_by_uuid(uuid, path):
-        media["files"].append(
-            {
-                "path": img[0],
-                "type": "pic",
-                "closeness": img[1],
-            }
-        )
+    media = db_interface.get_reference_uuid(uuid, request.args.get("path"))
 
     media["event_name"] = "Mes Photos"
     media["association"] = "IA"
@@ -211,15 +170,9 @@ def get_architecture(dirname):
     media = {
         "files": []
     }
-
-    orientation = GetOrientation(dirname)
-    groups = GetGroups(dirname)
     
     for f in listdir(dirname):
         path = join(dirname, f)
-
-        if isdir(path) and Videos.small_dir_name in basename(f):
-            continue
 
         media_data = {
             "path": path,
@@ -227,45 +180,26 @@ def get_architecture(dirname):
 
         if isfile(path):
             if imghdr.what(path) == "jpeg":
-                is_not_in_group, others = groups.is_not_in_group(path)
+                is_not_in_group, others = db_interface.get_groups_ai_meta(path)
                 if is_not_in_group:
                     media_data["type"] = "pic"
-                    media_data["is_portrait"] = orientation.is_portrait(path)
+                    media_data["is_portrait"] = db_interface.get_orientation_ai_meta(path)
                     media_data["others"] = others
                     media["files"].append(media_data)
             elif f != ".meta" and f != ".people": #TODO: check if it is really a video
                 media_data["type"] = "vid"
                 media["files"].append(media_data)
-        elif isdir(path):
+        elif isdir(path) and Videos.small_dir_name not in basename(f):
             media_data["type"] = "dir"
-            media_data = add_dir_info(path, media_data)
-            print(media_data)
+            media_data = media_data | db_interface.get_folder_info(path)
             media["files"].append(media_data)
     
     # Global info on dir
-    media = add_dir_info(dirname, media)
+    media = media | db_interface.get_folder_info(dirname)
 
     response = jsonify(media)
     print("Response time", time.time()-t)
     return response
-
-def add_dir_info(path, meta):
-    meta_path = join(path, ".meta")
-    if isfile(meta_path):
-        with open(meta_path, "r", encoding="utf-8") as file:
-            data = json.load(file)
-            for label in data:
-                if label == "thumbnail" and data["thumbnail"] != "":
-                    meta[label] = join(path, data[label])
-                else:
-                    meta[label] = data[label]
-    
-    # Add default config
-    for key in default_meta:
-        if key not in meta or meta[key] == "":
-            meta[key] = default_meta[key]
-    
-    return meta
 
 if __name__ == "__main__":
     app.run()

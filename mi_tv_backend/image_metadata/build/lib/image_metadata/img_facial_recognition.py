@@ -1,10 +1,8 @@
-from os.path import join, commonpath
-import pickle
 import face_recognition
 import numpy as np
 import click
 from .parallel_images import Images
-from .get_metadata import GetMetadata
+from . import db_interface
 
 encoding_version = 1
 
@@ -16,8 +14,6 @@ class References(Images):
       self.path = path
       self.face_paths = []
       self.face_encodings = []
-      self.cur_id = 0
-      self.metapath = join(path, ".people")
       
    def run(self, path=None):
       if path == None:
@@ -25,108 +21,61 @@ class References(Images):
       else:
          super().run([path])
    
-   def treat_img(self, path, data):
+   def treat_img(self, path):
       click.echo(path)
-      updates = {}
-
-      if path not in data or "encoding_version" not in data[path] or data[path]["encoding_version"] != encoding_version:
+      
+      encoding = db_interface.get_ai_encoding(path)
+      
+      if encoding == None or encoding["encoding_version"] < encoding_version:
          # higher num_jitters means higher resolution; model is large or small
          face_encoding = face_recognition.face_encodings(face_recognition.load_image_file(path), num_jitters=4, model="large")
-         
-         updates["encoding"] = face_encoding
-         updates["encoding_version"] = encoding_version
+         db_interface.add_ai_encoding(path, encoding_version, face_encoding)
+      else:
+         face_encoding = encoding["encoding"]
 
-      return (path, updates)
+      return (path, face_encoding)
    
-   def decompress_data(self, data, res):
+   def decompress_data(self, res):
       for img in res:
-         if img[0] not in data:
-            data[img[0]] = {}
+         path = img[0]
+         encoding = img[1]
          
-         for key in img[1]:
-            data[img[0]][key] = img[1][key]
-         
-         if len(data[img[0]]["encoding"]) > 0: #FIXME: shouldn't have to put this
-            self.face_encodings.append(data[img[0]]["encoding"][0])
-            self.face_paths.append(img[0])
-         
-         # Temp, only to give ids
-         data[img[0]]["id"] = self.cur_id
-         self.cur_id += 1
-      
-      return data
+         if len(encoding) > 0:
+            self.face_encodings.append(encoding[0])
+            self.face_paths.append(path)
       
 class Photos(Images):
    def __init__(self, references) -> None:
       super().__init__()
-      
       self.ref = references
-      
-   def run(self, paths):
-      with open(self.ref.metapath, 'rb') as f:
-         self.ref_data = pickle.load(f)
-      super().run(paths)
          
-   def treat_img(self, path, data):
+   def treat_img(self, path):
       click.echo(path)
-      updates = {}
-
-      if path not in data or "encoding_version" not in data[path] or data[path]["encoding_version"] != encoding_version:
+            
+      encoding = db_interface.get_ai_encoding(path)
+      
+      if encoding == None or encoding["encoding_version"] < encoding_version:
          # higher num_jitters means higher resolution; model is large or small
          face_encoding = face_recognition.face_encodings(face_recognition.load_image_file(path), num_jitters=4, model="large")
-         
-         updates["encoding"] = face_encoding
-         updates["encoding_version"] = encoding_version
+         db_interface.add_ai_encoding(path, encoding_version, face_encoding)
       else:
-         face_encoding = data[path]["encoding"]
+         face_encoding = encoding["encoding"]
       
-      ref_updates = {}
       if len(face_encoding) > 0:
-         updates, ref_updates = self.after_treatment(face_encoding, data, path, updates)
-      
-      return (path, updates, ref_updates)
-    
-   def decompress_data(self, data, res):
-      for img in res:
-         path = img[0]
-         updates = img[1]
-         ref_updates = img[2]
-         
-         if path not in data:
-            data[path] = {}
-            
-         # Update data
-         for key in updates:
-            data[path][key] = updates[key]
-            
-         # Update ref data
-         click.echo(ref_updates)
-         for key in ref_updates:
-            if "del" in ref_updates[key]:
-               del self.ref_data[ref_updates[key]["del"]]["seen_in"][path]
-            if "seen_in" in ref_updates[key]:
-               if "seen_in" not in self.ref_data[key]:
-                  self.ref_data[key]["seen_in"] = {}
-               
-               if path not in self.ref_data[key]["seen_in"]:
-                  self.ref_data[key]["seen_in"][path] = {
-                     "closeness": ref_updates[key]["closeness"]
-                  }
-      
-      with open(self.ref.metapath, 'wb') as f:
-         pickle.dump(self.ref_data, f)
-      
-      return data
+         self.after_treatment(face_encoding, path)
 
-   def after_treatment(self, face_encoding, data, path, updates):
-      ref_updates = {}
+   def after_treatment(self, face_encoding, path):
       i = 0
       
-      updates["faces"] = ["?" for _ in range(len(face_encoding))]
-      if "faces" not in data[path]:
-         old_names = updates["faces"]
+      meta = db_interface.get_ai_meta(path)
+      
+      if meta == None or "faces" not in meta:
+         old_names = ["?" for _ in range(len(face_encoding))]
+         db_interface.add_ai_meta(path, old_names)
       else:
-         old_names = data[path]["faces"]
+         old_names = meta["faces"]
+         
+      new_names = old_names
       
       for face in face_encoding:
          face_path = "?"
@@ -137,59 +86,18 @@ class Photos(Images):
             face_path = self.ref.face_paths[best_match_index]
 
          if face_path != old_names[i]:
-            ref_updates = self.update_ref(path, old_names[i], face_path, face_distances[best_match_index], ref_updates)
+            self.update_ref(path, old_names[i], face_path, face_distances[best_match_index])
       
-         updates["faces"][i] = face_path
+         new_names[i] = db_interface.sanitize_path(face_path)
          
          i += 1
+      
+      db_interface.add_ai_meta(path, new_names)
 
-      return (updates, ref_updates)
-
-   def update_ref(self, path, old_face_path, face_path, closeness, ref_updates):
+   def update_ref(self, path, old_face_path, face_path, closeness):
       # Write it on ref
       if face_path != '?':
-         ref_updates[face_path] = {"seen_in": path, "closeness": closeness}
+         db_interface.add_reference_seen_in(face_path, path, closeness)
       
       # Remove it from ref
-      if old_face_path in self.ref_data and "seen_in" in self.ref_data[old_face_path] and path in self.ref_data[old_face_path]["seen_in"]:
-         ref_updates[face_path] = {"del": old_face_path}
-      
-      return ref_updates
-
-class GetFaces(GetMetadata):
-   def __init__(self, path):
-      super().__init__(path)
-   
-   # Should be the only one used, it allows multiple ref images
-   def get_face_by_id(self, id, order_by_closeness=True):
-      if self.data == None:
-         print("no data")
-         return
-      imgs_path = []
-      
-      for p in self.data:
-         if self.data[p]["id"] == id and "seen_in" in self.data[p]:
-            imgs_path.extend(list(self.data[p]["seen_in"].items()))
-               
-      if order_by_closeness:
-         imgs_path.sort(key=lambda x:x[1]["closeness"])
-      
-      return imgs_path
-
-   def get_face_by_uuid(self, uuid, path, order_by_closeness=True):
-      if self.data == None:
-         print("no data")
-         return
-      imgs_path = []
-      
-      for p in self.data:
-         if "uuid" in self.data[p] and self.data[p]["uuid"] == uuid and "seen_in" in self.data[p]:
-            candidates = list(self.data[p]["seen_in"].items())
-            for can in candidates:
-               if commonpath([path, can[0]]) == path:
-                  imgs_path.append(can)
-      
-      if order_by_closeness:
-         imgs_path.sort(key=lambda x:x[1]["closeness"])
-      
-      return imgs_path
+      db_interface.remove_reference_seen_in(old_face_path, path)

@@ -21,6 +21,7 @@
       class="overflow-hidden m-0.5 aspect"
       v-for="(media, index) in medias"
       :key="media.path"
+      :id="media.path"
       v-bind:class="{
         portrait: media.is_portrait,
         hidden: exclude_thumbnail && media.path == thumbnail,

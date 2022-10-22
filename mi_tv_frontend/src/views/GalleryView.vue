@@ -84,11 +84,10 @@ export default defineComponent({
           path: this.media_url,
         })
           .then((response) => {
-            console.log(response.data);
             this.items = response.data.files;
             this.event_name = response.data.event_name;
             this.association = response.data.association;
-            this.exclude_thumbnail = response.data.exlude_thumbnail == "true";
+            this.exclude_thumbnail = response.data.exclude_thumbnail;
             this.thumbnail = response.data.thumbnail;
           })
           .catch((error) => {
@@ -102,10 +101,11 @@ export default defineComponent({
     GetMediaService.getMedia(this.url + this.media_url)
       .then((response) => {
         console.log(response.data);
+
         this.items = response.data.files;
         this.event_name = response.data.event_name;
         this.association = response.data.association;
-        this.exclude_thumbnail = response.data.exlude_thumbnail == "true";
+        this.exclude_thumbnail = response.data.exclude_thumbnail;
         this.thumbnail = response.data.thumbnail;
       })
       .catch((error) => {

@@ -1,20 +1,19 @@
 import os
+import sys
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['AUTOGRAPH_VERBOSITY'] = '0'
 
 import imghdr
-import pickle
-from os import listdir
-from os.path import isdir, isfile, join, abspath, basename
+from os import listdir, getcwd
+from os.path import isdir, isfile, join, abspath, basename, dirname, realpath
 
 import numpy as np
 from PIL import Image
 from scipy.spatial import distance
 import click
-
-from .get_metadata import GetMetadata
 from .vid_handler import Videos
+from . import db_interface
 
 ##
 #   CAREFUl: This assumes similar photos are in order
@@ -22,81 +21,58 @@ from .vid_handler import Videos
 
 # https://towardsdatascience.com/image-similarity-with-deep-learning-c17d83068f59
 
-# TODO: could parallelize encoding then sequential treatment
+# TODO: could parallelize encoding, then sequential treatment
 class ImageSimilarity():
-    def __init__(self):
-        
+    def __init__(self):        
         import tensorflow as tf
         import tensorflow_hub as hub
         
         tf.get_logger().setLevel('FATAL')
         tf.autograph.set_verbosity(0)
         
-        model_url = "https://tfhub.dev/tensorflow/efficientnet/lite0/feature-vector/2"
+        model_path = join(sys.prefix,"image_metadata/efficientnet_lite0_feature-vector_2")
 
         self.IMAGE_SHAPE = (224, 224)
 
-        self.layer = hub.KerasLayer(model_url, input_shape=self.IMAGE_SHAPE+(3,))
+        self.layer = hub.KerasLayer(model_path, input_shape=self.IMAGE_SHAPE+(3,))
         self.model = tf.keras.Sequential([self.layer])
 
         self.metric = 'cosine'
-        self.tolerance = 0.15
+        self.tolerance = 0.2
+        
+        self.group_nb = 0
         
     def run(self, paths):
         for path in paths:
             assert isdir(path)
-            self.parse_imgs(path)
-            
+            if Videos.small_dir_name not in basename(path):
+                self.parse_imgs(path)
+
     def parse_imgs(self, path):
-        if Videos.small_dir_name in basename(path):
-            return
-
-        meta_path = join(path, ".people")
-        data = {}
-
-        if isfile(meta_path):
-            with open(meta_path, 'rb') as f:
-                data = pickle.load(f)
-        
         last_pic = None
         last_pic_encoding = None
-        group_nb = 0
         stopped = True
-        groups = {}
         
         for f in listdir(path):
-            _path = abspath(self.sanitize(join(path, f)))
+            _path = abspath(db_interface.sanitize_path(join(path, f)))
             
             if isfile(_path) and imghdr.what(_path) == "jpeg":
-                current_encoding = self.extract(_path)
                 click.echo(_path)
+                current_encoding = self.extract(_path)
                 
                 if last_pic != None and distance.cdist([current_encoding], [last_pic_encoding], self.metric)[0] < self.tolerance:
                     if stopped:
-                        data[last_pic]["group_nb"] = group_nb
-                        groups[group_nb] = [last_pic]
-                        
-                    data[_path]["group_nb"] = group_nb
-                    groups[group_nb].append(_path)
-                    
+                        db_interface.add_group_ai_meta(last_pic, self.group_nb, False)
+                    db_interface.add_group_ai_meta(_path, self.group_nb)
                     stopped = False
                 elif not stopped:
-                    group_nb += 1
+                    self.group_nb += 1
                     stopped = True
                 
                 last_pic = _path
                 last_pic_encoding = current_encoding
             elif isdir(_path):
                 self.parse_imgs(_path)
-        
-        data["groups"] = groups
-
-        if data != {}:
-            with open(meta_path, 'wb') as f:
-                pickle.dump(data, f)
-
-    def sanitize(self, path):
-        return path.replace('/', '\\')
     
     def extract(self, path):
         path = Image.open(path).convert('L').resize(self.IMAGE_SHAPE)
@@ -108,23 +84,3 @@ class ImageSimilarity():
         flattended_feature = vgg16_feature_np.flatten()
 
         return flattended_feature
-
-class GetGroups(GetMetadata):
-    def __init__(self, path):
-        super().__init__(path)
-        self.already_seen_groups = []
-    
-    def is_not_in_group(self, img_path):
-        if self.data == None or abspath(img_path) not in self.data:
-            return (True, None)
-        
-        img_data = self.data[abspath(img_path)]
-        
-        if "group_nb" not in img_data:
-            return (True, None)
-        
-        if img_data["group_nb"] not in self.already_seen_groups:
-            self.already_seen_groups.append(img_data["group_nb"])
-            return (True, self.data["groups"][img_data["group_nb"]])
-        
-        return (False, None)
