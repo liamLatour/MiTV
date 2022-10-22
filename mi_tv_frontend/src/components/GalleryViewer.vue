@@ -1,4 +1,7 @@
 <template>
+  <h2 v-if="medias.length == 0" class="text-center text-4xl m-36 text-gray-500">
+    Aucune Photos
+  </h2>
   <div
     class="grid"
     v-bind:style="{ 'grid-template-columns': 'repeat(' + columns + ', 1fr)' }"
@@ -62,7 +65,7 @@
           class="cursor-pointer image-anim"
         />
         <router-link
-          :to="media.path"
+          :to="'/photos/' + media.path"
           class="absolute flex items-center justify-center left-0 right-0 bottom-0 top-0 bg-black bg-opacity-50 transition-all duration-300 hover:bg-opacity-5 hover:text-transparent"
         >
           <h2 class="text-2xl">

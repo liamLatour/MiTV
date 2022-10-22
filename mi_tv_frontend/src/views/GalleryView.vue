@@ -37,7 +37,7 @@
     :is-global="isGlobal"
     :thumbnail="thumbnail"
     :exclude_thumbnail="exclude_thumbnail"
-    v-if="isGlobal || is_registered"
+    v-if="is_registered || isGlobal"
   />
   <AiRegistration v-else />
 </template>
@@ -67,50 +67,46 @@ export default defineComponent({
       );
       this.modifying = false;
     },
-  },
-  created() {
-    for (let i in this.$route.params.path as Array<string>) {
-      this.media_url += this.$route.params.path[i] + "/";
-    }
+    initGallery() {
+      this.media_url = "";
 
-    // If it is AI
-    if (!this.isGlobal) {
-      if (this.$cookies.isKey("uuid")) {
-        this.is_registered = true;
-
-        console.log(this.media_url);
-
-        GetMediaService.getMedia("/get_by_uuid/" + this.$cookies.get("uuid"), {
-          path: this.media_url,
-        })
-          .then((response) => {
-            this.items = response.data.files;
-            this.event_name = response.data.event_name;
-            this.association = response.data.association;
-            this.exclude_thumbnail = response.data.exclude_thumbnail;
-            this.thumbnail = response.data.thumbnail;
-          })
-          .catch((error) => {
-            console.log(error);
-          });
+      for (let i in this.$route.params.path as Array<string>) {
+        this.media_url += this.$route.params.path[i] + "/";
       }
 
-      return;
-    }
+      let url = this.url + this.media_url;
 
-    GetMediaService.getMedia(this.url + this.media_url)
-      .then((response) => {
-        console.log(response.data);
+      // If it is AI
+      if (!this.isGlobal && this.$cookies.isKey("uuid")) {
+        this.is_registered = true;
+        url = "/get_by_uuid/" + this.$cookies.get("uuid");
+      }
 
-        this.items = response.data.files;
-        this.event_name = response.data.event_name;
-        this.association = response.data.association;
-        this.exclude_thumbnail = response.data.exclude_thumbnail;
-        this.thumbnail = response.data.thumbnail;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+      GetMediaService.getMedia(url, { path: this.media_url })
+        .then((response) => {
+          console.log(response.data);
+
+          this.items = response.data.files;
+          this.event_name = response.data.event_name;
+          this.association = response.data.association;
+          this.exclude_thumbnail = response.data.exclude_thumbnail;
+          this.thumbnail = response.data.thumbnail;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+  },
+  watch: {
+    $route: function () {
+      this.initGallery();
+    },
+  },
+  afterRouteUpdate() {
+    this.initGallery();
+  },
+  created() {
+    this.initGallery();
   },
   props: {
     url: {
