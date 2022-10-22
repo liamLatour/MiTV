@@ -2,11 +2,9 @@ from os import getcwd
 from os.path import isabs, isdir, relpath
 
 import numpy as np
-from pymongo import MongoClient
+from pymongo import MongoClient, DESCENDING
 
 client = MongoClient()
-
-#TODO: index by path for faster queries and uniqueness
 
 # Get database
 db = client.mitv
@@ -16,6 +14,12 @@ col_reference_meta = db.reference_meta  # stores uuid, image_path, seen_in
 col_folders_meta = db.folders_meta      # stores event_name, association
 col_ai_encoding = db.ai_encoding        # stores encodings for all images
 col_ai_meta = db.ai_meta                # stores faces in image and groups
+
+col_reference_meta.create_index([("uuid", DESCENDING)])
+col_folders_meta.create_index([("path", DESCENDING)])
+col_ai_encoding.create_index([("path", DESCENDING)])
+col_ai_meta.create_index([("path", DESCENDING)])
+
 
 ## col_reference_meta
 """
@@ -234,7 +238,7 @@ default_folder_meta = {
 
 def get_folder_info(folder_path):
     path = sanitize_path(folder_path)
-    info = col_folders_meta.find_one({"path": sanitize_path(path)}, {"path": 0, "_id":0})
+    info = col_folders_meta.find_one({"path": path}, {"path": 0, "_id":0})
     if info == None:
         return default_folder_meta
     
@@ -276,19 +280,3 @@ def sanitize_path(path):
         san = san + "/"
     
     return san
-
-def add_data_safely(img_path, encoding_version, encoding):
-    path = sanitize_path(img_path)
-    worked = col_ai_encoding.find_one_and_update(
-            {"path": path},
-            {"$set": {
-                "encoding_version": encoding_version,
-                "encoding": np.array(encoding).tolist()
-                }
-            })
-    if not worked:
-        col_ai_encoding.insert_one({
-            "path": path,
-            "encoding_version": encoding_version,
-            "encoding": np.array(encoding).tolist(),
-        })
