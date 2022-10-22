@@ -1,9 +1,12 @@
-from pymongo import MongoClient
-from os.path import relpath, isabs, isdir
 from os import getcwd
+from os.path import isabs, isdir, relpath
+
 import numpy as np
+from pymongo import MongoClient
 
 client = MongoClient()
+
+#TODO: index by path for faster queries and uniqueness
 
 # Get database
 db = client.mitv
@@ -22,6 +25,28 @@ col_ai_meta = db.ai_meta                # stores faces in image and groups
     occurrence: array,
 }
 """
+
+def get_reference_uuid(uuid, base_path):
+    path = sanitize_path(base_path)
+    print(path)
+    occurrence = col_reference_meta.find_one({"uuid": uuid})
+    
+    media = {
+        "files": []
+    }
+    
+    if occurrence != None and "occurrence" in occurrence:
+        for occ in occurrence["occurrence"]:
+            if occ["seen_in"].startswith(path):
+                media["files"].append({
+                    "path": occ["seen_in"],
+                    "closeness": occ["closeness"],
+                    "type": "pic",
+                })
+
+    media["files"].sort(key= lambda x: x["closeness"])
+
+    return media
 
 def add_reference_uuid(img_path, uuid):
     path = sanitize_path(img_path)
@@ -75,8 +100,35 @@ def remove_reference_seen_in(img_path, seen_in_path):
 {
     path: string,           # path is relative
     faces: array,
+    is_portrait: bool,
+    group_nb: int,
+    hidden: bool,
 }
 """
+
+def get_orientation_ai_meta(img_path):
+    path = sanitize_path(img_path)
+    orientation = col_ai_meta.find_one({"path": path})
+    
+    if orientation == None or "is_portrait" not in orientation:
+        return False
+        
+    return orientation["is_portrait"]
+
+def get_groups_ai_meta(img_path):
+    path = sanitize_path(img_path)
+    groups = col_ai_meta.find_one({"path": path})
+    
+    if groups == None or "group_nb" not in groups:
+        return (True, None)
+        
+    others = col_ai_meta.find({"group_nb": groups["group_nb"]})
+    group = []
+    
+    for ot in others:
+        group.append(ot["path"])
+        
+    return (not groups["hidden"], group)
 
 def add_orientation_ai_meta(img_path, is_portrait):
     path = sanitize_path(img_path)
@@ -218,8 +270,25 @@ def sanitize_path(path):
     if isabs(san):
         san = relpath(san, getcwd())
     san = san.replace("\\", "/")
+    san = san.replace("//", "/")
     
     if isdir(san) and san[-1] != "/":
         san = san + "/"
     
     return san
+
+def add_data_safely(img_path, encoding_version, encoding):
+    path = sanitize_path(img_path)
+    worked = col_ai_encoding.find_one_and_update(
+            {"path": path},
+            {"$set": {
+                "encoding_version": encoding_version,
+                "encoding": np.array(encoding).tolist()
+                }
+            })
+    if not worked:
+        col_ai_encoding.insert_one({
+            "path": path,
+            "encoding_version": encoding_version,
+            "encoding": np.array(encoding).tolist(),
+        })

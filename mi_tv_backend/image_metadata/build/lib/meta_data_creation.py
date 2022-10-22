@@ -57,7 +57,7 @@ class MetadataCreation():
         self.scheluded_ref_update = False
         self.delay = 1 # in secs
         
-        #self.orientation = ImageOrientation()
+        self.orientation = ImageOrientation()
         self.similarity = ImageSimilarity()
         self.references = References(self.ref_path)
         self.face_recognition = Photos(self.references)
@@ -142,7 +142,7 @@ class MetadataCreation():
         
             t1 = time.time()
             click.echo("Orientation")
-            #self.orientation.run(image_paths)
+            self.orientation.run(image_paths)
             click.echo("Orientation finished in: " + str(time.time()-t1))
 
             t1 = time.time()

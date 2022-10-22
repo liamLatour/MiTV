@@ -1,4 +1,3 @@
-import itertools
 import imghdr
 from os import listdir
 from os.path import isdir, isfile, join, abspath, basename

@@ -69,7 +69,7 @@ class Photos(Images):
       
       meta = db_interface.get_ai_meta(path)
       
-      if meta == None:
+      if meta == None or "faces" not in meta:
          old_names = ["?" for _ in range(len(face_encoding))]
          db_interface.add_ai_meta(path, old_names)
       else:
