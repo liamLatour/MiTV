@@ -11,7 +11,7 @@ from image_metadata import (ImageOrientation, ImageSimilarity, Photos,
 
 # run with:
 #   meta_data_creation --continuous --immediate ./temp_people_ref ./uploadDir
-#   meta_data_creation --once --immediate ./temp_people_ref ./photos
+#   meta_data_creation --once --immediate ./temp_people_ref ./photos/photo_mashed
 
 @click.command()
 @click.argument("ref_path", type=click.Path(exists=True))
@@ -57,7 +57,7 @@ class MetadataCreation():
         self.scheluded_ref_update = False
         self.delay = 1 # in secs
         
-        self.orientation = ImageOrientation()
+        #self.orientation = ImageOrientation()
         self.similarity = ImageSimilarity()
         self.references = References(self.ref_path)
         self.face_recognition = Photos(self.references)
@@ -142,7 +142,7 @@ class MetadataCreation():
         
             t1 = time.time()
             click.echo("Orientation")
-            self.orientation.run(image_paths)
+            #self.orientation.run(image_paths)
             click.echo("Orientation finished in: " + str(time.time()-t1))
 
             t1 = time.time()

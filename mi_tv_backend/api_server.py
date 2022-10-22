@@ -1,5 +1,4 @@
 import imghdr
-import json
 import time
 from io import BytesIO
 from os import getcwd, listdir
@@ -12,7 +11,8 @@ from flask_cors import CORS
 from PIL import Image, ImageOps
 from werkzeug.utils import secure_filename
 
-from image_metadata import GetFaces, GetGroups, GetOrientation, UpdateMetadata, Videos, add_uuid
+from image_metadata import GetGroups, GetOrientation, Videos, add_uuid, db_interface
+
 
 # run with: waitress-serve --host 127.0.0.1 --port=5000 --threads=12 api_server:app
 
@@ -25,7 +25,7 @@ root_photos_path = join(getcwd(), "photos")
 
 app = Flask(__name__)
 CORS(app)
-get_faces = GetFaces(ref_path)
+#get_faces = GetFaces(ref_path)
 
 default_meta = {
     "event_name": "Evenement",
@@ -66,8 +66,9 @@ def upload_files():
         
         event_name = request.form["event_name"]
         association = request.form["association"]
-        save_path = join(join(join(getcwd(), "uploadDir"), association), event_name)
+        save_path = join(join(getcwd(), "uploadDir"), association + '-' + event_name)
         Path(save_path).mkdir(parents=True, exist_ok=False)
+        db_interface.add_folder_info(save_path, event_name, association)
         
         for file in request.files:
             f = request.files[file]
@@ -94,9 +95,8 @@ def update(dirname):
         # Check if it has the right to
         if request.json["login"] not in allowed_cookies:
             return "Vous n'etes pas connecter"
-        
-        update_meta = UpdateMetadata(dirname)
-        update_meta.update_metadata(request.json["metaData"])
+
+        db_interface.update_folder_info(dirname, request.json["metaData"])
         
         return "File updated successfully"
 
@@ -238,34 +238,15 @@ def get_architecture(dirname):
                 media["files"].append(media_data)
         elif isdir(path):
             media_data["type"] = "dir"
-            media_data = add_dir_info(path, media_data)
-            print(media_data)
+            media_data = media_data | db_interface.get_folder_info(path)
             media["files"].append(media_data)
     
     # Global info on dir
-    media = add_dir_info(dirname, media)
+    media = media | db_interface.get_folder_info(dirname)
 
     response = jsonify(media)
     print("Response time", time.time()-t)
     return response
-
-def add_dir_info(path, meta):
-    meta_path = join(path, ".meta")
-    if isfile(meta_path):
-        with open(meta_path, "r", encoding="utf-8") as file:
-            data = json.load(file)
-            for label in data:
-                if label == "thumbnail" and data["thumbnail"] != "":
-                    meta[label] = join(path, data[label])
-                else:
-                    meta[label] = data[label]
-    
-    # Add default config
-    for key in default_meta:
-        if key not in meta or meta[key] == "":
-            meta[key] = default_meta[key]
-    
-    return meta
 
 if __name__ == "__main__":
     app.run()

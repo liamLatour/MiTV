@@ -2,7 +2,6 @@ import itertools
 import imghdr
 from os import listdir
 from os.path import isdir, isfile, join, abspath, basename
-import pickle
 import multiprocessing
 
 from .vid_handler import Videos
@@ -20,17 +19,10 @@ class Images():
         if Videos.small_dir_name in basename(path):
             return
 
-        meta_path = join(path, ".people")
-        data = {}
-
         context = multiprocessing
         if "forkserver" in multiprocessing.get_all_start_methods():
             context = multiprocessing.get_context("forkserver")
-        pool = context.Pool(processes=None) # None is max number
-
-        if isfile(meta_path):
-            with open(meta_path, 'rb') as f:
-                data = pickle.load(f)
+        pool = context.Pool(processes=8) # None is max number
         
         imgs_paths = []
         
@@ -42,17 +34,13 @@ class Images():
             elif isdir(_path):
                 self.parse_imgs(_path)
 
-        res = pool.starmap(self.treat_img, zip(imgs_paths, itertools.repeat(data)))
+        res = pool.starmap(self.treat_img, zip(imgs_paths))
 
         # Decompress received data
-        data = self.decompress_data(data, res)
-
-        if data != {}:
-            with open(meta_path, 'wb') as f:
-                pickle.dump(data, f)
+        self.decompress_data(res)
    
     def sanitize(self, path):
         return abspath(path.replace('/', '\\'))
     
-    def decompress_data(self, data, res):
-        return {}
+    def decompress_data(self, res):
+        return

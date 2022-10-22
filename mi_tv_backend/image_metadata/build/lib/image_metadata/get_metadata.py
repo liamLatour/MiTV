@@ -24,22 +24,3 @@ class GetMetadata():
                 self.data = pickle.load(f)
         else:
             self.data = None
-
-class UpdateMetadata():
-    def __init__(self, path):
-        self.meta_path = join(path, ".meta")
-        
-        if isfile(self.meta_path):
-            with open(self.meta_path) as f:
-                self.data = json.load(f)
-        else:
-            self.data = None
-
-    def update_metadata(self, new_metadata):
-        metadata = self.data
-        print(metadata)
-        for key in new_metadata:
-            metadata[key] = new_metadata[key]
-        
-        with open(self.meta_path, 'w') as f:
-            json.dump(metadata, f)
