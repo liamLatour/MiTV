@@ -6,9 +6,6 @@ import multiprocessing
 from .vid_handler import Videos
 
 class Images():
-    def __init__(self):      
-        pass
-
     def run(self, paths):
         for path in paths:
             assert isdir(path)

@@ -1,6 +1,7 @@
-from os import getcwd
-from os.path import isabs, isdir, relpath
+from os import getcwd, listdir
+from os.path import isabs, isdir, relpath, join, isfile
 
+import imghdr
 import numpy as np
 from pymongo import MongoClient, DESCENDING
 
@@ -53,39 +54,12 @@ def get_reference_uuid(uuid, base_path):
     return media
 
 def add_reference_uuid(img_path, uuid):
-    path = sanitize_path(img_path)
-    worked = col_reference_meta.find_one_and_update(
-            {"path": path},
-            {"$set": {
-                "uuid": uuid,
-                }
-            })
-    if not worked:
-        col_reference_meta.insert_one({
-            "path": path,
-            "uuid": uuid,
-        })
+    add_data_safely(col_reference_meta, img_path, {"uuid": uuid})
         
 def add_reference_seen_in(img_path, seen_in_path, closeness):
-    path = sanitize_path(img_path)
     seen_in = sanitize_path(seen_in_path)
-    worked = col_reference_meta.find_one_and_update(
-        {"path": path},
-        {"$push": {
-            "occurrence": {
-                "seen_in": seen_in,
-                "closeness": closeness,
-                },
-            }
-        })
-    if not worked:
-        col_reference_meta.insert_one({
-            "path": path,
-            "occurrence": [{
-                "seen_in": seen_in,
-                "closeness": closeness,
-            }],
-        })
+    data = {"occurrence": {"seen_in": seen_in, "closeness": closeness}}
+    add_data_safely(col_reference_meta, img_path, data, "$push")
 
 def remove_reference_seen_in(img_path, seen_in_path):
     path = sanitize_path(img_path)
@@ -135,48 +109,13 @@ def get_groups_ai_meta(img_path):
     return (not groups["hidden"], group)
 
 def add_orientation_ai_meta(img_path, is_portrait):
-    path = sanitize_path(img_path)
-    worked = col_ai_meta.find_one_and_update(
-            {"path": path},
-            {"$set": {
-                "is_portrait": is_portrait,
-                }
-            })
-    if not worked:
-        col_ai_meta.insert_one({
-            "path": path,
-            "is_portrait": is_portrait,
-        })
+    add_data_safely(col_ai_meta, img_path, {"is_portrait": is_portrait})
 
 def add_group_ai_meta(img_path, group_nb, hidden = True):
-    path = sanitize_path(img_path)
-    worked = col_ai_meta.find_one_and_update(
-            {"path": path},
-            {"$set": {
-                "group_nb": group_nb,
-                "hidden": hidden,
-                }
-            })
-    if not worked:
-        col_ai_meta.insert_one({
-            "path": path,
-            "group_nb": group_nb,
-            "hidden": hidden,
-        })
+    add_data_safely(col_ai_meta, img_path, {"group_nb": group_nb, "hidden": hidden})
 
 def add_ai_meta(img_path, faces):
-    path = sanitize_path(img_path)
-    worked = col_ai_meta.find_one_and_update(
-            {"path": path},
-            {"$set": {
-                "faces": faces,
-                }
-            })
-    if not worked:
-        col_ai_meta.insert_one({
-            "path": path,
-            "faces": faces,
-        })
+    add_data_safely(col_ai_meta, img_path, {"faces": faces})
 
 def get_ai_meta(img_path):
     path = sanitize_path(img_path)    
@@ -193,20 +132,8 @@ def get_ai_meta(img_path):
 """
 
 def add_ai_encoding(img_path, encoding_version, encoding):
-    path = sanitize_path(img_path)
-    worked = col_ai_encoding.find_one_and_update(
-            {"path": path},
-            {"$set": {
-                "encoding_version": encoding_version,
-                "encoding": np.array(encoding).tolist()
-                }
-            })
-    if not worked:
-        col_ai_encoding.insert_one({
-            "path": path,
-            "encoding_version": encoding_version,
-            "encoding": np.array(encoding).tolist(),
-        })
+    data = {"encoding_version": encoding_version, "encoding": np.array(encoding).tolist()}
+    add_data_safely(col_ai_encoding, img_path, data)
 
 def get_ai_encoding(img_path):
     path = sanitize_path(img_path)
@@ -239,33 +166,30 @@ default_folder_meta = {
 def get_folder_info(folder_path):
     path = sanitize_path(folder_path)
     info = col_folders_meta.find_one({"path": path}, {"path": 0, "_id":0})
-    if info == None:
-        return default_folder_meta
+    if info == None or "event_name" not in info:
+        info = default_folder_meta
     
-    if info["thumbnail"] == "":
-        info["thumbnail"] = default_folder_meta["thumbnail"]
+    if "thumbnail" not in info or info["thumbnail"] == default_folder_meta["thumbnail"]:        
+        info["thumbnail"] = get_thumbnail(folder_path)
+        add_data_safely(col_folders_meta, folder_path, info)
     
     return info
 
 def update_folder_info(folder_path, update):
-    path = sanitize_path(folder_path)
-    col_folders_meta.find_one_and_update({"path": path}, {"$set": update})
+    add_data_safely(col_folders_meta, folder_path, update)
 
-def add_folder_info(folder_path, event_name, association, thumbnail=None, exclude_thumbnail=None):
+def add_folder_info(folder_path, event_name, association, thumbnail=None, exclude_thumbnail=False):
     if thumbnail == None:
-        thumbnail = default_folder_meta["thumbnail"]
-        
-    if exclude_thumbnail == None:
-        exclude_thumbnail = default_folder_meta["exclude_thumbnail"]
+        thumbnail = get_thumbnail(folder_path)
     
-    col_folders_meta.insert_one({
+    data = {
         "path": sanitize_path(folder_path),
         "thumbnail": thumbnail,
         "exclude_thumbnail": exclude_thumbnail,
         "event_name": event_name,
         "association": association,
-    })
-
+    }
+    add_data_safely(col_folders_meta, folder_path, data)
 
 # Utilities
 
@@ -280,3 +204,16 @@ def sanitize_path(path):
         san = san + "/"
     
     return san
+
+def get_thumbnail(folder_path):
+    for f in listdir(folder_path):
+        _path = sanitize_path(join(folder_path, f))
+        if isfile(_path) and imghdr.what(_path) == "jpeg":
+            return _path
+    return default_folder_meta["thumbnail"]
+
+def add_data_safely(collection, path, data, method="$set"):
+    path = sanitize_path(path)
+    worked = collection.find_one_and_update({"path": path},{method: data})
+    if not worked:
+        collection.insert_one({"path": path}|data)

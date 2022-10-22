@@ -1,8 +1,10 @@
 backend:
-    - AI images by event
-    - Create .meta when images are uploaded
-    - Convert .people into non-relational DB
+	- More inteligent meta creation (don't do everything all the time)
+	- Serve first image as thumbnail if available
+
+frontend:
+	- Can choose thumbnail
+	- If no pictures found for someone display a text
 
 metadata creation:
-    - Separate encoding and metadata for better loading perf
-    - Create unit tests
+    	- Create unit tests
