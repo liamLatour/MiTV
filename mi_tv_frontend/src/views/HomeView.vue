@@ -9,7 +9,7 @@
       class="absolute left-8 bottom-8 sm:left-20 sm:bottom-20 text-2xl w-72 leading-snug sm:w-96 sm:leading-snug sm:text-4xl"
     >
       <h2>Rendre vos années mémorables</h2>
-      <h3><a href="/photos/photos">Voir les photos</a></h3>
+      <h3><router-link to="/photos/photos">Voir les photos</router-link></h3>
     </div>
   </div>
   <div id="team" class="h-screen overflow-clip bg-indigo-900 bg-opacity-10">
