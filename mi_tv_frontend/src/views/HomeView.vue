@@ -5,11 +5,23 @@
       alt=""
       class="min-h-screen min-w-full max-w-none grayscale blur-sm"
     />
-    <div class="absolute w-1/2 h-2/4 left-1/3 bottom-1/4">
+    <div class="absolute maxed right-24 top-24 aspect-square">
+      <div class="absolute h-3/4 w-full bottom-0">
+        <img
+          src="../assets/illustration_1.jpg"
+          alt=""
+          class="absolute w-2/3 top-0 left-0"
+        />
+        <img
+          src="../assets/illustration_3.jpg"
+          alt=""
+          class="absolute w-2/3 bottom-0 right-0"
+        />
+      </div>
       <img
-        src="../assets/illustration_1.jpg"
+        src="../assets/illustration_2.jpg"
         alt=""
-        class="absolute w-full mr-32"
+        class="absolute w-2/5 top-0 right-sm"
       />
     </div>
     <div
@@ -77,3 +89,15 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.maxed {
+  width: 100%;
+  max-width: 60%;
+  aspect-ratio: 1 / 1;
+}
+
+.right-sm{
+  right: 10%;
+}
+</style>
