@@ -11,7 +11,7 @@ from image_metadata import (ImageOrientation, ImageSimilarity, Photos,
 
 # run with:
 #   meta_data_creation --continuous --immediate ./temp_people_ref ./uploadDir
-#   meta_data_creation --once --immediate ./temp_people_ref ./photos/photo_mashed
+#   meta_data_creation --once --immediate ./people_ref ./photos
 
 @click.command()
 @click.argument("ref_path", type=click.Path(exists=True))

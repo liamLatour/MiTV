@@ -3,6 +3,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Roboto";
+  src: local("Roboto"),
+   url(./fonts/Roboto/Roboto-Regular.ttf) format("truetype");
+}
+
 body {
   color: white;
+  font-family: "Roboto", Arial, Helvetica, sans-serif;
 }

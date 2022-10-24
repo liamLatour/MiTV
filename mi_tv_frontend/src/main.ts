@@ -4,6 +4,7 @@ import router from "./router";
 import VueCookies from "vue-cookies";
 import withUUID from "vue-uuid";
 import LazyLoadDirective from "./directives/LazyLoadDirective";
+import VueScrollTo from "vue-scrollto";
 
 // var ExifImage = require('exif').ExifImage;
 
@@ -27,7 +28,7 @@ import {
   faCheck,
   faFilm,
   faPause,
-  faVolumeLow
+  faVolumeLow,
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
@@ -50,6 +51,7 @@ library.add(
 
 const app = withUUID(createApp(App));
 app.use(router);
+app.use(VueScrollTo);
 app.use(VueCookies, { expire: "1d" });
 app.directive("lazyload", LazyLoadDirective);
 app.component("font-awesome-icon", FontAwesomeIcon);

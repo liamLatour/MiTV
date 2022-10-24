@@ -16,6 +16,8 @@ col_folders_meta = db.folders_meta      # stores event_name, association
 col_ai_encoding = db.ai_encoding        # stores encodings for all images
 col_ai_meta = db.ai_meta                # stores faces in image and groups
 
+
+# TODO: convert into path index to query by base path (in bulk)
 col_reference_meta.create_index([("uuid", DESCENDING)])
 col_folders_meta.create_index([("path", DESCENDING)])
 col_ai_encoding.create_index([("path", DESCENDING)])
@@ -57,9 +59,26 @@ def add_reference_uuid(img_path, uuid):
     add_data_safely(col_reference_meta, img_path, {"uuid": uuid})
         
 def add_reference_seen_in(img_path, seen_in_path, closeness):
+    path = sanitize_path(img_path)
     seen_in = sanitize_path(seen_in_path)
-    data = {"occurrence": {"seen_in": seen_in, "closeness": closeness}}
-    add_data_safely(col_reference_meta, img_path, data, "$push")
+    
+    worked = col_reference_meta.find_one_and_update(
+        {"path": path},
+        {"$push": {
+            "occurrence": {
+                "seen_in": seen_in,
+                "closeness": closeness
+            }
+        }
+    })
+    if not worked:
+        col_reference_meta.insert_one({
+            "path": path,
+            "occurrence": [{
+                "seen_in": seen_in,
+                "closeness": closeness
+            }]
+        })
 
 def remove_reference_seen_in(img_path, seen_in_path):
     path = sanitize_path(img_path)

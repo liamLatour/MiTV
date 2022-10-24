@@ -1,17 +1,17 @@
 <template>
   <div
-    class="fixed flex z-20 bg-gray-900 top-0 w-72 sm:visible sm:w-full sm:h-16"
+    class="fixed flex z-20 bg-gray-900 top-0 w-72 sm:visible sm:w-full sm:h-11"
     :class="{ invisible: visible }"
   >
     <div
       class="flex flex-col m-auto items-center justify-between h-full w-full sm:flex-row"
     >
+      <NavItem href="/" class="text-xl"> MiTV </NavItem>
       <span class="grow"></span>
       <NavItem href="/photos/photos"> Les photos </NavItem>
-      <NavItem href="/#team"> L'équipe </NavItem>
-      <NavItem href="/" class="text-xl"> MiTV </NavItem>
-      <NavItem href="/#hardware"> Le matériel </NavItem>
-      <NavItem href="/#legal"> Mentions légales </NavItem>
+      <NavItem href="/#" scroll_to="#team"> L'équipe </NavItem>
+      <!--<NavItem href="/#hardware"> Le matériel </NavItem>-->
+      <!--<NavItem href="/#legal"> Mentions légales </NavItem>-->
       <span class="grow"></span>
       <NavItem href="/login" v-if="!$cookies.isKey('login')">
         <font-awesome-icon icon="fa-solid fa-user-gear" />
