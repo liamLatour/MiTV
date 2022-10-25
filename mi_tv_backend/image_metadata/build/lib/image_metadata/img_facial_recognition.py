@@ -9,7 +9,7 @@ encoding_version = 1
 # Only one folder
 class References(Images):
    def __init__(self, path) -> None:
-      super().__init__()
+      super().__init__(ignore_change=True)
       
       self.path = path
       self.face_paths = []

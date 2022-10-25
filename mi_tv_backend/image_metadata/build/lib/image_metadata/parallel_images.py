@@ -4,12 +4,18 @@ from os.path import isdir, isfile, join, abspath, basename
 import multiprocessing
 
 from .vid_handler import Videos
+from . import db_interface
 
 class Images():
+    def __init__(self, ignore_change=False) -> None:
+        # Set to true to recompute even if no changes have been made to the folder
+        self.ignore_change = ignore_change
+    
     def run(self, paths):
         for path in paths:
             assert isdir(path)
-            self.parse_imgs(path)
+            if self.ignore_change or db_interface.folder_changed(path):
+                self.parse_imgs(path)
     
     def parse_imgs(self, path):
         if Videos.small_dir_name in basename(path):

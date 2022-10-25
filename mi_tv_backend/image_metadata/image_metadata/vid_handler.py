@@ -10,9 +10,6 @@ class Videos():
 
     _compression_width = 640
 
-    def __init__(self):      
-        pass
-
     def run(self, paths):
         for path in paths:
             assert isdir(path)
