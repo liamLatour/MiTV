@@ -6,8 +6,6 @@ import checksumdir
 import numpy as np
 from bson.json_util import dumps, loads
 from pymongo import DESCENDING, MongoClient
-from watchdog.events import PatternMatchingEventHandler
-from watchdog.observers import Observer
 
 from .vid_handler import Videos
 
@@ -220,7 +218,7 @@ def update_folder_representation(folder_path):
                     media_data["is_portrait"] = get_orientation_ai_meta(path)
                     media_data["others"] = others
                     media["files"].append(media_data)
-            else: #TODO: check if it is really a video
+            elif Videos.is_supported(path):
                 media_data["type"] = "vid"
                 media["files"].append(media_data)
         elif isdir(path) and Videos.small_dir_name not in basename(f):

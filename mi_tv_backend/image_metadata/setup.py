@@ -9,7 +9,7 @@ datafiles = [(d, [os.path.join(d, f) for f in files])
 
 setup(
     name='ImageMetadata',
-    version='1.0.0',
+    version='1.1.0',
     packages=['image_metadata'],
     py_modules=["meta_data_creation", "print_metadata"],
     data_files=datafiles,
