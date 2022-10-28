@@ -252,6 +252,10 @@ export default defineComponent({
       );
     },
     onResize() {
+      if (this.$refs.video == undefined || this.$refs.video == null || (this.$refs.video as HTMLVideoElement).readyState < 1) {
+          return;
+      }
+      
       const ratio =
         ((this.$refs.video as HTMLVideoElement).videoWidth /
           (this.$refs.video as HTMLVideoElement).videoHeight) *

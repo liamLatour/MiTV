@@ -60,11 +60,11 @@ class Videos():
 
                 vid = ffmpeg.filter(vid, "scale", self._compression_width, new_height)
 
-            whole_vid = ffmpeg.output(aud, vid, base + ".mp4", format="mp4", vcodec="libsvtav1", acodec="libopus", crf=25)
+            whole_vid = ffmpeg.output(aud, vid, base + ".mp4", format="mp4", vcodec="libsvtav1", acodec="libopus", crf=30)
             whole_vid = ffmpeg._ffmpeg.global_args(whole_vid, "-pass", "2")
             whole_vid = ffmpeg._ffmpeg.global_args(whole_vid, "-row-mt", "1")
-            # whole_vid = ffmpeg._ffmpeg.global_args(whole_vid, "-hide_banner")
-            # whole_vid = ffmpeg._ffmpeg.global_args(whole_vid, "-loglevel", "error")           
+            whole_vid = ffmpeg._ffmpeg.global_args(whole_vid, "-hide_banner")
+            whole_vid = ffmpeg._ffmpeg.global_args(whole_vid, "-loglevel", "error")           
 
             click.echo("Converting... ", nl=False)
 

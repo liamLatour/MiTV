@@ -8,8 +8,9 @@
     >
       <span class="grow"></span>
       <NavItem href="/photos/photos"> Les photos </NavItem>
-      <NavItem href="/#team"> L'équipe </NavItem>
+      <NavItem href="/videos"> Les vidéos </NavItem>
       <NavItem href="/" class="text-xl"> MiTV </NavItem>
+      <NavItem href="/#team"> L'équipe </NavItem>
       <NavItem href="/#hardware"> Le matériel </NavItem>
       <NavItem href="/#legal"> Mentions légales </NavItem>
       <span class="grow"></span>
