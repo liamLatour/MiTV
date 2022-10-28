@@ -1,9 +1,15 @@
-from os import getcwd, listdir
-from os.path import isabs, isdir, relpath, join, isfile
-
 import imghdr
+from os import getcwd, listdir
+from os.path import basename, isabs, isdir, isfile, join, relpath
+
+import checksumdir
 import numpy as np
-from pymongo import MongoClient, DESCENDING
+from bson.json_util import dumps, loads
+from pymongo import DESCENDING, MongoClient
+from watchdog.events import PatternMatchingEventHandler
+from watchdog.observers import Observer
+
+from .vid_handler import Videos
 
 client = MongoClient()
 
@@ -16,6 +22,7 @@ col_folders_meta = db.folders_meta      # stores event_name, association
 col_ai_encoding = db.ai_encoding        # stores encodings for all images
 col_ai_meta = db.ai_meta                # stores faces in image and groups
 
+# If not enough add groups data to folders_meta
 col_reference_meta.create_index([("uuid", DESCENDING)])
 col_folders_meta.create_index([("path", DESCENDING)])
 col_ai_encoding.create_index([("path", DESCENDING)])
@@ -34,7 +41,7 @@ col_ai_meta.create_index([("path", DESCENDING)])
 def get_reference_uuid(uuid, base_path):
     path = sanitize_path(base_path)
     print(path)
-    occurrence = col_reference_meta.find_one({"uuid": uuid})
+    occurrence = col_reference_meta.find_one({"uuid": uuid}, {"_id":0})
     
     media = {
         "files": []
@@ -43,6 +50,7 @@ def get_reference_uuid(uuid, base_path):
     if occurrence != None and "occurrence" in occurrence:
         for occ in occurrence["occurrence"]:
             if occ["seen_in"].startswith(path):
+                #TODO: currently not handling portrait images
                 media["files"].append({
                     "path": occ["seen_in"],
                     "closeness": occ["closeness"],
@@ -57,9 +65,26 @@ def add_reference_uuid(img_path, uuid):
     add_data_safely(col_reference_meta, img_path, {"uuid": uuid})
         
 def add_reference_seen_in(img_path, seen_in_path, closeness):
+    path = sanitize_path(img_path)
     seen_in = sanitize_path(seen_in_path)
-    data = {"occurrence": {"seen_in": seen_in, "closeness": closeness}}
-    add_data_safely(col_reference_meta, img_path, data, "$push")
+    
+    worked = col_reference_meta.find_one_and_update(
+        {"path": path},
+        {"$push": {
+            "occurrence": {
+                "seen_in": seen_in,
+                "closeness": closeness
+            }
+        }
+    })
+    if not worked:
+        col_reference_meta.insert_one({
+            "path": path,
+            "occurrence": [{
+                "seen_in": seen_in,
+                "closeness": closeness
+            }]
+        })
 
 def remove_reference_seen_in(img_path, seen_in_path):
     path = sanitize_path(img_path)
@@ -86,7 +111,7 @@ def remove_reference_seen_in(img_path, seen_in_path):
 
 def get_orientation_ai_meta(img_path):
     path = sanitize_path(img_path)
-    orientation = col_ai_meta.find_one({"path": path})
+    orientation = col_ai_meta.find_one({"path": path}, {"_id":0})
     
     if orientation == None or "is_portrait" not in orientation:
         return False
@@ -95,7 +120,7 @@ def get_orientation_ai_meta(img_path):
 
 def get_groups_ai_meta(img_path):
     path = sanitize_path(img_path)
-    groups = col_ai_meta.find_one({"path": path})
+    groups = col_ai_meta.find_one({"path": path}, {"_id":0})
     
     if groups == None or "group_nb" not in groups:
         return (True, None)
@@ -153,6 +178,8 @@ def get_ai_encoding(img_path):
     exclude_thumbnail: bool,
     event_name: string,
     association: string,
+    hash: string,
+    representation: object,
 }
 """
 
@@ -163,9 +190,61 @@ default_folder_meta = {
     "association": "Aucune",
 }
 
+def get_folder_representation(folder_path):
+    path = sanitize_path(folder_path)
+    representation = col_folders_meta.find_one({"path": path}, {"_id":0})
+    
+    if representation == None or "representation" not in representation:
+        update_folder_representation(folder_path)
+        representation = col_folders_meta.find_one({"path": path}, {"_id":0})
+        
+    return loads(representation["representation"])
+
+#FIXME: recalculate representation when folder changes, put it here and not in metadata_creation
+
+def update_folder_representation(folder_path):
+    media = {
+        "files": []
+    }
+    
+    for f in listdir(folder_path):
+        path = join(folder_path, f)
+
+        media_data = {
+            "path": path,
+        }
+
+        if isfile(path):
+            if imghdr.what(path) == "jpeg":
+                is_not_in_group, others = get_groups_ai_meta(path)
+                if is_not_in_group:
+                    media_data["type"] = "pic"
+                    media_data["is_portrait"] = get_orientation_ai_meta(path)
+                    media_data["others"] = others
+                    media["files"].append(media_data)
+            else: #TODO: check if it is really a video
+                media_data["type"] = "vid"
+                media["files"].append(media_data)
+        elif isdir(path) and Videos.small_dir_name not in basename(f):
+            media_data["type"] = "dir"
+            media_data = media_data | get_folder_info(path)
+            media["files"].append(media_data)
+    
+    if media != {"files": []}:
+        add_data_safely(col_folders_meta, folder_path, {"representation": dumps(media)})
+
+def update_folders_hash(folder_paths):
+    for path in folder_paths:
+        update_folder_hash(path)
+    
+def update_folder_hash(folder_path):
+    path = sanitize_path(folder_path)
+    update_folder_representation(folder_path)
+    add_data_safely(col_folders_meta, folder_path, {"hash": checksumdir.dirhash(path)})
+
 def get_folder_info(folder_path):
     path = sanitize_path(folder_path)
-    info = col_folders_meta.find_one({"path": path}, {"path": 0, "_id":0})
+    info = col_folders_meta.find_one({"path": path}, {"_id":0, "representation":0, "hash":0})
     if info == None or "event_name" not in info:
         info = default_folder_meta
     
@@ -177,6 +256,7 @@ def get_folder_info(folder_path):
 
 def update_folder_info(folder_path, update):
     add_data_safely(col_folders_meta, folder_path, update)
+    update_folder_representation(folder_path)
 
 def add_folder_info(folder_path, event_name, association, thumbnail=None, exclude_thumbnail=False):
     if thumbnail == None:
@@ -190,6 +270,7 @@ def add_folder_info(folder_path, event_name, association, thumbnail=None, exclud
         "association": association,
     }
     add_data_safely(col_folders_meta, folder_path, data)
+    update_folder_representation(folder_path)
 
 # Utilities
 
@@ -217,3 +298,31 @@ def add_data_safely(collection, path, data, method="$set"):
     worked = collection.find_one_and_update({"path": path},{method: data})
     if not worked:
         collection.insert_one({"path": path}|data)
+        
+def folder_changed(folder_path):
+    path = sanitize_path(folder_path)
+    col_folders_meta.find_one({"path": path}, {"_id":0})
+    
+    if col_folders_meta == None or "hash" not in col_folders_meta:
+        return True
+    
+    return checksumdir.dirhash(folder_path) != col_folders_meta["hash"]
+
+def event_handler(event):
+    print(event)
+
+def watch():
+    pattern = PatternMatchingEventHandler(["*"], None, False, True)
+    pattern.on_created  = event_handler
+    pattern.on_deleted  = event_handler
+
+    ref_observer = Observer()
+    root_folder = col_folders_meta.find_one({"root": True})
+    ref_observer.schedule(pattern, root_folder["path"], recursive=True)
+    ref_observer.start()
+
+def recalculate_all_folders():
+    folders = col_folders_meta.find()
+    
+    for folder in folders:
+        update_folder_representation(folder["path"])

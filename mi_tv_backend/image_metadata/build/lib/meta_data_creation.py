@@ -7,11 +7,11 @@ from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
 
 from image_metadata import (ImageOrientation, ImageSimilarity, Photos,
-                            References, ImageFormatHandler, Videos)
+                            References, ImageFormatHandler, Videos, db_interface)
 
 # run with:
-#   meta_data_creation --continuous --immediate ./temp_people_ref ./uploadDir
-#   meta_data_creation --once --immediate ./temp_people_ref ./photos/photo_mashed
+#   meta_data_creation --continuous --immediate ./people_ref ./photos
+#   meta_data_creation --once --immediate ./people_ref ./photos
 
 @click.command()
 @click.argument("ref_path", type=click.Path(exists=True))
@@ -124,7 +124,7 @@ class MetadataCreation():
             else:
                 delay = self.delay
 
-            threading.Timer(delay, lambda: self.create_metadata(self.to_compute) ).start()
+            threading.Timer(delay, lambda: self.create_metadata(self.to_compute)).start()
     
     def create_metadata(self, image_paths=None, full=True):
         if image_paths == None:
@@ -154,6 +154,8 @@ class MetadataCreation():
             click.echo("Video handling")
             self.vid.run(image_paths)
             click.echo("Videos finished in: " + str(time.time()-t1))
+            
+            db_interface.update_folders_hash(image_paths)
         
         t1 = time.time()
         click.echo("Face recognition")

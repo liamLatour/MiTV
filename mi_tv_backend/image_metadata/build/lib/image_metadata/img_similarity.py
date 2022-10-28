@@ -5,8 +5,8 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['AUTOGRAPH_VERBOSITY'] = '0'
 
 import imghdr
-from os import listdir, getcwd
-from os.path import isdir, isfile, join, abspath, basename, dirname, realpath
+from os import listdir
+from os.path import isdir, isfile, join, abspath, basename
 
 import numpy as np
 from PIL import Image
@@ -23,7 +23,7 @@ from . import db_interface
 
 # TODO: could parallelize encoding, then sequential treatment
 class ImageSimilarity():
-    def __init__(self):        
+    def __init__(self):
         import tensorflow as tf
         import tensorflow_hub as hub
         
@@ -45,13 +45,16 @@ class ImageSimilarity():
     def run(self, paths):
         for path in paths:
             assert isdir(path)
-            if Videos.small_dir_name not in basename(path):
+            if Videos.small_dir_name not in basename(path) and db_interface.folder_changed(path):
                 self.parse_imgs(path)
 
     def parse_imgs(self, path):
         last_pic = None
         last_pic_encoding = None
         stopped = True
+        
+        display = []
+        groups = []
         
         for f in listdir(path):
             _path = abspath(db_interface.sanitize_path(join(path, f)))
@@ -73,6 +76,8 @@ class ImageSimilarity():
                 last_pic_encoding = current_encoding
             elif isdir(_path):
                 self.parse_imgs(_path)
+                
+        db_interface.add_group_folder_meta(path, display, groups)
     
     def extract(self, path):
         path = Image.open(path).convert('L').resize(self.IMAGE_SHAPE)

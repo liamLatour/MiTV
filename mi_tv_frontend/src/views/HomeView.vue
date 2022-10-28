@@ -3,16 +3,41 @@
     <img
       src="../assets/paysage.jpg"
       alt=""
-      class="min-h-screen min-w-full max-w-none"
+      class="min-h-screen min-w-full max-w-none grayscale blur-sm"
     />
+    <div class="absolute maxed right-24 top-24 aspect-square">
+      <div class="absolute h-3/4 w-full bottom-0">
+        <img
+          src="../assets/illustration_1.jpg"
+          alt=""
+          class="absolute w-2/3 top-0 left-0"
+        />
+        <img
+          src="../assets/illustration_3.jpg"
+          alt=""
+          class="absolute w-2/3 bottom-0 right-0"
+        />
+      </div>
+      <img
+        src="../assets/illustration_2.jpg"
+        alt=""
+        class="absolute w-2/5 top-0 right-sm"
+      />
+    </div>
     <div
-      class="absolute left-8 bottom-8 sm:left-20 sm:bottom-20 text-2xl w-72 leading-snug sm:w-96 sm:leading-snug sm:text-4xl"
+      class="absolute left-8 bottom-8 text-2xl w-72 leading-snug sm:w-max sm:max-w-sm sm:leading-snug sm:text-5xl sm:left-20 sm:bottom-20"
     >
       <h2>Rendre vos années mémorables</h2>
-      <h3><router-link to="/photos/photos">Voir les photos</router-link></h3>
+      <router-link
+        to="/photos/photos"
+        class="text-cyan-400 hover:text-cyan-200"
+      >
+        Voir les photos
+      </router-link>
     </div>
   </div>
-  <div id="team" class="h-screen overflow-clip bg-indigo-900 bg-opacity-10">
+  <div class="h-screen overflow-clip bg-indigo-900 bg-opacity-10">
+    <span id="team" class="absolute -top-11"></span>
     <h1 class="text-center text-3xl p-4 sm:text-6xl">L'équipe</h1>
     <div class="flex items-center justify-around flex-wrap max-w-4xl m-auto">
       <Member role="Trésorier" nom="PHALIPPOU--GELABERT" prenom="Donatien" />
@@ -30,6 +55,7 @@
       <Member role="Membre" nom="GUERIN" prenom="Gabriel" />
     </div>
   </div>
+  <!--
   <div id="hardware" class="h-screen overflow-clip bg-red-900 bg-opacity-10">
     <h1 class="text-center text-3xl p-4 sm:text-6xl">Le matériel</h1>
     <div class="flex items-center justify-around flex-wrap max-w-4xl m-auto">
@@ -46,10 +72,8 @@
   <div id="legal" class="h-screen overflow-clip bg-teal-900 bg-opacity-10">
     <h1 class="text-center text-3xl p-4 sm:text-6xl">Mention légales</h1>
 
-    <!--https://entreprendre.service-public.fr/vosdroits/F31228/personnalisation/resultat?lang=&quest0=0&quest=-->
-    <h2>C'est pas de nôtre faute</h2>
-    <p>Je te promet si tu fais de la merde je te casse la gueule</p>
   </div>
+  -->
 </template>
 
 <script lang="ts">
@@ -65,3 +89,15 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.maxed {
+  width: 100%;
+  max-width: 60%;
+  aspect-ratio: 1 / 1;
+}
+
+.right-sm{
+  right: 10%;
+}
+</style>

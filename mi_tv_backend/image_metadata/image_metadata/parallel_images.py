@@ -4,22 +4,30 @@ from os.path import isdir, isfile, join, abspath, basename
 import multiprocessing
 
 from .vid_handler import Videos
+from . import db_interface
 
 class Images():
+    def __init__(self, ignore_change=False) -> None:
+        # Set to true to recompute even if no changes have been made to the folder
+        self.ignore_change = ignore_change
+        self.multiprocessing = True
+    
     def run(self, paths):
         for path in paths:
             assert isdir(path)
-            self.parse_imgs(path)
+            if self.ignore_change or db_interface.folder_changed(path):
+                self.parse_imgs(path)
     
     def parse_imgs(self, path):
         if Videos.small_dir_name in basename(path):
             return
 
-        context = multiprocessing
-        if "forkserver" in multiprocessing.get_all_start_methods():
-            context = multiprocessing.get_context("forkserver")
-        pool = context.Pool(processes=8) # None is max number
-        
+        if self.multiprocessing:
+            context = multiprocessing
+            if "forkserver" in multiprocessing.get_all_start_methods():
+                context = multiprocessing.get_context("forkserver")
+            pool = context.Pool(processes=None) # None is max number
+            
         imgs_paths = []
         
         for f in listdir(path):
@@ -30,7 +38,12 @@ class Images():
             elif isdir(_path):
                 self.parse_imgs(_path)
 
-        res = pool.starmap(self.treat_img, zip(imgs_paths))
+        if self.multiprocessing:
+            res = pool.starmap(self.treat_img, zip(imgs_paths))
+        else:
+            res = []
+            for path in imgs_paths:
+                res.append(self.treat_img(path))
 
         # Decompress received data
         self.decompress_data(res)

@@ -25,6 +25,8 @@ root_photos_path = join(getcwd(), "photos")
 app = Flask(__name__)
 CORS(app)
 
+db_interface.watch()
+
 # This is temp until fusion with portail-etu
 allowed_cookies = []
 
@@ -167,39 +169,12 @@ def get_download_media(filename):
 @app.route("/architecture/<path:dirname>")
 def get_architecture(dirname):
     t = time.time()
-    media = {
-        "files": []
-    }
     
-    for f in listdir(dirname):
-        path = join(dirname, f)
+    media = db_interface.get_folder_info(dirname)
+    media = media | db_interface.get_folder_representation(dirname)
 
-        media_data = {
-            "path": path,
-        }
-
-        if isfile(path):
-            if imghdr.what(path) == "jpeg":
-                is_not_in_group, others = db_interface.get_groups_ai_meta(path)
-                if is_not_in_group:
-                    media_data["type"] = "pic"
-                    media_data["is_portrait"] = db_interface.get_orientation_ai_meta(path)
-                    media_data["others"] = others
-                    media["files"].append(media_data)
-            elif f != ".meta" and f != ".people": #TODO: check if it is really a video
-                media_data["type"] = "vid"
-                media["files"].append(media_data)
-        elif isdir(path) and Videos.small_dir_name not in basename(f):
-            media_data["type"] = "dir"
-            media_data = media_data | db_interface.get_folder_info(path)
-            media["files"].append(media_data)
-    
-    # Global info on dir
-    media = media | db_interface.get_folder_info(dirname)
-
-    response = jsonify(media)
     print("Response time", time.time()-t)
-    return response
+    return media
 
 if __name__ == "__main__":
     app.run()
