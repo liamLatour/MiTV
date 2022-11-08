@@ -10,14 +10,15 @@ class Videos():
 
     _compression_width = 640
 
-    def __init__(self):      
-        pass
-
     def run(self, paths):
         for path in paths:
             assert isdir(path)
 
             self.parse_vids(path)
+            
+    def is_supported(self, path):
+        file_extension = splitext(path.lower())[1][1:]
+        return file_extension in self.supported_formats
         
     def parse_vids(self, path):
         if self.small_dir_name in basename(path):
@@ -30,20 +31,20 @@ class Videos():
                 self.parse_vids(_path)
                 continue
 
-            if splitext(f.lower())[-1][1:] in self.supported_formats:
-                if not self.small_dir_name in listdir(path):
+            if self.is_supported(f):
+                if self . small_dir_name not in listdir(path):
                     mkdir(join(path, self.small_dir_name))
 
                 click.echo("Treating " + f + " : ", nl=False)
                 self.treat_vid(abspath(path), f)
             
     def treat_vid(self, path, name):
-        file = join(path, name)
+        vid_file = join(path, name)
         base = splitext(join(path, self.small_dir_name, name))[0]
 
         click.echo("Parsing... ", nl=False)
 
-        probe = ffmpeg.probe(file)
+        probe = ffmpeg.probe(vid_file)
         video_stream = next((stream for stream in probe["streams"] if stream["codec_type"] == "video"), None)
         width = int(video_stream["width"])
         height = int(video_stream["height"])
@@ -79,7 +80,7 @@ class Videos():
         if not exists(base + ".jpg"):
             click.echo("Thumbnail... ", nl = False)
 
-            thumb = ffmpeg.input(file)
+            thumb = ffmpeg.input(vid_file)
             thumb = ffmpeg.filter(thumb, "scale", 500, -2)
             thumb = ffmpeg.output(thumb, base + ".jpg", vframes=1)
             thumb = ffmpeg._ffmpeg.global_args(thumb, "-hide_banner")
