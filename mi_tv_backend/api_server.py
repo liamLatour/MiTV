@@ -1,8 +1,8 @@
 import imghdr
 import time
 from io import BytesIO
-from os import getcwd, listdir
-from os.path import isdir, isfile, join, basename, splitext, dirname, exists
+from os import getcwd
+from os.path import join, basename, splitext, dirname, exists
 from pathlib import Path
 import random
 
@@ -24,8 +24,6 @@ root_photos_path = join(getcwd(), "photos")
 
 app = Flask(__name__)
 CORS(app)
-
-db_interface.watch()
 
 # This is temp until fusion with portail-etu
 allowed_cookies = []
