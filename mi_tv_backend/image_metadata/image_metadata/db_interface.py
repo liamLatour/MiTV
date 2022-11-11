@@ -226,8 +226,7 @@ def update_folder_representation(folder_path):
             media_data = media_data | get_folder_info(path)
             media["files"].append(media_data)
     
-    if media != {"files": []}:
-        add_data_safely(col_folders_meta, folder_path, {"representation": dumps(media)})
+    add_data_safely(col_folders_meta, folder_path, {"representation": dumps(media)})
 
 def update_folders_hash(folder_paths):
     for path in folder_paths:
