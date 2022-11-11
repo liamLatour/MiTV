@@ -1,8 +1,9 @@
+Pillow
+checksumdir
+click
 face-recognition
 numpy
-Pillow
+scipy
 tensorflow
 tensorflow-hub
-scipy
-click
 watchdog

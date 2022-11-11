@@ -23,6 +23,7 @@ setup(
         "scipy",
         "click",
         "watchdog",
+        "checksumdir",
     ],
     entry_points={
         'console_scripts': [

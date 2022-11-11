@@ -6,8 +6,6 @@ import checksumdir
 import numpy as np
 from bson.json_util import dumps, loads
 from pymongo import DESCENDING, MongoClient
-from watchdog.events import PatternMatchingEventHandler
-from watchdog.observers import Observer
 
 from .vid_handler import Videos
 
@@ -200,8 +198,6 @@ def get_folder_representation(folder_path):
         
     return loads(representation["representation"])
 
-#FIXME: recalculate representation when folder changes, put it here and not in metadata_creation
-
 def update_folder_representation(folder_path):
     media = {
         "files": []
@@ -222,7 +218,7 @@ def update_folder_representation(folder_path):
                     media_data["is_portrait"] = get_orientation_ai_meta(path)
                     media_data["others"] = others
                     media["files"].append(media_data)
-            else: #TODO: check if it is really a video
+            elif Videos.is_supported(path):
                 media_data["type"] = "vid"
                 media["files"].append(media_data)
         elif isdir(path) and Videos.small_dir_name not in basename(f):
@@ -301,25 +297,12 @@ def add_data_safely(collection, path, data, method="$set"):
         
 def folder_changed(folder_path):
     path = sanitize_path(folder_path)
-    col_folders_meta.find_one({"path": path}, {"_id":0})
+    folder_hash = col_folders_meta.find_one({"path": path}, {"_id":0})
     
-    if col_folders_meta == None or "hash" not in col_folders_meta:
+    if folder_hash == None or "hash" not in folder_hash:
         return True
     
-    return checksumdir.dirhash(folder_path) != col_folders_meta["hash"]
-
-def event_handler(event):
-    print(event)
-
-def watch():
-    pattern = PatternMatchingEventHandler(["*"], None, False, True)
-    pattern.on_created  = event_handler
-    pattern.on_deleted  = event_handler
-
-    ref_observer = Observer()
-    root_folder = col_folders_meta.find_one({"root": True})
-    ref_observer.schedule(pattern, root_folder["path"], recursive=True)
-    ref_observer.start()
+    return checksumdir.dirhash(folder_path) != folder_hash["hash"]
 
 def recalculate_all_folders():
     folders = col_folders_meta.find()

@@ -77,7 +77,7 @@ class ImageSimilarity():
             elif isdir(_path):
                 self.parse_imgs(_path)
                 
-        db_interface.add_group_folder_meta(path, display, groups)
+        #db_interface.add_group_folder_meta(path, display, groups)
     
     def extract(self, path):
         path = Image.open(path).convert('L').resize(self.IMAGE_SHAPE)

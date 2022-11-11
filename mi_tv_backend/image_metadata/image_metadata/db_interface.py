@@ -297,12 +297,12 @@ def add_data_safely(collection, path, data, method="$set"):
         
 def folder_changed(folder_path):
     path = sanitize_path(folder_path)
-    col_folders_meta.find_one({"path": path}, {"_id":0})
+    folder_hash = col_folders_meta.find_one({"path": path}, {"_id":0})
     
-    if col_folders_meta == None or "hash" not in col_folders_meta:
+    if folder_hash == None or "hash" not in folder_hash:
         return True
     
-    return checksumdir.dirhash(folder_path) != col_folders_meta["hash"]
+    return checksumdir.dirhash(folder_path) != folder_hash["hash"]
 
 def recalculate_all_folders():
     folders = col_folders_meta.find()

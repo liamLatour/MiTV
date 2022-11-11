@@ -25,7 +25,7 @@
       />
     </div>
     <div
-      class="absolute left-8 bottom-8 text-2xl w-72 leading-snug sm:w-max sm:max-w-sm sm:leading-snug sm:text-5xl sm:left-20 sm:bottom-20"
+      class="absolute left-8 bottom-20 text-2xl w-72 leading-snug sm:w-max sm:max-w-sm sm:leading-snug sm:text-5xl sm:left-20 sm:bottom-20"
     >
       <h2>Rendre vos années mémorables</h2>
       <router-link
@@ -35,8 +35,21 @@
         Voir les photos
       </router-link>
     </div>
+    <div class="tilt">
+      <svg
+        data-name="Layer 1"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 1200 120"
+        preserveAspectRatio="none"
+      >
+        <path
+          d="M1200 120L0 16.48 0 0 1200 0 1200 120z"
+          class="shape-fill"
+        ></path>
+      </svg>
+    </div>
   </div>
-  <div class="h-screen overflow-clip bg-indigo-900 bg-opacity-10">
+  <div class="h-screen overflow-clip indigo">
     <span id="team" class="absolute -top-11"></span>
     <h1 class="text-center text-3xl p-4 sm:text-6xl">L'équipe</h1>
     <div class="flex items-center justify-around flex-wrap max-w-4xl m-auto">
@@ -97,7 +110,40 @@ export default defineComponent({
   aspect-ratio: 1 / 1;
 }
 
-.right-sm{
+.right-sm {
   right: 10%;
+}
+
+.tilt {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  transform: rotate(180deg);
+}
+
+.tilt svg {
+  position: relative;
+  display: block;
+  width: calc(100% + 1.3px);
+  height: 56px;
+}
+
+.tilt .shape-fill {
+  fill: hsl(242, 15%, 10%);
+}
+
+.indigo {
+  background-color: hsl(242, 15%, 10%);
+}
+
+/** For tablet devices **/
+@media (min-width: 768px) and (max-width: 1023px) {
+  .tilt svg {
+    width: calc(100% + 1.3px);
+    height: 60px;
+  }
 }
 </style>
