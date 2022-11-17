@@ -88,8 +88,8 @@ def update(dirname):
         if request.json["login"] not in allowed_cookies:
             return "Vous n'etes pas connecter"
 
-        db_interface.update_folder_info(Path(dirname).parent.absolute(), request.json["metaData"])
         db_interface.update_folder_info(dirname, request.json["metaData"])
+        db_interface.update_folder_representation(Path(dirname).parent.absolute())
         
         return "File updated successfully"
 
