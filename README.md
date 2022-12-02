@@ -1,23 +1,23 @@
 
 # MiTV
 
-This project is a complete 'drive' like system.  
-The frontend is a website to access the drive's content in a user friendly way.  
-The backend has a storage api but it also generates usefull metadata of the media.
+This project is a complete "drive" like system for photos and videos.
+It has been intended for Dockerization on an OpenMediaVault NAS, and the public shared folders are the one available through this system.
+The frontend consists of a website to access the drive's content in a user friendly way.
+The backend has a storage API but it also generates useful media metadata.
 
 ## Features
 
-- face recognition
-- image similarity detection and grouping
-- image conversion (to jpeg)
-- video thumbnailization
-- pre-treatment for optimization
+• Face recognition
+• Image similarity detection and grouping
+• Image conversion and compression (JPEG)
+• Video thumbnailization and compression (AV1)
+• Pre-treatment for optimization
 ## Documentation
 
 [Documentation](https://github.com/liamLatour/MiTV/wiki)
 
-
-## Installation
+## Manual installation without docker
 
 Start by cloning the repository
 
@@ -33,11 +33,12 @@ Install MiTV frontend with npm
   npm i
 ```
 
-Install MiTV backend with python
+Install MiTV backend with Python and install the metadata module
 
 ```bash
   cd mi_tv_backend
   pip install -r requirements.txt
+  pip install ./image-metadata
 ```
 ## Deployment
 
