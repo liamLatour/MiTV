@@ -11,6 +11,8 @@ from flask_cors import CORS
 from PIL import Image, ImageOps
 from werkzeug.utils import secure_filename
 
+from flasgger import Swagger
+
 from image_metadata import Videos, db_interface
 
 # run with: waitress-serve --host 127.0.0.1 --port=5000 --threads=12 api_server:app
@@ -23,6 +25,7 @@ if not exists(ref_path):
 root_photos_path = join(getcwd(), "photos")
 
 app = Flask(__name__)
+swagger = Swagger(app)
 CORS(app)
 
 # This is temp until fusion with portail-etu
@@ -48,12 +51,50 @@ This way metadata is easy to add without breaking anything
 
 # Upload media
 
-@app.route("/upload", methods=["GET", "POST"])
+@app.route("/upload", methods=["POST"])
 def upload_files():
+    """
+    Upload some files to the drive via the front-end.
+    ---
+    parameters:
+      - name: login
+        in: cookie
+        type: string
+        format: uuid
+        required: true
+        description: Login cookie.
+      - name: event_name
+        in: formData
+        type: string
+        required: True
+        description: Name of the event associated with the media files.
+      - name: association
+        in: formData
+        type: string
+        required: True
+        description: Name of the association who made the medias.
+      - name: files
+        in: formData
+        type: array
+        required: True
+        items:
+          type: file
+        description: Medias to upload (Werkzeug FileStorage objects).
+
+    produces:
+      text/plain
+
+    responses:
+      200:
+        description: Query has been processed (upload can have worked, or not).
+        schema:
+          type: string
+          example: File uploaded successfully
+    """
     if request.method == "POST":
         # Check if it has the right to
         if request.form["login"] not in allowed_cookies:
-            return "Vous n'etes pas connecter"
+            return "Vous n'êtes pas connecté."
         
         event_name = request.form["event_name"]
         association = request.form["association"]
@@ -67,8 +108,33 @@ def upload_files():
         
         return "File uploaded successfully"
 
-@app.route("/upload_ref", methods=["GET", "POST"])
+@app.route("/upload_ref", methods=["POST"])
 def upload_ref():
+    """
+    Upload a facial reference to the back-end via the front.
+    ---
+    parameters:
+      - name: uuid
+        in: header
+        type: string
+        required: true
+        description: UUID for the picture (to store and reference in DB).
+      - name: file
+        in: formData
+        type: file
+        required: True
+        description: Reference picture to upload (Werkzeug FileStorage object).
+
+    produces:
+      text/plain
+
+    responses:
+      200:
+        description: Upload result (failed/succeeded).
+        schema:
+          type: string
+          example: File uploaded successfully
+    """
     if request.method == "POST":        
         uuid = request.form["uuid"]
         
@@ -81,20 +147,81 @@ def upload_ref():
         
         return "File uploaded successfully"
 
-@app.route("/update/<path:dirname>", methods=["GET", "POST"])
+@app.route("/update/<path:dirname>", methods=["POST"])
 def update(dirname):
+    """
+    Update the preview image of a folder.
+    ---
+    parameters:
+      - name: path
+        in: path
+        type: string
+        required: true
+        description: Path to the media.
+      - name: dirname
+        in: path
+        type: string
+        required: true
+        description: The media folder location.
+      - name: login
+        in: cookie
+        type: apiKey
+        required: true
+        description: Login cookie.
+      - name: metaData
+        in: header
+        type: string
+        required: true
+        description: String-dumped JSON containing the picture's metadata.
+
+    produces:
+      text/plain
+
+    responses:
+      200:
+        description: Upload result (failed/succeeded).
+        schema:
+          type: string
+          example: File uploaded successfully
+    """
     if request.method == "POST":
         # Check if it has the right to
         if request.json["login"] not in allowed_cookies:
-            return "Vous n'etes pas connecter"
+            return "Vous n'etes pas connecté."
 
         db_interface.update_folder_info(dirname, request.json["metaData"])
         db_interface.update_folder_representation(Path(dirname).parent.absolute())
         
         return "File updated successfully"
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route("/login", methods=["POST"])
 def login():
+    """
+    Login as admin.
+    ---
+    parameters:
+      - name: username
+        in: formData
+        type: string
+        required: true
+        description: Admin username
+      - name: password
+        in: formData
+        type: string
+        required: true
+        description: Admin password (yes it's barbarism to send it in plain but this is temporary)
+
+    responses:
+      200:
+        description: A cookie containing either a "UUID" atesting for privilege or "False".
+        schema:
+          type: object
+          properties:
+            res:
+              type: string
+              format: uuid
+              example: 14995851753388834
+    """
     if request.method == "POST":
         username = request.json["username"]
         password = request.json["password"]
@@ -106,6 +233,19 @@ def login():
 
 @app.route("/disconnect", methods=["GET", "POST"])
 def disconnect():
+    """
+    Disconnect (from admin account).
+    ---
+    produces:
+      text/plain
+
+    responses:
+      200:
+        description: Whether disconnection was successful or not.
+        schema:
+          type: string
+          example: Not logged in
+    """
     if request.method == "POST":
         login = request.json["login"]
         if login in allowed_cookies:
@@ -126,6 +266,36 @@ def serve_pil_image(pil_img, quality=90):
 
 @app.route("/get_by_uuid/<uuid>")
 def get_photos_uuid(uuid):
+    """
+    Gets all photos for a given reference picture's UUID.
+    ---
+    parameters:
+      - name: uuid
+        in: path
+        type: string
+        format: uuid
+        required: true
+        description: Reference photo UUID.
+
+    responses:
+      200:
+        description: Media files close to the reference photo.
+        schema:
+          type: object
+          properties:
+            files:
+              properties:
+                path:
+                  type: string
+                  example: photos/perm/IMG_13.jpg
+                closeness:
+                  type: number
+                  format: float
+                  example: 0.87
+                type:
+                  type: string
+                  example: pic
+    """
     media = db_interface.get_reference_uuid(uuid, request.args.get("path"))
 
     media["event_name"] = "Mes Photos"
@@ -135,6 +305,28 @@ def get_photos_uuid(uuid):
 
 @app.route("/media_low_res/<path:filename>")
 def get_media_low_res(filename):
+    """
+    Gets a picture's preview image.
+    ---
+    parameters:
+      - name: path
+        in: path
+        type: string
+        required: true
+        description: Path to the media.
+      - name: filename
+        in: path
+        type: string
+        required: true
+        description: The name of the media.
+
+    produces:
+      file
+
+    responses:
+      200:
+        description: File (Werkzeug FileStorage object) containing the preview image.
+    """
     if splitext(basename(filename))[1][1:] in Videos.supported_formats:
         filename = join(dirname(filename), Videos.small_dir_name, splitext(basename(filename))[0]) + ".jpg"
 
@@ -146,6 +338,28 @@ def get_media_low_res(filename):
 
 @app.route("/media/<path:filename>")
 def get_media(filename):
+    """
+    Gets a resized picture.
+    ---
+    parameters:
+      - name: path
+        in: path
+        type: string
+        required: true
+        description: Path to the media.
+      - name: filename
+        in: path
+        type: string
+        required: true
+        description: The name of the media.
+
+    produces:
+      file
+
+    responses:
+      200:
+        description: File (Werkzeug FileStorage object) containing the resized image.
+    """
     image = Image.open(filename)
     image = image.resize((2250, round(image.size[1]/(image.size[0]/2250))),Image.Resampling.LANCZOS)
     image = ImageOps.exif_transpose(image)
@@ -154,14 +368,80 @@ def get_media(filename):
 
 @app.route("/vmedia/<path:filename>")
 def get_vmedia(filename):
+    """
+    Gets a compressed video.
+    ---
+    parameters:
+      - name: path
+        in: path
+        type: string
+        required: true
+        description: Path to the media.
+      - name: filename
+        in: path
+        type: string
+        required: true
+        description: The name of the media.
+
+    produces:
+      file
+
+    responses:
+      200:
+        description: File (Werkzeug FileStorage object) containing the compressed video.
+    """
     return send_file(join(dirname(filename), Videos.small_dir_name, splitext(basename(filename))[0]) + ".mp4", mimetype="video/mp4")
 
 @app.route("/vdownload/<path:filename>")
 def get_download_vmedia(filename):
+    """
+    Gets a video.
+    ---
+    parameters:
+      - name: path
+        in: path
+        type: string
+        required: true
+        description: Path to the media.
+      - name: filename
+        in: path
+        type: string
+        required: true
+        description: The name of the media.
+
+    produces:
+      file
+
+    responses:
+      200:
+        description: File (Werkzeug FileStorage object) containing the video.
+    """
     return send_file(filename, mimetype="video/webm")
 
 @app.route("/download/<path:filename>")
 def get_download_media(filename):
+    """
+    Gets a full size picture.
+    ---
+    parameters:
+      - name: path
+        in: path
+        type: string
+        required: true
+        description: Path to the media.
+      - name: filename
+        in: path
+        type: string
+        required: true
+        description: The name of the media.
+
+    produces:
+      file
+
+    responses:
+      200:
+        description: File (Werkzeug FileStorage object) containing the image.
+    """
     return send_file(filename, mimetype="image/jpeg")
 
 # Architecture
