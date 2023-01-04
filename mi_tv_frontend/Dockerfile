@@ -1,6 +1,3 @@
-# Variable for port ENV
-ARG port PORT
-
 # Base image
 FROM node:17
 
@@ -20,10 +17,10 @@ ENV PATH="${PATH}:/home/user/.local/bin"
 # Get MiTV
 RUN git clone "https://github.com/liamLatour/MiTV.git"
 RUN cd MiTV/mi_tv_frontend && npm i
+RUN cd MiTV/mi_tv_frontend && npm run build
 
 # Port for front-end
-EXPOSE $port
-ENV PORT="$port"
+EXPOSE 5173
 
-# Start the front-end
-RUN cd MiTV/mi_tv_frontend && npm run build
+# Set CMD to start the front-end
+CMD cd MiTV/mi_tv_frontend && npm run dev
