@@ -1,4 +1,4 @@
-from os.path import isfile, dirname, isdir
+from os.path import isfile, dirname, isdir, realpath
 import threading
 import time
 
@@ -81,7 +81,7 @@ class MetadataCreation():
             observer = Observer()
             for path in self.image_root_paths:
                 click.echo("Looking at: "+str(path))
-                observer.schedule(event_handler, path, recursive=True)
+                observer.schedule(event_handler, realpath(path), recursive=True)
             observer.start()
                 
             # ref event handler
@@ -92,7 +92,7 @@ class MetadataCreation():
             
             # ref observer
             ref_observer = Observer()
-            ref_observer.schedule(ref_event_handler, self.ref_path, recursive=True)
+            ref_observer.schedule(ref_event_handler, realpath(self.ref_path), recursive=True)
             ref_observer.start()
             
             try:
