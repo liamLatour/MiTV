@@ -1,0 +1,30 @@
+version: "3.9"
+
+x-vol:
+  &vol
+  type: bind
+  source: ../appdata
+  target: /media
+
+services:
+  frontend:
+    build: ./mi_tv_frontend
+    ports:
+      - "5173:5173"
+
+  backend:
+    build: ./mi_tv_backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - *vol
+
+  media-processor:
+    build: ./mi_tv_backend/image_metadata
+    volumes:
+      - *vol
+
+  database:
+    image: "mongo:6"
+    ports:
+      - "27017:27017"
