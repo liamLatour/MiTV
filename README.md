@@ -16,44 +16,7 @@ The backend has a storage API but it also generates useful media metadata.
 
 ## Documentation
 
-[Documentation](https://github.com/liamLatour/MiTV/wiki)
-
-## Manual installation without docker
-
-Start by cloning the repository
-
-```bash
-  git clone https://github.com/liamLatour/MiTV.git
-  cd MiTV
-```
-
-Install MiTV frontend with npm
-
-```bash
-  cd mi_tv_frontend
-  npm i
-```
-
-Install MiTV backend with Python and install the metadata module
-
-```bash
-  cd mi_tv_backend
-  pip install -r requirements.txt
-  pip install ./image_metadata
-```
-## Deployment
-
-To deploy the frontend, first build it:
-
-```bash
-  npm run build
-```
-
-To deploy the backend run:
-
-```bash
-  waitress-serve --host 127.0.0.1 --port=5000 api_server:app
-```
+[Documentation](https://mitv.readthedocs.io/en/latest/)
 
 ## Authors
 
