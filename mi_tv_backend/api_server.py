@@ -17,10 +17,7 @@ from image_metadata import Videos, db_interface
 
 # run with: waitress-serve --host 127.0.0.1 --port=5000 --threads=12 api_server:app
 
-ref_path = join(getcwd(), "temp_people_ref")
-
-if not exists(ref_path):
-    ref_path = join(getcwd(), "people_ref")
+ref_path = join(getcwd(), "people_ref")
 
 root_photos_path = join(getcwd(), "photos")
 

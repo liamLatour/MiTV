@@ -11,9 +11,6 @@ RUN usermod -aG sudo user
 USER user
 WORKDIR /home/user
 
-# Python ENV
-ENV PATH="${PATH}:/home/user/.local/bin"
-
 # Get MiTV
 RUN git clone "https://github.com/liamLatour/MiTV.git"
 RUN cd MiTV/mi_tv_frontend && npm i
