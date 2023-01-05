@@ -9,7 +9,7 @@
     <div class="h-12">
       <div class="absolute right-2 m-1 text-white text-3xl">
         <a
-          :href="'http://127.0.0.1:5000/download/' + images[currentImg]"
+          :href="'http://backend:5000/download/' + images[currentImg]"
           class=""
           download
         >
@@ -30,7 +30,7 @@
     <!--Image-->
     <div class="m-auto min-h-0 min-w-0">
       <img
-        :src="'http://127.0.0.1:5000/media/' + images[currentImg]"
+        :src="'http://backend:5000/media/' + images[currentImg]"
         alt="image introuvable"
         v-on:click.stop
         ref="image"
@@ -55,7 +55,7 @@
         <img
           v-for="(url, index) in images"
           :key="index"
-          :src="'http://127.0.0.1:5000/media_low_res/' + url"
+          :src="'http://backend:5000/media_low_res/' + url"
           class="h-full p-1 cursor-pointer image-anim"
           alt="image introuvable"
           @click="currentImg = index"

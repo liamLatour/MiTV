@@ -39,7 +39,7 @@
 
       <ImageItem
         v-if="media.type == 'pic'"
-        :source="'http://127.0.0.1:5000/media_low_res/' + media.path"
+        :source="'http://backend:5000/media_low_res/' + media.path"
         @click="openImage(index)"
         class="cursor-pointer image-anim"
       />
@@ -51,7 +51,7 @@
         />
 
         <ImageItem
-          :source="'http://127.0.0.1:5000/media_low_res/' + media.path"
+          :source="'http://backend:5000/media_low_res/' + media.path"
           alt="image introuvable"
           @click="openVideo(index)"
           class="cursor-pointer image-anim"
@@ -60,7 +60,7 @@
 
       <div v-if="media.type == 'dir'">
         <ImageItem
-          :source="'http://127.0.0.1:5000/media_low_res/' + media.thumbnail"
+          :source="'http://backend:5000/media_low_res/' + media.thumbnail"
           alt="image introuvable"
           class="cursor-pointer image-anim"
         />

@@ -9,7 +9,7 @@ from pymongo import DESCENDING, MongoClient
 
 from .vid_handler import Videos
 
-client = MongoClient()
+client = MongoClient("database", 27017)
 
 # Get database
 db = client.mitv
