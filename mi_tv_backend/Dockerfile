@@ -32,4 +32,4 @@ RUN ln -s /media/people_ref /home/user/MiTV/mi_tv_backend/people_ref && ln -s /m
 EXPOSE 5000
 
 # Set CMD to start the front-end
-CMD cd MiTV/mi_tv_backend && python api_server.py
+CMD cd MiTV/mi_tv_backend && waitress-serve --port=5000 api_server:app
