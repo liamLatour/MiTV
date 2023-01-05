@@ -51,9 +51,9 @@ To run the media processor:
 
      meta_data_creation --prerun --continuous --immediate ./people_ref ./photos
 
-.. note::
+.. warning::
 
-   If you are on Linux and do not use a virtual environment, make sure to add $USER/.local/bin to your PATH!
+   If you are on Linux and do not use a virtual environment, make sure to add *$USER/.local/bin* to your **PATH**
 
 Docker install
 ++++++++++++++
@@ -75,5 +75,6 @@ Using the website
 -----------------
 
 The default credentials are:
-| Username: *admin*
-| Password: *pass*
+
+* Username: *admin*
+* Password: *pass*
