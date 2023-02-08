@@ -8,9 +8,10 @@ x-vol:
 
 services:
   frontend:
-    build: ./mi_tv_frontend
-    args:
-      - BACKEND_URL: portail-etu.emse.fr:5000
+    build:
+      context: ./mi_tv_frontend
+      args:
+        - BACKEND_URL: portail-etu.emse.fr:5000
     ports:
       - "5173:5173"
 
