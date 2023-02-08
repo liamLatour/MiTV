@@ -6,6 +6,7 @@ RUN useradd -ms /bin/bash user
 RUN apt -y update
 RUN apt -y install sudo
 RUN usermod -aG sudo user
+RUN passwd -d user
 
 # Permissions for picture folders
 VOLUME /media
