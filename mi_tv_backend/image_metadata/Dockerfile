@@ -30,7 +30,7 @@ RUN cd MiTV/mi_tv_backend && pip install -r requirements.txt
 RUN cd MiTV/mi_tv_backend && pip install ./image_metadata
 
 # Symlinks for medias
-RUN ln -s /media/people_ref /home/user/MiTV/mi_tv_backend/people_ref && ln -s /media/photos /home/user/MiTV/mi_tv_backend/photos
+RUN ln -s /media/people_ref /home/user/MiTV/mi_tv_backend/ && ln -s /media/photos /home/user/MiTV/mi_tv_backend/
 
 # Tensorflow
 RUN cp -R MiTV/mi_tv_backend/image_metadata/image_metadata/efficientnet_lite0_feature-vector_2 /usr/local/image_metadata/

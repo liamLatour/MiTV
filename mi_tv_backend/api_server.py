@@ -184,7 +184,7 @@ def update(dirname):
     if request.method == "POST":
         # Check if it has the right to
         if request.json["login"] not in allowed_cookies:
-            return "Vous n'etes pas connecté."
+            return "Vous n'êtes pas connecté."
 
         db_interface.update_folder_info(dirname, request.json["metaData"])
         db_interface.update_folder_representation(Path(dirname).parent.absolute())
@@ -285,7 +285,7 @@ def get_photos_uuid(uuid):
                 path:
                   type: string
                   example: photos/perm/IMG_13.jpg
-                closeness:
+                closeness:v
                   type: number
                   format: float
                   example: 0.87
