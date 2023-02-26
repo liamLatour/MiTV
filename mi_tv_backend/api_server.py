@@ -95,7 +95,7 @@ def upload_files():
         
         event_name = request.form["event_name"]
         association = request.form["association"]
-        save_path = join(join(getcwd(), "uploadDir"), association + '-' + event_name)
+        save_path = join(join(getcwd(), "photos"), association + '-' + event_name)
         Path(save_path).mkdir(parents=True, exist_ok=False)
         db_interface.add_folder_info(save_path, event_name, association)
         

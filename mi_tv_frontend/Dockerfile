@@ -20,8 +20,8 @@ WORKDIR /home/user
 RUN git clone "https://github.com/liamLatour/MiTV.git"
 RUN cd MiTV/mi_tv_frontend && npm i
 RUN cd MiTV/mi_tv_frontend && npm run build
-RUN cd MiTV/mi_tv_frontend/src && sed -i "s#http://backend:5000#${BACKEND_URL}#g" http-common.ts
-RUN cd MiTV/mi_tv_frontend && sed -i "s#http://frontend:5173#${FRONTEND_URL}#g" vite.config.ts
+RUN cd MiTV/mi_tv_frontend/src && sed -i "s#http://backend:5000/#${BACKEND_URL}#g" http-common.ts
+RUN cd MiTV/mi_tv_frontend && sed -i "s#http://frontend:5173/#${FRONTEND_URL}#g" vite.config.ts
 
 # Port for front-end
 EXPOSE 5173
