@@ -11,8 +11,8 @@ services:
     build:
       context: ./mi_tv_frontend
       args:
-        - BACKEND_URL: https://portail-etu.emse.fr/mitv/api
-        - FRONTEND_URL: https://portail-etu.emse.fr/mitv
+        BACKEND_URL: "https://portail-etu.emse.fr/mitv/api"
+        FRONTEND_URL: "https://portail-etu.emse.fr/mitv"
     ports:
       - "5173:5173"
 
