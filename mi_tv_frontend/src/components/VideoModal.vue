@@ -6,7 +6,7 @@
     <!--Header-->
     <div class="h-12" ref="header">
       <div class="absolute right-2 m-1 text-white text-3xl">
-        <a :href="'http://backend:5000/vdownload/' + video" class="" download>
+        <a :href="backendURL + 'vdownload/' + video" class="" download>
           <font-awesome-icon
             icon="fa-solid fa-download"
             class="m-1 mr-4 hover:text-gray-300"
@@ -26,7 +26,7 @@
       <div>
         <video
           ref="video"
-          :src="'http://backend:5000/vmedia/' + video"
+          :src="backendURL + 'vmedia/' + video"
           autoplay="true"
           loop="true"
           disablePictureInPicture
@@ -110,6 +110,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { backendURL } from "../http-common";
 
 export default defineComponent({
   name: "VideoModal",
@@ -121,6 +122,10 @@ export default defineComponent({
     show: {
       type: Boolean,
       default: false,
+    },
+    backendURL: {
+      type: String,
+      default: backendURL,
     },
   },
   data() {

@@ -39,7 +39,7 @@
 
       <ImageItem
         v-if="media.type == 'pic'"
-        :source="'http://backend:5000/media_low_res/' + media.path"
+        :source="backendURL + 'media_low_res/' + media.path"
         @click="openImage(index)"
         class="cursor-pointer image-anim"
       />
@@ -51,7 +51,7 @@
         />
 
         <ImageItem
-          :source="'http://backend:5000/media_low_res/' + media.path"
+          :source="backendURL + 'media_low_res/' + media.path"
           alt="image introuvable"
           @click="openVideo(index)"
           class="cursor-pointer image-anim"
@@ -60,7 +60,7 @@
 
       <div v-if="media.type == 'dir'">
         <ImageItem
-          :source="'http://backend:5000/media_low_res/' + media.thumbnail"
+          :source="backendURL +  'media_low_res/' + media.thumbnail"
           alt="image introuvable"
           class="cursor-pointer image-anim"
         />
@@ -93,6 +93,7 @@ import { defineComponent } from "vue";
 import ImageItem from "./ImageItem.vue";
 import ImageModal from "./ImageModal.vue";
 import VideoModal from "./VideoModal.vue";
+import { backendURL } from "../http-common";
 
 export default defineComponent({
   name: "GalleryViewer",
@@ -127,6 +128,10 @@ export default defineComponent({
     thumbnail: {
       type: String,
       default: "",
+    },
+    backendURL: {
+      type: String,
+      default: backendURL,
     },
   },
   created() {

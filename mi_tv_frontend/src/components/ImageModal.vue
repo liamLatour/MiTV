@@ -9,7 +9,7 @@
     <div class="h-12">
       <div class="absolute right-2 m-1 text-white text-3xl">
         <a
-          :href="'http://backend:5000/download/' + images[currentImg]"
+          :href="backendURL + 'download/' + images[currentImg]"
           class=""
           download
         >
@@ -30,7 +30,7 @@
     <!--Image-->
     <div class="m-auto min-h-0 min-w-0">
       <img
-        :src="'http://backend:5000/media/' + images[currentImg]"
+        :src="backendURL + 'media/' + images[currentImg]"
         alt="image introuvable"
         v-on:click.stop
         ref="image"
@@ -55,7 +55,7 @@
         <img
           v-for="(url, index) in images"
           :key="index"
-          :src="'http://backend:5000/media_low_res/' + url"
+          :src="backendURL + 'media_low_res/' + url"
           class="h-full p-1 cursor-pointer image-anim"
           alt="image introuvable"
           @click="currentImg = index"
@@ -69,6 +69,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import EXIF from "exif-js";
+import { backendURL } from "../http-common";
 
 export default defineComponent({
   name: "ImageModal",
@@ -80,6 +81,10 @@ export default defineComponent({
     show: {
       type: Boolean,
       default: false,
+    },
+    backendURL: {
+      type: String,
+      default: backendURL,
     },
   },
   data: function () {

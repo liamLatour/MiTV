@@ -27,7 +27,7 @@ RUN cd MiTV/mi_tv_backend && pip install -r requirements.txt
 RUN cd MiTV/mi_tv_backend && pip install ./image_metadata
 
 # Symlinks for medias
-RUN ln -s /media/people_ref /home/user/MiTV/mi_tv_backend/people_ref && ln -s /media/photos /home/user/MiTV/mi_tv_backend/photos
+RUN ln -s /media/people_ref /home/user/MiTV/mi_tv_backend/ && ln -s /media/photos /home/user/MiTV/mi_tv_backend/
 
 # Port for front-end
 EXPOSE 5000
