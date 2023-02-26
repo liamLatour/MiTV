@@ -1,8 +1,8 @@
-# URL for backend
-ARG BACKEND_URL
-
 # Base image
 FROM node:17
+
+# URL for backend
+ARG BACKEND_URL
 
 # Create a user and give it permissions
 RUN useradd -ms /bin/bash user
