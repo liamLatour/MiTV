@@ -11,7 +11,7 @@ RUN passwd -d user
 # Permissions for picture folders
 VOLUME /media
 RUN groupadd -r picvol && usermod -aG picvol user
-RUN mkdir -p /media/people_ref /media/photos && chown -R user:picvol /media
+RUN mkdir -p /media && chown -R user:picvol /media
 
 # Change to user
 USER user
@@ -27,6 +27,7 @@ RUN cd MiTV/mi_tv_backend && pip install -r requirements.txt
 RUN cd MiTV/mi_tv_backend && pip install ./image_metadata
 
 # Symlinks for medias
+RUN mkdir -p /media/people_ref /media/photos
 RUN ln -s /media/people_ref /home/user/MiTV/mi_tv_backend/ && ln -s /media/photos /home/user/MiTV/mi_tv_backend/
 
 # Port for front-end
