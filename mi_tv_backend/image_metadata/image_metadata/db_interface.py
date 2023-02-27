@@ -9,6 +9,7 @@ from pymongo import DESCENDING, MongoClient
 
 from .vid_handler import Videos
 
+videos = Videos()
 client = MongoClient()
 
 # Get database
@@ -217,10 +218,10 @@ def update_folder_representation(folder_path):
                     media_data["is_portrait"] = get_orientation_ai_meta(path)
                     media_data["others"] = others
                     media["files"].append(media_data)
-            elif Videos.is_supported(path):
+            elif videos.is_supported(path):
                 media_data["type"] = "vid"
                 media["files"].append(media_data)
-        elif isdir(path) and Videos.small_dir_name not in basename(f):
+        elif isdir(path) and videos.small_dir_name not in basename(f):
             media_data["type"] = "dir"
             media_data = media_data | get_folder_info(path)
             media["files"].append(media_data)
