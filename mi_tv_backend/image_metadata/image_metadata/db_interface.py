@@ -193,8 +193,7 @@ def get_folder_representation(folder_path):
     representation = col_folders_meta.find_one({"path": path}, {"_id":0})
     
     if representation == None or "representation" not in representation:
-        update_folder_representation(folder_path)
-        representation = col_folders_meta.find_one({"path": path}, {"_id":0})
+        return update_folder_representation(folder_path)
         
     return loads(representation["representation"])
 
@@ -227,6 +226,7 @@ def update_folder_representation(folder_path):
             media["files"].append(media_data)
     
     add_data_safely(col_folders_meta, folder_path, {"representation": dumps(media)})
+    return media
 
 def update_folders_hash(folder_paths):
     for path in folder_paths:
