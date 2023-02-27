@@ -35,5 +35,9 @@ RUN ln -s /media/people_ref /home/user/MiTV/mi_tv_backend/ && ln -s /media/photo
 # Tensorflow
 RUN cp -R MiTV/mi_tv_backend/image_metadata/image_metadata/efficientnet_lite0_feature-vector_2 /usr/local/image_metadata/
 
+# Video processor
+RUN wget -O ffmpeg.tar.xz https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz
+RUN tar -xf ffmpeg.tar.xz && mv home/user/ffmpeg/bin/* /home/user/.local/bin
+
 # Set CMD to start the front-end
 CMD cd MiTV/mi_tv_backend && meta_data_creation --prerun --continuous --immediate ./people_ref ./photos
