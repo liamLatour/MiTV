@@ -3,6 +3,8 @@ version: "3.9"
 x-vol:
   &vol
   type: bind
+  bind:
+    propagation: rshared
   source: ../appdata
   target: /media
 

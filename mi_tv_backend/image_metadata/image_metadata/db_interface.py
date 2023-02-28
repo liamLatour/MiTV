@@ -291,7 +291,7 @@ def get_thumbnail(folder_path):
     v_folder = join(folder_path, vids.small_dir_name)
     if isdir(v_folder):
         for f in listdir(v_folder):
-            _path = sanitize_path(join(folder_path, f))
+            _path = sanitize_path(join(v_folder, f))
             if isfile(_path) and imghdr.what(_path) == "jpeg":
                 return _path
         
