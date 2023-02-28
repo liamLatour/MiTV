@@ -1,9 +1,0 @@
-Pillow
-checksumdir
-click
-face-recognition
-numpy
-scipy
-tensorflow
-tensorflow-hub
-watchdog

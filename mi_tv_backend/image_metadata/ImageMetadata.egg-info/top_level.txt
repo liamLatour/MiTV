@@ -1,3 +1,0 @@
-image_metadata
-meta_data_creation
-print_metadata

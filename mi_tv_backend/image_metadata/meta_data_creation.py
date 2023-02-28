@@ -3,7 +3,7 @@ import threading
 import time
 
 import click
-from watchdog.events import PatternMatchingEventHandler
+from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 from image_metadata import (ImageOrientation, ImageSimilarity, Photos,
@@ -73,9 +73,11 @@ class MetadataCreation():
         
         if self.continuous:
             # event handler
-            event_handler = PatternMatchingEventHandler(["*"], None, False, True)
+            event_handler = FileSystemEventHandler(["*"], None, False, True)
             event_handler.on_created  = self.event_handler
             event_handler.on_deleted  = self.event_handler
+            event_handler.on_modified = self.event_handler
+            event_handler.on_moved    = self.event_handler
             
             # observer
             observer = Observer()
@@ -85,7 +87,7 @@ class MetadataCreation():
             observer.start()
                 
             # ref event handler
-            ref_event_handler = PatternMatchingEventHandler(["*"], None, False, True)
+            ref_event_handler = FileSystemEventHandler(["*"], None, False, True)
             ref_event_handler.on_modified = self.ref_event_handler
             ref_event_handler.on_created  = self.ref_event_handler
             ref_event_handler.on_moved    = self.ref_event_handler

@@ -22,9 +22,9 @@ ENV PATH="${PATH}:/home/user/.local/bin"
 
 # Get MiTV
 RUN git clone "https://github.com/liamLatour/MiTV.git"
-RUN cd MiTV/mi_tv_backend && pip install cmake
-RUN cd MiTV/mi_tv_backend && pip install -r requirements.txt
-RUN cd MiTV/mi_tv_backend && pip install ./image_metadata
+RUN cd MiTV/mi_tv_backend && python -m pip install cmake
+RUN cd MiTV/mi_tv_backend && python -m pip install -r requirements.txt
+RUN cd MiTV/mi_tv_backend && python -m pip install ./image_metadata
 
 # Symlinks for medias
 RUN mkdir -p /media/people_ref /media/photos
