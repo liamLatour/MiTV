@@ -32,7 +32,7 @@ class Videos():
                 continue
 
             if self.is_supported(f):
-                if self . small_dir_name not in listdir(path):
+                if self.small_dir_name not in listdir(path):
                     mkdir(join(path, self.small_dir_name))
 
                 click.echo("Treating " + f + " : ", nl=False)

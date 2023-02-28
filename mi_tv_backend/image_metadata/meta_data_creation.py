@@ -1,4 +1,4 @@
-from os.path import isfile, dirname, isdir, realpath
+from os.path import isfile, dirname, isdir, realpath, basename
 import threading
 import time
 
@@ -107,6 +107,7 @@ class MetadataCreation():
                 ref_observer.join()
 
     def event_handler(self, event):
+        click.echo("OUAIS OUAIS OAUS")
         path = event.src_path
         
         if isfile(path):
@@ -120,6 +121,9 @@ class MetadataCreation():
         
         if path not in self.to_compute:
             click.echo(path)
+
+            if isdir(path) and self.vid.small_dir_name in basename(path):
+                return
             
             self.to_compute.append(path)
         

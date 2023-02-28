@@ -287,6 +287,14 @@ def get_thumbnail(folder_path):
         _path = sanitize_path(join(folder_path, f))
         if isfile(_path) and imghdr.what(_path) == "jpeg":
             return _path
+    
+    v_folder = join(folder_path, vids.small_dir_name)
+    if isdir(v_folder):
+        for f in listdir(v_folder):
+            _path = sanitize_path(join(folder_path, f))
+            if isfile(_path) and imghdr.what(_path) == "jpeg":
+                return _path
+        
     return default_folder_meta["thumbnail"]
 
 def add_data_safely(collection, path, data, method="$set"):

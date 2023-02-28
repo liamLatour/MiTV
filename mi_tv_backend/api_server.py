@@ -25,6 +25,8 @@ app = Flask(__name__)
 swagger = Swagger(app)
 CORS(app)
 
+vids = Videos()
+
 # This is temp until fusion with portail-etu
 allowed_cookies = []
 
@@ -324,8 +326,8 @@ def get_media_low_res(filename):
       200:
         description: File (Werkzeug FileStorage object) containing the preview image.
     """
-    if splitext(basename(filename))[1][1:] in Videos.supported_formats:
-        filename = join(dirname(filename), Videos.small_dir_name, splitext(basename(filename))[0]) + ".jpg"
+    if splitext(basename(filename))[1][1:] in vids.supported_formats:
+        filename = join(dirname(filename), vids.small_dir_name, splitext(basename(filename))[0]) + ".jpg"
 
     image = Image.open(filename)
     image = image.resize((500, round(image.size[1]/(image.size[0]/500))),Image.Resampling.NEAREST)
@@ -387,7 +389,7 @@ def get_vmedia(filename):
       200:
         description: File (Werkzeug FileStorage object) containing the compressed video.
     """
-    return send_file(join(dirname(filename), Videos.small_dir_name, splitext(basename(filename))[0]) + ".mp4", mimetype="video/mp4")
+    return send_file(join(dirname(filename), vids.small_dir_name, splitext(basename(filename))[0]) + ".mp4", mimetype="video/mp4")
 
 @app.route("/vdownload/<path:filename>")
 def get_download_vmedia(filename):

@@ -6,6 +6,8 @@ import multiprocessing
 from .vid_handler import Videos
 from . import db_interface
 
+vids = Videos()
+
 class Images():
     def __init__(self, ignore_change=False) -> None:
         # Set to true to recompute even if no changes have been made to the folder
@@ -19,7 +21,7 @@ class Images():
                 self.parse_imgs(path)
     
     def parse_imgs(self, path):
-        if Videos.small_dir_name in basename(path):
+        if vids.small_dir_name in basename(path):
             return
 
         if self.multiprocessing:

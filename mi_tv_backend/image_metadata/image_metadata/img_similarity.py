@@ -15,6 +15,8 @@ import click
 from .vid_handler import Videos
 from . import db_interface
 
+vids = Videos()
+
 ##
 #   CAREFUl: This assumes similar photos are in order
 ##
@@ -45,7 +47,7 @@ class ImageSimilarity():
     def run(self, paths):
         for path in paths:
             assert isdir(path)
-            if Videos.small_dir_name not in basename(path) and db_interface.folder_changed(path):
+            if vids.small_dir_name not in basename(path) and db_interface.folder_changed(path):
                 self.parse_imgs(path)
 
     def parse_imgs(self, path):
