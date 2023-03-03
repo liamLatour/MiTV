@@ -33,7 +33,7 @@ class Images():
         imgs_paths = []
         
         for f in listdir(path):
-            _path = self.sanitize(join(path, f))
+            _path = abspath(db_interface.sanitize_path(join(path, f)))
             
             if isfile(_path) and imghdr.what(_path) == "jpeg":
                 imgs_paths.append(_path)

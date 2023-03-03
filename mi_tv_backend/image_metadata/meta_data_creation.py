@@ -1,4 +1,4 @@
-from os.path import isfile, dirname, isdir, realpath, basename
+from os.path import isfile, dirname, isdir, realpath, basename, relpath
 import threading
 import time
 
@@ -76,7 +76,6 @@ class MetadataCreation():
             event_handler = FileSystemEventHandler()        # ["*"], None, False, True
             event_handler.on_created  = self.event_handler
             event_handler.on_deleted  = self.event_handler
-            event_handler.on_modified = self.event_handler
             event_handler.on_moved    = self.event_handler
             
             # observer
@@ -107,14 +106,21 @@ class MetadataCreation():
                 ref_observer.stop()
                 ref_observer.join()
 
+    def actual_path(self, path):
+        cur_real_path = realpath(self.image_root_paths[0])
+        path = realpath(path)
+        path = relpath(path, cur_real_path)
+
+        return path.join(dirname(cur_real_path), path)
+
     def event_handler(self, event):
         path = event.src_path
         
         if isfile(path):
             path = dirname(path)
         elif isdir(path):
-            db_interface.update_folder_representation(dirname(path))
-            db_interface.update_folder_representation(path)
+            db_interface.update_folder_representation(self.actual_path(path))
+            # db_interface.update_folder_representation(path)
         else:
             click.echo(path + " is not dir or file")
             return
@@ -167,7 +173,10 @@ class MetadataCreation():
             self.vid.run(image_paths)
             click.echo("Videos finished in: " + str(time.time()-t1))
             
-            db_interface.update_folders_hash(image_paths)
+            tmp = []
+            for path in image_paths:
+                tmp.append(self.actual_path(path))
+            db_interface.update_folders_hash(tmp)
         
         t1 = time.time()
         click.echo("Face recognition")
