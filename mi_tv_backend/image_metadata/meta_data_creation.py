@@ -91,6 +91,7 @@ class MetadataCreation():
             ref_event_handler.on_modified = self.ref_event_handler
             ref_event_handler.on_created  = self.ref_event_handler
             ref_event_handler.on_moved    = self.ref_event_handler
+            ref_event_handler.on_deleted  = self.ref_event_handler
             
             # ref observer
             ref_observer = Observer()
@@ -107,7 +108,6 @@ class MetadataCreation():
                 ref_observer.join()
 
     def event_handler(self, event):
-        click.echo("OUAIS OUAIS OAUS")
         path = event.src_path
         
         if isfile(path):
@@ -130,7 +130,7 @@ class MetadataCreation():
             if self.nightly:
                 # 24 h = 86400 sec
                 cur_time = int(time.time())
-                delay = cur_time - cur_time%86400 + 86400 # midnight gmt
+                delay = cur_time - cur_time % 86400 + 86400 # midnight gmt
             else:
                 delay = self.delay
 
@@ -138,7 +138,9 @@ class MetadataCreation():
     
     def create_metadata(self, image_paths=None, full=True):
         if image_paths == None:
-            image_paths = self.image_root_paths
+            image_paths = []
+            for path in self.image_root_paths:
+                image_paths.append(realpath(path))
 
         t = time.time()
         

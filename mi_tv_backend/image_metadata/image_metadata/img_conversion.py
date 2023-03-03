@@ -4,6 +4,7 @@ from os.path import join, abspath, isfile, isdir, splitext, basename
 from os import listdir
 from .parallel_images import Images
 from .vid_handler import Videos
+from . import db_interface
 import click
 import multiprocessing
 
@@ -25,7 +26,7 @@ class ImageFormatHandler(Images):
         imgs_paths = []
         
         for f in listdir(path):
-            _path = self.sanitize(join(path, f))
+            _path = abspath(db_interface.sanitize_path(join(path, f)))
             
             if isfile(_path) and self.is_supported_format(_path):
                 imgs_paths.append(abspath(_path))
