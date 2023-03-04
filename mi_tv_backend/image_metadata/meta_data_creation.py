@@ -111,6 +111,9 @@ class MetadataCreation():
         path = realpath(path)
         path = relpath(path, abs_beg_path)
 
+        if (path == '.'):
+            path = ""
+
         return join(abs_beg_path.split("/")[-1], path)
 
     def event_handler(self, event):

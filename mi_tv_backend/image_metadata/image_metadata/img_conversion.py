@@ -1,7 +1,7 @@
 import imghdr
 from PIL import Image
-from os.path import join, abspath, isfile, isdir, splitext, basename
-from os import listdir
+from os.path import join, abspath, isfile, isdir, splitext, basename, dirname
+from os import listdir, rename
 from .parallel_images import Images
 from .vid_handler import Videos
 from . import db_interface
@@ -28,7 +28,7 @@ class ImageFormatHandler(Images):
         for f in listdir(path):
             _path = abspath(db_interface.sanitize_path(join(path, f)))
             
-            if isfile(_path) and self.is_supported_format(_path):
+            if isfile(_path) and self.is_supported_format(_path) and (basename(_path)[0] != '.'):
                 imgs_paths.append(abspath(_path))
             elif isdir(_path):
                 self.parse_imgs(_path)
@@ -44,6 +44,11 @@ class ImageFormatHandler(Images):
             
             image = image.convert("RGB")
             image.save(splitext(path)[0] + ".jpg")
+
+        filename = basename(path)
+        filename = '.' + filename
+        dir = dirname(path)
+        rename(path, join(dir, filename))
 
     def is_supported_format(self, path):
         supported_formats = ["bmp", "png", "webp", "tiff", "gif"]
