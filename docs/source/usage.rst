@@ -71,6 +71,10 @@ Install MiTV and run the containers
 
      docker compose up
 
+.. warning::
+
+   On machines with not a lot of memory, this may crash. Try building, for example, the backend first with *docker-compose build backend*
+
 Using the website
 -----------------
 

@@ -1,13 +1,51 @@
 import face_recognition
 import numpy as np
 import click
+from os.path import isdir, isfile, join, abspath, basename
+from os import listdir, cpu_count
+import imghdr
+import multiprocessing
 from .parallel_images import Images
 from . import db_interface
+from .vid_handler import Videos
+
+vids = Videos()
 
 encoding_version = 1
 
+class SubImages(Images):
+   def parse_imgs(self, path):
+        if vids.small_dir_name in basename(path):
+            return
+
+        if self.multiprocessing:
+            context = multiprocessing
+            if "forkserver" in multiprocessing.get_all_start_methods():
+                context = multiprocessing.get_context("forkserver")
+            pool = context.Pool(processes=(cpu_count() / 4)) # None is max number
+            
+        imgs_paths = []
+        
+        for f in listdir(path):
+            _path = abspath(db_interface.sanitize_path(join(path, f)))
+            
+            if isfile(_path) and imghdr.what(_path) == "jpeg":
+                imgs_paths.append(_path)
+            elif isdir(_path):
+                self.parse_imgs(_path)
+
+        if self.multiprocessing:
+            res = pool.starmap(self.treat_img, zip(imgs_paths))
+        else:
+            res = []
+            for path in imgs_paths:
+                res.append(self.treat_img(path))
+
+        # Decompress received data
+        self.decompress_data(res)
+
 # Only one folder
-class References(Images):
+class References(SubImages):
    def __init__(self, path) -> None:
       super().__init__(ignore_change=True)
       
@@ -44,7 +82,7 @@ class References(Images):
             self.face_encodings.append(encoding[0])
             self.face_paths.append(path)
       
-class Photos(Images):
+class Photos(SubImages):
    def __init__(self, references) -> None:
       super().__init__()
       self.ref = references
