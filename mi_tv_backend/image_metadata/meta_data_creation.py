@@ -1,4 +1,4 @@
-from os.path import isfile, dirname, isdir, realpath, basename, relpath
+from os.path import isfile, dirname, isdir, realpath, basename, relpath, join
 import threading
 import time
 
@@ -111,7 +111,7 @@ class MetadataCreation():
         path = realpath(path)
         path = relpath(path, cur_real_path)
 
-        return path.join(dirname(cur_real_path), path)
+        return join(cur_real_path.split("/")[-1], path)
 
     def event_handler(self, event):
         path = event.src_path
