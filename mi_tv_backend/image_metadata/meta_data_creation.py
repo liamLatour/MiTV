@@ -180,7 +180,7 @@ class MetadataCreation():
         
         t1 = time.time()
         click.echo("Face recognition")
-        self.face_recognition.run(image_paths)
+        #self.face_recognition.run(image_paths)
         click.echo("Face recognition finished in: " + str(time.time()-t1))
 
         click.echo("Finished in: " + str(time.time()-t))
