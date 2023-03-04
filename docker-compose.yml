@@ -34,3 +34,11 @@ services:
     image: "mongo:6"
     ports:
       - "27017:27017"
+    volumes:
+      - type: volume
+        source: mongodb_data_volume
+        target: /data/db
+
+volumes:
+  mongodb_data_volume:
+    external: true

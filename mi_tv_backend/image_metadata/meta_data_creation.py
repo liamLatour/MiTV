@@ -122,8 +122,8 @@ class MetadataCreation():
         if isfile(path):
             path = dirname(path)
         elif isdir(path):
+            db_interface.update_folder_representation(dirname(self.actual_path(path)))
             db_interface.update_folder_representation(self.actual_path(path))
-            # db_interface.update_folder_representation(path)
         else:
             click.echo(path + " is not dir or file")
             return

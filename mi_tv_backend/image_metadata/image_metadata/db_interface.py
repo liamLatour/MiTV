@@ -193,7 +193,7 @@ def get_folder_representation(folder_path):
     path = sanitize_path(folder_path)
     representation = col_folders_meta.find_one({"path": path}, {"_id":0})
     
-    if representation == None or "representation" not in representation or folder_changed(folder_path):
+    if representation == None or "representation" not in representation:
         return update_folder_representation(folder_path)
         
     return loads(representation["representation"])
