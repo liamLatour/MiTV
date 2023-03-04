@@ -3,6 +3,7 @@ import numpy as np
 import click
 from os.path import isdir, isfile, join, abspath, basename
 from os import listdir, cpu_count
+from math import floor
 import imghdr
 import multiprocessing
 from .parallel_images import Images
@@ -22,7 +23,7 @@ class SubImages(Images):
             context = multiprocessing
             if "forkserver" in multiprocessing.get_all_start_methods():
                 context = multiprocessing.get_context("forkserver")
-            pool = context.Pool(processes=(cpu_count() / 4)) # None is max number
+            pool = context.Pool(processes=floor(cpu_count() / 4)) # None is max number
             
         imgs_paths = []
         
