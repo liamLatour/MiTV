@@ -107,11 +107,11 @@ class MetadataCreation():
                 ref_observer.join()
 
     def actual_path(self, path):
-        cur_real_path = realpath(self.image_root_paths[0])
+        abs_beg_path = realpath(self.image_root_paths[0])
         path = realpath(path)
-        path = relpath(path, cur_real_path)
+        path = relpath(path, abs_beg_path)
 
-        return join(cur_real_path.split("/")[-1], path)
+        return join(abs_beg_path.split("/")[-1], path)
 
     def event_handler(self, event):
         path = event.src_path
@@ -131,7 +131,7 @@ class MetadataCreation():
             if isdir(path) and self.vid.small_dir_name in basename(path):
                 return
             
-            self.to_compute.append(path)
+            self.to_compute.append(self.actual_path(path))
         
             if self.nightly:
                 # 24 h = 86400 sec
@@ -152,7 +152,11 @@ class MetadataCreation():
         
         click.echo("Started on paths:" + str(image_paths))
         
-        if full:
+        tmp = []
+        for path in image_paths:
+            tmp.append(self.actual_path(path))
+
+        if full:               
             t1 = time.time()
             click.echo("Format")
             self.format.run(image_paths)
@@ -160,12 +164,12 @@ class MetadataCreation():
         
             t1 = time.time()
             click.echo("Orientation")
-            self.orientation.run(image_paths)
+            self.orientation.run(tmp)
             click.echo("Orientation finished in: " + str(time.time()-t1))
 
             t1 = time.time()
             click.echo("Similarity")
-            self.similarity.run(image_paths)
+            self.similarity.run(tmp)
             click.echo("Similarity finished in: " + str(time.time()-t1))
             
             t1 = time.time()
@@ -173,14 +177,11 @@ class MetadataCreation():
             self.vid.run(image_paths)
             click.echo("Videos finished in: " + str(time.time()-t1))
             
-            tmp = []
-            for path in image_paths:
-                tmp.append(self.actual_path(path))
             db_interface.update_folders_hash(tmp)
         
         t1 = time.time()
         click.echo("Face recognition")
-        #self.face_recognition.run(image_paths)
+        #self.face_recognition.run(tmp)
         click.echo("Face recognition finished in: " + str(time.time()-t1))
 
         click.echo("Finished in: " + str(time.time()-t))
