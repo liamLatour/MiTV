@@ -105,7 +105,7 @@ def upload_files():
             f = request.files[file]
             f.save(join(save_path, secure_filename(f.filename)))
         
-        return "File uploaded successfully"
+        return "Envoyé avec succès"
 
 @app.route("/upload_ref", methods=["POST"])
 def upload_ref():

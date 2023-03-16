@@ -1,4 +1,5 @@
 from os.path import isfile, dirname, isdir, realpath, basename, relpath, join
+from os import listdir
 import threading
 import time
 
@@ -48,7 +49,9 @@ def cli(continuous, nightly, prerun, ref_path, images_path):
 class MetadataCreation():
     def __init__(self, ref_path, image_root_paths, continuous, nightly, prerun):
         self.ref_path = ref_path
-        self.image_root_paths = image_root_paths
+        self.image_root_paths = []
+        for path in image_root_paths:
+            self.image_root_paths.append(realpath(path))
         self.continuous = continuous
         self.nightly = nightly
         self.prerun = prerun
@@ -148,6 +151,9 @@ class MetadataCreation():
             image_paths = []
             for path in self.image_root_paths:
                 image_paths.append(realpath(path))
+                for npath in listdir(path):
+                    if isdir(npath):
+                        db_interface.update_folders_hash(npath)
 
         t = time.time()
         
