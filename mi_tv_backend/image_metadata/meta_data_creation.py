@@ -128,9 +128,7 @@ class MetadataCreation():
             click.echo(path + " is not dir or file")
             return
         
-        if path not in self.to_compute:
-            click.echo(path)
-
+        if self.actual_path(path) not in self.to_compute:
             if isdir(path) and self.vid.small_dir_name in basename(path):
                 return
             
