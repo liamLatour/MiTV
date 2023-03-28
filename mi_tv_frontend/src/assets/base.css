@@ -59,6 +59,10 @@
   font-weight: normal;
 }
 
+html{
+  background-color: #181818;
+}
+
 body {
   color: var(--color-text);
   background: var(--color-background);

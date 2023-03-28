@@ -29,22 +29,22 @@
 
     <!--Image-->
     <div class="m-auto min-h-0 min-w-0">
-      <img
-        :src="backendURL + 'media/' + images[currentImg]"
-        alt="image introuvable"
-        v-on:click.stop
-        ref="image"
-        @loadstart="buffering = true"
-        class="max-h-full max-w-full m-auto"
-        id="img1"
-      />
-      <div class="absolute inset-0 flex justify-center items-center z-50">
+      <div class="absolute inset-0 flex justify-center items-center z-0">
         <font-awesome-icon
           icon="fa-solid fa-spinner"
           class="animate-spin text-8xl"
           v-if="buffering"
         />
       </div>
+      <img
+        :src="backendURL + 'media/' + images[currentImg]"
+        alt="image introuvable"
+        v-on:click.stop
+        ref="image"
+        @loadstart="buffering = false"
+        class="max-h-full max-w-full m-auto"
+        id="img1"
+      />
     </div>
 
     <!--Footer-->
