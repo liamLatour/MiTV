@@ -6,3 +6,4 @@ mi_tv_backend/people_ref/
 */.people
 __pycache__
 *.mp4
+docker-compose.yml

@@ -22,7 +22,7 @@
 
     <div
       class="overflow-hidden m-0.5 aspect"
-      v-for="(media, index) in medias"
+      v-for="(media, index) in sortedMedias"
       :key="media.path"
       :id="media.path"
       v-bind:class="{
@@ -78,6 +78,7 @@
 
   <ImageModal
     :images="modalImages"
+    :timestamp="timestamp"
     :show="showModal"
     @close="showModal = false"
   />
@@ -106,6 +107,7 @@ export default defineComponent({
     return {
       showModal: false,
       modalImages: [] as Array<string>,
+      timestamp: 0,
       showVModal: false,
       modalVideo: "",
       columns: 1,
@@ -134,6 +136,16 @@ export default defineComponent({
       default: backendURL,
     },
   },
+  computed: {
+    sortedMedias: function () {
+      function compare(a, b) {
+        if (a.date < b.date) return -1;
+        if (a.date > b.date) return 1;
+        return 0;
+      }
+      return [].slice.call(this.medias).sort(compare) as Object;
+    },
+  },
   created() {
     for (let i in this.$route.params.path as Array<string>) {
       this.media_url += this.$route.params.path[i] + "/";
@@ -149,18 +161,19 @@ export default defineComponent({
     openImage(i: string) {
       let index: number = parseInt(i);
       this.showModal = true;
+      this.timestamp = this.sortedMedias[index].date;
 
-      if (this.medias[index].others == null) {
-        this.modalImages = [this.medias[index].path];
+      if (this.sortedMedias[index].others == null) {
+        this.modalImages = [this.sortedMedias[index].path];
       } else {
-        this.modalImages = this.medias[index].others;
+        this.modalImages = this.sortedMedias[index].others;
       }
     },
     openVideo(i: string) {
       let index: number = parseInt(i);
 
       this.showVModal = true;
-      this.modalVideo = this.medias[index].path;
+      this.modalVideo = this.sortedMedias[index].path;
     },
     windowSizeChange() {
       this.columns = (window.innerWidth / 300) >> 0;

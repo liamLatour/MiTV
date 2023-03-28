@@ -10,7 +10,10 @@ from pymongo import DESCENDING, MongoClient
 from .vid_handler import Videos
 
 vids = Videos()
-client = MongoClient("database", 27017)
+try:
+    client = MongoClient()
+except:
+    client = MongoClient("database", 27017)
 
 # Get database
 db = client.mitv
@@ -117,6 +120,15 @@ def get_orientation_ai_meta(img_path):
         
     return orientation["is_portrait"]
 
+def get_date_ai_meta(img_path):
+    path = sanitize_path(img_path)
+    date = col_ai_meta.find_one({"path": path}, {"_id":0})
+    
+    if date == None or "date" not in date:
+        return 0
+        
+    return date["date"]
+
 def get_groups_ai_meta(img_path):
     path = sanitize_path(img_path)
     groups = col_ai_meta.find_one({"path": path}, {"_id":0})
@@ -132,8 +144,8 @@ def get_groups_ai_meta(img_path):
         
     return (not groups["hidden"], group)
 
-def add_orientation_ai_meta(img_path, is_portrait):
-    add_data_safely(col_ai_meta, img_path, {"is_portrait": is_portrait})
+def add_exif_ai_meta(img_path, is_portrait, date):
+    add_data_safely(col_ai_meta, img_path, {"is_portrait": is_portrait, "date": date})
 
 def add_group_ai_meta(img_path, group_nb, hidden = True):
     add_data_safely(col_ai_meta, img_path, {"group_nb": group_nb, "hidden": hidden})
@@ -216,6 +228,7 @@ def update_folder_representation(folder_path):
                 if is_not_in_group:
                     media_data["type"] = "pic"
                     media_data["is_portrait"] = get_orientation_ai_meta(path)
+                    media_data["date"] = get_date_ai_meta(path)
                     media_data["others"] = others
                     media["files"].append(media_data)
             elif vids.is_supported(path):

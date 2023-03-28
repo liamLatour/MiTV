@@ -35,7 +35,6 @@
         v-on:click.stop
         ref="image"
         @loadstart="buffering = true"
-        @load="getEXIF(); buffering = false"
         class="max-h-full max-w-full m-auto"
         id="img1"
       />
@@ -68,7 +67,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import EXIF from "exif-js";
 import { backendURL } from "../http-common";
 
 export default defineComponent({
@@ -82,6 +80,9 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    timestamp: {
+      type: Number,
+    },
     backendURL: {
       type: String,
       default: backendURL,
@@ -90,33 +91,20 @@ export default defineComponent({
   data: function () {
     return {
       currentImg: 0,
-      currentDate: "",
       buffering: true,
     };
   },
-  methods: {
-    getEXIF() {
-      let image = this.$refs.image as HTMLImageElement;
-      let url = this.$refs.image as string; // Only to please typescript
-      let that = this;
+  computed: {
+    currentDate: function () {
+      console.log(this.timestamp);
+      let d = new Date(this.timestamp * 1000);
 
-      EXIF.getData(url, function () {
-        console.log(EXIF.getAllTags(image));
-
-        const date = that.parseDate(EXIF.getTag(image, "DateTime"));
-        that.currentDate = date.toLocaleString();
-      });
-    },
-    parseDate(date: string) {
-      let parts = date.match(/(\d+)/g);
-
-      return new Date(
-        parseInt(parts![0]),
-        parseInt(parts![1]) - 1,
-        parseInt(parts![2]),
-        parseInt(parts![3]),
-        parseInt(parts![4])
-      );
+      let dformat =
+        [d.getFullYear(), d.getMonth() + 1, d.getDate()].join("/") +
+        " " +
+        " " +
+        [d.getHours(), d.getMinutes(), d.getSeconds()].join(":");
+      return dformat;
     },
   },
 });

@@ -84,8 +84,6 @@ export default defineComponent({
 
       GetMediaService.getMedia(url, { path: this.media_url })
         .then((response) => {
-          console.log(response.data);
-
           this.items = response.data.files;
           this.event_name = response.data.event_name;
           this.association = response.data.association;
