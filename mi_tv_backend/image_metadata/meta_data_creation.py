@@ -121,30 +121,51 @@ class MetadataCreation():
 
     def event_handler(self, event):
         path = event.src_path
-        
-        if isfile(path):
-            path = dirname(path)
-        elif isdir(path):
-            db_interface.update_folder_representation(dirname(self.actual_path(path)))
-            db_interface.update_folder_representation(self.actual_path(path))
-        else:
-            click.echo(path + " is not dir or file")
-            return
-        
-        if self.actual_path(path) not in self.to_compute:
-            if isdir(path) and self.vid.small_dir_name in basename(path):
-                return
-            
-            self.to_compute.append(self.actual_path(path))
-        
-            if self.nightly:
-                # 24 h = 86400 sec
-                cur_time = int(time.time())
-                delay = cur_time - cur_time % 86400 + 86400 # midnight gmt
-            else:
-                delay = self.delay
 
-            threading.Timer(delay, lambda: self.create_metadata(self.to_compute)).start()
+        match event.event_type:
+            case "created":
+                if isfile(path):
+                    path = dirname(path)
+                elif isdir(path):
+                    db_interface.update_folder_representation(dirname(self.actual_path(path)))
+                    db_interface.update_folder_representation(self.actual_path(path))
+                else:
+                    click.echo(path + " is not dir or file")
+                    return
+                
+                if self.actual_path(path) not in self.to_compute:
+                    if isdir(path) and self.vid.small_dir_name in basename(path):
+                        return
+                    
+                    self.to_compute.append(self.actual_path(path))
+                
+                    if self.nightly:
+                        # 24 h = 86400 sec
+                        cur_time = int(time.time())
+                        delay = cur_time - cur_time % 86400 + 86400 # midnight gmt
+                    else:
+                        delay = self.delay
+
+                    threading.Timer(delay, lambda: self.create_metadata(self.to_compute)).start()
+
+            case "moved":
+                npath = event.dest_path
+
+                if isfile(path):
+                    path, npath = dirname(path), dirname(npath)
+                    db_interface.update_folder_representation(self.actual_path(path))
+                    db_interface.update_folder_representation(self.actual_path(npath))
+                    db_interface.rename_file(self.actual_path(path), self.actual_path(npath))
+                elif isdir(path):
+                    db_interface.rename_folder(self.actual_path(path), self.actual_path(npath))
+
+            case "deleted":
+                if isfile(path):
+                    path = dirname(path)
+                    db_interface.update_folder_representation(self.actual_path(path))
+                    db_interface.remove_file(self.actual_path(path))
+                elif isdir(path):
+                    db_interface.remove_folder(self.actual_path(path))
     
     def create_metadata(self, image_paths=None, full=True):
         if image_paths == None:

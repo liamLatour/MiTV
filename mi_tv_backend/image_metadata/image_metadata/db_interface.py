@@ -1,6 +1,6 @@
 import imghdr
 from os import getcwd, listdir
-from os.path import basename, isabs, isdir, isfile, join, relpath
+from os.path import basename, isabs, isdir, isfile, join, relpath, dirname
 
 import checksumdir
 import numpy as np
@@ -254,6 +254,21 @@ def update_folder_info(folder_path, update):
     add_data_safely(col_folders_meta, folder_path, update)
     update_folder_representation(folder_path)
 
+def remove_folder(folder_path):
+    for f in listdir(folder_path):
+        path = join(folder_path, f)
+
+        if isfile(path) and imghdr.what(path) == "jpeg":
+                remove_file(path)
+        elif isdir(path) and vids.small_dir_name not in basename(f):
+            remove_folder(path)
+
+    remove_data_safely(col_folders_meta, folder_path)
+    update_folder_representation(dirname(folder_path))
+
+def remove_file(img_path):
+    remove_data_safely(col_ai_meta, img_path)
+
 def add_folder_info(folder_path, event_name, association, thumbnail=None, exclude_thumbnail=False):
     if thumbnail == None:
         thumbnail = get_thumbnail(folder_path)
@@ -267,6 +282,10 @@ def add_folder_info(folder_path, event_name, association, thumbnail=None, exclud
     }
     add_data_safely(col_folders_meta, folder_path, data)
     update_folder_representation(folder_path)
+
+def rename_file(old_path, new_path):
+    add_data_safely(col_ai_meta, old_path, {"path": new_path})
+    remove_data_safely(col_ai_meta, old_path, {"path": new_path})
 
 # Utilities
 
@@ -302,7 +321,11 @@ def add_data_safely(collection, path, data, method="$set"):
     worked = collection.find_one_and_update({"path": path},{method: data})
     if not worked:
         collection.insert_one({"path": path}|data)
-        
+
+def remove_data_safely(collection, path):
+    path = sanitize_path(path)
+    worked = collection.delete_one({"path": path})
+
 def folder_changed(folder_path):
     path = sanitize_path(folder_path)
     folder_hash = col_folders_meta.find_one({"path": path}, {"_id":0})
